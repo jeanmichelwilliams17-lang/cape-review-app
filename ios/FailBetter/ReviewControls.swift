@@ -61,7 +61,7 @@ struct ReviewControls: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.systemBackground))
         .onChange(of: question.id) {
             // Reset warning when question changes
             warnMissingNote = false
