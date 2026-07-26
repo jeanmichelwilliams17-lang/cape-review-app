@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAPE Admin — Question Bank Manager</title>
+  <meta name="description" content="Admin interface for managing the CAPE question bank — upload papers, browse questions, track review progress." />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- KaTeX for LaTeX preview -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+  <!-- SheetJS for client-side XLSX/CSV parsing -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── Top bar ─────────────────────────────────────────── -->
+  <header class="topbar">
+    <span class="topbar-logo">CAPE <span>Admin</span></span>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-settings-btn" id="btn-open-settings">⚙ Settings</button>
+  </header>
+
+  <!-- ── Sidebar nav ────────────────────────────────────── -->
+  <nav class="sidebar">
+    <span class="sidebar-label">Navigation</span>
+    <button class="nav-btn active" id="nav-papers" data-view="papers">
+      <span class="nav-icon">📄</span> Papers
+    </button>
+    <button class="nav-btn" id="nav-upload" data-view="upload">
+      <span class="nav-icon">⬆</span> Upload
+    </button>
+    <button class="nav-btn" id="nav-editor" data-view="editor">
+      <span class="nav-icon">✏️</span> Question Editor
+    </button>
+    <button class="nav-btn" id="nav-stats" data-view="stats">
+      <span class="nav-icon">📊</span> Stats
+    </button>
+  </nav>
+
+  <!-- ── Main content ───────────────────────────────────── -->
+  <main class="main">
+
+    <!-- === PAPERS VIEW === -->
+    <section id="view-papers" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Papers</h1>
+          <p class="page-subtitle">All exam sittings loaded in the database</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" id="btn-go-upload">⬆ Upload Paper</button>
+        </div>
+      </div>
+
+      <div id="papers-loading" class="empty-state">
+        <div class="spinner"></div>
+        <p class="empty-state-text mt-4">Loading papers…</p>
+      </div>
+
+      <div id="papers-empty" class="empty-state hidden">
+        <div class="empty-state-icon">📭</div>
+        <p class="empty-state-text">No papers loaded yet. Upload a spreadsheet to get started.</p>
+      </div>
+
+      <div id="papers-table-wrap" class="table-wrap hidden">
+        <table id="papers-table">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Paper</th>
+              <th>Year</th>
+              <th>Month</th>
+              <th>Questions</th>
+              <th>Review Progress</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="papers-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- === UPLOAD VIEW === -->
+    <section id="view-upload" class="view hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Upload Paper</h1>
+          <p class="page-subtitle">Import a CSV or XLSX file. Preview and validate before committing.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="form-group">
+          <label for="upload-paper-type">Paper Type</label>
+          <select id="upload-paper-type" class="input" style="max-width: 200px;">
+            <option value="1">Paper 1 (MCQ)</option>
+            <option value="2">Paper 2 (Structured)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dropzone" id="dropzone" role="button" tabindex="0"
+           aria-label="Drop a CSV or XLSX file here or click to browse">
+        <div class="dropzone-icon">📂</div>
+        <p class="dropzone-text"><strong>Drop a file here</strong> or click to browse</p>
+        <p class="dropzone-sub">.csv or .xlsx · Paper 1 or Paper 2 format</p>
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" hidden />
+      </div>
+
+      <!-- Validation summary -->
+      <div id="upload-summary" class="hidden mt-4">
+        <div class="flex gap-3" style="margin-bottom: 16px; flex-wrap: wrap;">
+          <span class="badge badge-green" id="summary-valid">0 valid</span>
+          <span class="badge badge-yellow" id="summary-warn">0 warnings</span>
+          <span class="badge badge-red" id="summary-error">0 errors</span>
+        </div>
+        <div class="table-wrap" style="max-height: 400px; overflow-y: auto;">
+          <table id="preview-table">
+            <thead id="preview-thead"></thead>
+            <tbody id="preview-tbody"></tbody>
+          </table>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button class="btn btn-primary" id="btn-confirm-import">✓ Confirm Import</button>
+          <button class="btn btn-ghost"   id="btn-cancel-upload">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- === QUESTION EDITOR VIEW === -->
+    <section id="view-editor" class="view hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Question Editor</h1>
+          <p class="page-subtitle">Browse and inline-edit question rows</p>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="flex gap-3" style="flex-wrap: wrap; align-items: flex-end;">
+          <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+            <label for="filter-subject">Subject</label>
+            <input id="filter-subject" class="input" placeholder="e.g. AccountingU1" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="filter-paper">Paper</label>
+            <select id="filter-paper" class="input">
+              <option value="">All</option>
+              <option value="1">Paper 1</option>
+              <option value="2">Paper 2</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="filter-year">Year</label>
+            <input id="filter-year" class="input" type="number" placeholder="e.g. 2017" style="width: 110px;" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="filter-month">Month</label>
+            <input id="filter-month" class="input" placeholder="e.g. May" style="width: 110px;" />
+          </div>
+          <button class="btn btn-primary" id="btn-filter-apply">Search</button>
+        </div>
+      </div>
+
+      <div id="editor-loading" class="empty-state hidden">
+        <div class="spinner"></div>
+        <p class="empty-state-text mt-4">Loading questions…</p>
+      </div>
+
+      <div id="editor-empty" class="empty-state hidden">
+        <div class="empty-state-icon">🔍</div>
+        <p class="empty-state-text">No questions match your filters.</p>
+      </div>
+
+      <div id="editor-table-wrap" class="table-wrap hidden">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>P</th>
+              <th>Year</th>
+              <th>Num</th>
+              <th>Raw (read-only)</th>
+              <th>Validated Code (edit)</th>
+              <th>LaTeX Preview</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="editor-tbody"></tbody>
+        </table>
+      </div>
+      <div class="flex gap-3 mt-4" id="editor-pagination" style="display:none!important;">
+        <button class="btn btn-ghost btn-sm" id="btn-prev-page">← Prev</button>
+        <span class="text-muted text-sm" id="page-info"></span>
+        <button class="btn btn-ghost btn-sm" id="btn-next-page">Next →</button>
+      </div>
+    </section>
+
+    <!-- === STATS VIEW === -->
+    <section id="view-stats" class="view hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Review Stats</h1>
+          <p class="page-subtitle">Progress across all subjects and papers</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" id="btn-refresh-stats">↺ Refresh</button>
+        </div>
+      </div>
+
+      <div id="stats-loading" class="empty-state">
+        <div class="spinner"></div>
+        <p class="empty-state-text mt-4">Loading stats…</p>
+      </div>
+
+      <div id="stats-table-wrap" class="table-wrap hidden">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Paper</th>
+              <th>Total</th>
+              <th>Reviewed</th>
+              <th>Unreviewed</th>
+              <th>Conflicts</th>
+              <th>Progress</th>
+            </tr>
+          </thead>
+          <tbody id="stats-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /.app-shell -->
+
+<!-- ── Settings panel ─────────────────────────────────────── -->
+<aside class="settings-panel" id="settings-panel" aria-label="Settings">
+  <h2 class="settings-title">Settings</h2>
+  <div class="form-group">
+    <label for="cfg-worker-url">Worker API URL</label>
+    <input id="cfg-worker-url" class="input"
+           placeholder="https://cape-review.YOUR_SUBDOMAIN.workers.dev" />
+  </div>
+  <div class="form-group">
+    <label for="cfg-api-token">Bearer Token</label>
+    <input id="cfg-api-token" class="input" type="password" placeholder="••••••••" />
+  </div>
+  <button class="btn btn-primary" id="btn-save-settings">Save</button>
+</aside>
+
+<!-- ── Delete Paper modal ──────────────────────────────────── -->
+<div class="modal-backdrop hidden" id="delete-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <h2 class="modal-title" id="delete-modal-title">Delete Paper</h2>
+    <div class="modal-body">
+      <p>This will permanently delete all questions (and choices) for:</p>
+      <p style="margin: 12px 0; font-weight: 600; color: var(--text);" id="delete-paper-label">—</p>
+      <p>Type the label below to confirm:</p>
+      <input id="delete-confirm-input" class="input" style="margin-top: 12px;"
+             placeholder="e.g. Accounting U1 May 2017" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btn-delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="btn-delete-confirm" disabled>Delete Paper</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast container ─────────────────────────────────────── -->
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

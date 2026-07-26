@@ -1,0 +1,30 @@
+name = "cape-review-worker"
+main = "src/index.ts"
+compatibility_date = "2024-05-29"
+
+# ─────────────────────────────────────────────────────────────
+# D1 Database binding
+# Replace <YOUR_DATABASE_ID> with the ID output by:
+#   wrangler d1 create cape-questions
+# ─────────────────────────────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "cape-questions"
+database_id = "24986f49-f9a6-44da-a638-2ac6efc6f649"
+
+# ─────────────────────────────────────────────────────────────
+# Secrets (set via `wrangler secret put <name>`, never commit values here)
+# ─────────────────────────────────────────────────────────────
+# API_TOKEN              — bearer token required by the iOS app and admin UI
+# IMAGEKIT_PRIVATE_KEY   — ImageKit private key for signed URL generation
+#
+# To set:
+#   wrangler secret put API_TOKEN
+#   wrangler secret put IMAGEKIT_PRIVATE_KEY
+# ─────────────────────────────────────────────────────────────
+
+[vars]
+ENVIRONMENT         = "production"
+IMAGEKIT_BASE_URL   = "https://ik.imagekit.io/9uanq8bq8"
+IMAGEKIT_PUBLIC_KEY = "public_W9/CUZW19jlpob7sKddghTz4XJc="
+IMAGEKIT_FOLDER     = "diagrams"
