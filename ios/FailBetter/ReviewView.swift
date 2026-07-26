@@ -99,9 +99,9 @@ struct ReviewView: View {
                     // Question text — render the Validated Question Code (LaTeX)
                     LaTeX(q.questionCode)
                         .parsingMode(.onlyEquations)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.body)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
 
                     // Optional diagram
                     if q.diagramPresent, let key = q.questionDiagramKey {
@@ -262,7 +262,9 @@ struct ChoiceRow: View {
             // Render the validated answer code (LaTeX)
             LaTeX(choice.answerCode)
                 .parsingMode(.onlyEquations)
-                .fixedSize(horizontal: false, vertical: true)
+                .font(.body)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
             if let key = choice.diagramKey {
                 DiagramView(diagramKey: key)
                     .frame(maxWidth: 120)
