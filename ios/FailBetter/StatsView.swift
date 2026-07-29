@@ -51,11 +51,15 @@ struct StatsView: View {
                     }
                     .padding(.vertical, 6)
                 }
+                #if os(iOS)
                 .listStyle(.insetGrouped)
+                #endif
             }
         }
         .navigationTitle("Review Stats")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
+        #endif
         .task { loadStats() }
         .refreshable { loadStats() }
     }
