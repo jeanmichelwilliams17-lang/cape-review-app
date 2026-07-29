@@ -54,7 +54,9 @@ struct SubjectPickerView: View {
                             Text("By Subject")
                         }
                     }
+                    #if os(iOS)
                     .listStyle(.insetGrouped)
+                    #endif
                 }
             }
             .navigationTitle("CAPE Review")
@@ -69,12 +71,20 @@ struct SubjectPickerView: View {
                 }
             }
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .topBarLeading) {
+                #else
+                ToolbarItem(placement: .navigation) {
+                #endif
                     NavigationLink(value: Route.stats) {
                         Image(systemName: "chart.bar.fill")
                     }
                 }
+                #if os(iOS)
                 ToolbarItem(placement: .topBarTrailing) {
+                #else
+                ToolbarItem(placement: .primaryAction) {
+                #endif
                     NavigationLink(value: Route.settings) {
                         Image(systemName: "gearshape.fill")
                     }

@@ -61,7 +61,11 @@ struct ReviewControls: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
+        #if os(iOS)
         .background(Color(.systemBackground))
+        #else
+        .background(Color(nsColor: .windowBackgroundColor))
+        #endif
         .onChange(of: question.id) {
             // Reset warning when question changes
             warnMissingNote = false
