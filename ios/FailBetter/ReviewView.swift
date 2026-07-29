@@ -45,7 +45,9 @@ struct ReviewView: View {
             }
         }
         .navigationTitle(subjectName.map { "\($0) · Paper \(paper)" } ?? "Paper \(paper) · All Subjects")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .task(id: reviewerName) {
             guard !reviewerName.isEmpty else { return }
             questions = []

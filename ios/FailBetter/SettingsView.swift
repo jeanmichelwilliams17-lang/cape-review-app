@@ -36,7 +36,9 @@ struct SettingsView: View {
                         .multilineTextAlignment(.trailing)
                         .foregroundStyle(.secondary)
                         .autocorrectionDisabled()
+                        #if os(iOS)
                         .textInputAutocapitalization(.never)
+                        #endif
                 }
                 HStack {
                     Text("Bearer Token")
@@ -45,7 +47,9 @@ struct SettingsView: View {
                         .multilineTextAlignment(.trailing)
                         .foregroundStyle(.secondary)
                         .autocorrectionDisabled()
+                        #if os(iOS)
                         .textInputAutocapitalization(.never)
+                        #endif
                 }
             } header: {
                 Text("API Configuration")
@@ -96,7 +100,9 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
+        #endif
         // Save values to UserDefaults on every keystroke via @AppStorage — no save button needed.
         .onChange(of: workerURL) { UserDefaults.standard.set(workerURL, forKey: "workerURL") }
         .onChange(of: apiToken)  { UserDefaults.standard.set(apiToken,  forKey: "apiToken")  }
