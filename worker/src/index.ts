@@ -68,12 +68,13 @@ export default {
           SELECT
             s.id,
             s.name,
+            q.year,
             SUM(CASE WHEN q.paper = 1 THEN 1 ELSE 0 END) AS p1_count,
             SUM(CASE WHEN q.paper = 2 THEN 1 ELSE 0 END) AS p2_count
           FROM subjects s
           LEFT JOIN questions q ON q.subject_id = s.id
-          GROUP BY s.id, s.name
-          ORDER BY s.name
+          GROUP BY s.id, s.name, q.year
+          ORDER BY s.name, q.year
         `).all();
         return withCors(Response.json(results));
       }
@@ -275,14 +276,15 @@ export default {
           SELECT
             s.name                                                  AS subject,
             q.paper,
+            q.year,
             COUNT(*)                                                AS total,
             SUM(CASE WHEN q.review_count > 0 THEN 1 ELSE 0 END)   AS reviewed,
             SUM(CASE WHEN q.review_count = 0 THEN 1 ELSE 0 END)   AS unreviewed,
             SUM(q.has_conflicting_reviews)                          AS conflicts
           FROM questions q
           JOIN subjects s ON s.id = q.subject_id
-          GROUP BY s.name, q.paper
-          ORDER BY s.name, q.paper
+          GROUP BY s.name, q.paper, q.year
+          ORDER BY s.name, q.paper, q.year
         `).all();
         return withCors(Response.json(results));
       }

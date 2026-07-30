@@ -6,11 +6,12 @@ import Foundation
 struct Subject: Codable, Identifiable {
     let id: Int
     let name: String
+    let year: Int?
     let p1Count: Int?
     let p2Count: Int?
 
     enum CodingKeys: String, CodingKey {
-        case id, name
+        case id, name, year
         case p1Count = "p1_count"
         case p2Count = "p2_count"
     }
@@ -125,9 +126,10 @@ struct Question: Codable, Identifiable {
 // MARK: - Stats
 
 struct SubjectStats: Codable, Identifiable {
-    var id: String { "\(subject)-\(paper)" }
+    var id: String { "\(subject)-\(paper)-\(year ?? 0)" }
     let subject: String
     let paper: Int
+    let year: Int?
     let total: Int
     let reviewed: Int
     let unreviewed: Int

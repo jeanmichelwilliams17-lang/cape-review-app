@@ -24,6 +24,11 @@ struct StatsView: View {
                         HStack {
                             Text(s.subject)
                                 .fontWeight(.semibold)
+                            if let year = s.year {
+                                Text(String(year))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                             Spacer()
                             Text("Paper \(s.paper)")
                                 .font(.caption)

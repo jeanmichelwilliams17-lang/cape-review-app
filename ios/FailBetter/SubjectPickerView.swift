@@ -7,6 +7,13 @@ struct SubjectPickerView: View {
     @State private var isLoading:   Bool      = true
     @State private var errorMsg:    String?   = nil
 
+    private var groupedSubjects: [(name: String, entries: [Subject])] {
+        let grouped = Dictionary(grouping: subjects, by: \.name)
+        return grouped.keys.sorted().map { name in
+            (name: name, entries: grouped[name]!.sorted { ($0.year ?? 0) < ($1.year ?? 0) })
+        }
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -17,7 +24,6 @@ struct SubjectPickerView: View {
                 } else {
                     List {
                         Section {
-                            // "All subjects" quick-start entries
                             NavigationLink(value: Route.review(paper: 1, subject: nil)) {
                                 SubjectRow(name: "All Subjects — Paper 1",
                                            count: subjects.compactMap(\.p1Count).reduce(0, +),
@@ -33,20 +39,35 @@ struct SubjectPickerView: View {
                         }
 
                         Section {
-                            ForEach(subjects) { subj in
+                            ForEach(groupedSubjects, id: \.name) { group in
                                 DisclosureGroup {
-                                    if let c = subj.p1Count, c > 0 {
-                                        NavigationLink(value: Route.review(paper: 1, subject: subj.name)) {
-                                            SubjectRow(name: "Paper 1", count: c, paper: 1)
-                                        }
-                                    }
-                                    if let c = subj.p2Count, c > 0 {
-                                        NavigationLink(value: Route.review(paper: 2, subject: subj.name)) {
-                                            SubjectRow(name: "Paper 2", count: c, paper: 2)
+                                    ForEach(group.entries) { subj in
+                                        if let year = subj.year {
+                                            if let c = subj.p1Count, c > 0 {
+                                                NavigationLink(value: Route.review(paper: 1, subject: subj.name)) {
+                                                    SubjectRow(name: "\(year) Paper 1", count: c, paper: 1)
+                                                }
+                                            }
+                                            if let c = subj.p2Count, c > 0 {
+                                                NavigationLink(value: Route.review(paper: 2, subject: subj.name)) {
+                                                    SubjectRow(name: "\(year) Paper 2", count: c, paper: 2)
+                                                }
+                                            }
+                                        } else {
+                                            if let c = subj.p1Count, c > 0 {
+                                                NavigationLink(value: Route.review(paper: 1, subject: subj.name)) {
+                                                    SubjectRow(name: "Paper 1", count: c, paper: 1)
+                                                }
+                                            }
+                                            if let c = subj.p2Count, c > 0 {
+                                                NavigationLink(value: Route.review(paper: 2, subject: subj.name)) {
+                                                    SubjectRow(name: "Paper 2", count: c, paper: 2)
+                                                }
+                                            }
                                         }
                                     }
                                 } label: {
-                                    Text(subj.name)
+                                    Text(group.name)
                                         .fontWeight(.medium)
                                 }
                             }
