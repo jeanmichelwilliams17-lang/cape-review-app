@@ -261,7 +261,9 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     if let r = s.range(of: #""\)$"#, options: .regularExpression) {
         s = String(s[..<r.lowerBound])
     }
-    // Only replace \n when NOT followed by a letter (avoids corrupting LaTeX commands like \neq, \nabla, \nu, etc.)
+    // Un-escape double backslashes from JSON/SQL storage (\\ → \)
+    s = s.replacingOccurrences(of: "\\\\", with: "\\")
+    // Only replace \n when NOT followed by a letter (avoids corrupting LaTeX commands)
     s = s.replacingOccurrences(of: #"\\n([^a-zA-Z])"#, with: "\n$1", options: .regularExpression)
     if s.hasSuffix("\\n") {
         s = String(s.dropLast(2)) + "\n"
