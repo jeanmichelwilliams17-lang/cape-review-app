@@ -110,6 +110,8 @@ struct ReviewView: View {
                     // Question text — render the Validated Question Code (LaTeX)
                     LaTeX(stripLaTeXWrapper(q.questionCode))
                         .parsingMode(.onlyEquations)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
                         .font(.body)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
@@ -261,6 +263,7 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     if let r = s.range(of: #""\)$"#, options: .regularExpression) {
         s = String(s[..<r.lowerBound])
     }
+    s = s.replacingOccurrences(of: "\\n", with: "\n")
     return s
 }
 
@@ -305,6 +308,8 @@ struct ChoiceRow: View {
             // Render the validated answer code (LaTeX)
             LaTeX(stripLaTeXWrapper(choice.answerCode))
                 .parsingMode(.onlyEquations)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
                 .font(.body)
                 .fontWeight(.medium)
                 .foregroundColor(.primary)
