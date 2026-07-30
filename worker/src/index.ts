@@ -35,13 +35,19 @@ export default {
 
     // ─────────────────────────────────────────────────────────────────────────
     // Auth — every non-preflight request must carry the bearer token.
+    // Images are public (ImageKit signed URLs handle their own auth).
     // ─────────────────────────────────────────────────────────────────────────
-    const authHeader = request.headers.get('Authorization');
-    if (authHeader !== `Bearer ${env.API_TOKEN}`) {
-      return new Response('Unauthorized', {
-        status: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-      });
+    const imageMatch = pathname.match(/^\/images\/([^/]+)$/);
+    const isImageRequest = imageMatch && method === 'GET';
+
+    if (!isImageRequest) {
+      const authHeader = request.headers.get('Authorization');
+      if (authHeader !== `Bearer ${env.API_TOKEN}`) {
+        return new Response('Unauthorized', {
+          status: 401,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+        });
+      }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -233,10 +239,9 @@ export default {
       }
 
       // -----------------------------------------------------------------------
-      // GET /images/:diagram_key  — live Drive proxy with edge caching
+      // GET /images/:diagram_key  — live Drive proxy with edge caching (public)
       // -----------------------------------------------------------------------
-      const imageMatch = pathname.match(/^\/images\/([^/]+)$/);
-      if (imageMatch && method === 'GET') {
+      if (isImageRequest && imageMatch) {
         return withCors(await handleImageProxy(request, env, imageMatch[1]));
       }
 
