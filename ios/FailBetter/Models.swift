@@ -66,6 +66,8 @@ struct Question: Codable, Identifiable {
     let questionCode: String               // Validated Question Code — the LaTeX string to render
     let questionDiagramKey: String?
     let diagramPresent: Bool
+    let year: Int?
+    let month: String?
     let reviewCount: Int
     let latestReviewStatus: String         // "unreviewed" | "correct" | "needs_fix"
     let hasConflictingReviews: Bool
@@ -75,7 +77,7 @@ struct Question: Codable, Identifiable {
     let reviews: [ReviewEntry]?
 
     enum CodingKeys: String, CodingKey {
-        case id, paper, number, part, subpart, section, topic, difficulty, marks
+        case id, paper, number, part, subpart, section, topic, difficulty, marks, year, month
         case subjectName          = "subject_name"
         case correctChoice        = "correct_choice"
         case questionRaw          = "question_raw"
@@ -105,6 +107,8 @@ struct Question: Codable, Identifiable {
         questionRaw          = try c.decode(String.self, forKey: .questionRaw)
         questionCode         = try c.decode(String.self, forKey: .questionCode)
         questionDiagramKey   = try c.decodeIfPresent(String.self, forKey: .questionDiagramKey)
+        year                 = try c.decodeIfPresent(Int.self,    forKey: .year)
+        month                = try c.decodeIfPresent(String.self, forKey: .month)
         reviewCount          = try c.decode(Int.self,    forKey: .reviewCount)
         latestReviewStatus   = try c.decode(String.self, forKey: .latestReviewStatus)
         choices              = try c.decodeIfPresent([Choice].self,      forKey: .choices)

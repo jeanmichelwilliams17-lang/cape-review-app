@@ -153,6 +153,14 @@ final class APIClient {
         let _: [String: Bool] = try await execute(req) // { ok: true }
     }
 
+    /// Delete a reviewer's review for a question.
+    func deleteReview(questionID: Int, reviewer: String) async throws {
+        struct Body: Encodable { let reviewer: String }
+        let body = try JSONEncoder().encode(Body(reviewer: reviewer))
+        let req  = try request(path: "questions/\(questionID)/review", method: "DELETE", body: body)
+        let _: [String: Bool] = try await execute(req)
+    }
+
     /// Fetch per-subject/paper review statistics.
     func fetchStats() async throws -> [SubjectStats] {
         let req = try request(path: "stats")

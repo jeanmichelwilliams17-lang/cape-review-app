@@ -218,6 +218,55 @@ export default {
       }
 
       // -----------------------------------------------------------------------
+      // DELETE /questions/:id/review — remove a reviewer's review
+      // -----------------------------------------------------------------------
+      const deleteReviewMatch = pathname.match(/^\/questions\/(\d+)\/review$/);
+      if (deleteReviewMatch && method === 'DELETE') {
+        const id = deleteReviewMatch[1];
+        let body: { reviewer: string };
+        try {
+          body = await request.json();
+        } catch {
+          return withCors(new Response('Invalid JSON body', { status: 400 }));
+        }
+        const { reviewer } = body;
+        if (!reviewer) {
+          return withCors(new Response('reviewer required', { status: 400 }));
+        }
+
+        const reviewerRow = await env.DB.prepare(
+          `SELECT id FROM reviewers WHERE name = ?`
+        ).bind(reviewer).first<{ id: number }>();
+
+        if (!reviewerRow) {
+          return withCors(new Response('Reviewer not found', { status: 404 }));
+        }
+
+        await env.DB.prepare(
+          `DELETE FROM reviews WHERE question_id = ? AND reviewer_id = ?`
+        ).bind(Number(id), reviewerRow.id).run();
+
+        // Recompute denormalized summary
+        const { results: recent } = await env.DB.prepare(
+          `SELECT status FROM reviews WHERE question_id = ? ORDER BY created_at DESC LIMIT 2`
+        ).bind(Number(id)).all<{ status: string }>();
+
+        const latest   = recent[0]?.status ?? 'unreviewed';
+        const conflict = (recent.length > 1 && recent[1].status !== latest) ? 1 : 0;
+        const count    = recent.length;
+
+        await env.DB.prepare(`
+          UPDATE questions
+          SET review_count = ?,
+              latest_review_status = ?,
+              has_conflicting_reviews = ?
+          WHERE id = ?
+        `).bind(count, latest, conflict, Number(id)).run();
+
+        return withCors(Response.json({ ok: true }));
+      }
+
+      // -----------------------------------------------------------------------
       // GET /stats
       // Per-subject/paper totals: total, reviewed, unreviewed, conflicting
       // -----------------------------------------------------------------------

@@ -7,6 +7,7 @@ struct ReviewControls: View {
     @Binding var note: String
     let isSubmitting: Bool
     let onSubmit:     (String) -> Void   // called with "correct" or "needs_fix"
+    let onUnreview:   () -> Void
 
     @State private var warnMissingNote = false
 
@@ -50,6 +51,18 @@ struct ReviewControls: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
+                .disabled(isSubmitting)
+            }
+
+            if question.reviewCount > 0 {
+                Button {
+                    onUnreview()
+                } label: {
+                    Label("Unreview", systemImage: "arrow.uturn.backward")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                .foregroundStyle(.secondary)
                 .disabled(isSubmitting)
             }
 

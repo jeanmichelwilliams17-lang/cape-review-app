@@ -80,6 +80,15 @@ struct ReviewView: View {
                     Text("\(q.subjectName) · Paper \(q.paper) · \(q.questionLabel)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    if let year = q.year, let month = q.month {
+                        Text("\(month) \(year)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    } else if let year = q.year {
+                        Text("\(year)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                     if let topic = q.topic {
                         Text(topic)
                             .font(.caption2)
@@ -139,7 +148,8 @@ struct ReviewView: View {
                 question:      q,
                 reviewer:      reviewerName,
                 note:          $reviewNote,
-                isSubmitting:  isSubmitting
+                isSubmitting:  isSubmitting,
+                onUnreview:    { unreview(question: q) }
             ) { status in
                 submitReview(question: q, status: status)
             }
@@ -212,6 +222,22 @@ struct ReviewView: View {
                     reviewer:   reviewerName,
                     status:     status,
                     note:       reviewNote.isEmpty ? nil : reviewNote
+                )
+                advance()
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isSubmitting = false
+        }
+    }
+
+    private func unreview(question: Question) {
+        isSubmitting = true
+        Task {
+            do {
+                try await APIClient.shared.deleteReview(
+                    questionID: question.id,
+                    reviewer:   reviewerName
                 )
                 advance()
             } catch {

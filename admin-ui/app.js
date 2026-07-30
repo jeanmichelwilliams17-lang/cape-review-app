@@ -391,6 +391,7 @@ async function loadEditorQuestions() {
           <div class="flex gap-2">
             <button class="btn btn-primary btn-sm btn-save-q" data-id="${q.id}">Save</button>
             <button class="btn btn-danger  btn-sm btn-del-q"  data-id="${q.id}">Delete</button>
+            ${q.review_count > 0 ? `<button class="btn btn-ghost btn-sm btn-unreview-q" data-id="${q.id}">Unreview</button>` : ''}
           </div>
         </td>`;
       tbody.appendChild(tr);
@@ -435,6 +436,30 @@ async function loadEditorQuestions() {
           toast('Deleted', 'success');
         } catch (err) {
           toast(`Delete failed: ${err.message}`, 'error');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Unreview button — removes all reviews for this question
+    tbody.querySelectorAll('.btn-unreview-q').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm(`Remove all reviews for question #${btn.dataset.id}?`)) return;
+        btn.disabled = true;
+        try {
+          // Fetch question detail to get reviewer names
+          const q = await api(`/questions/${btn.dataset.id}`);
+          const reviewers = (q.reviews || []).map(r => r.reviewer);
+          for (const reviewer of reviewers) {
+            await api(`/questions/${btn.dataset.id}/review`, {
+              method: 'DELETE',
+              body: JSON.stringify({ reviewer }),
+            });
+          }
+          toast('Reviews removed', 'success');
+          loadEditorQuestions();
+        } catch (err) {
+          toast(`Unreview failed: ${err.message}`, 'error');
           btn.disabled = false;
         }
       });
