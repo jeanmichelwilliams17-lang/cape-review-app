@@ -112,9 +112,8 @@ struct ReviewView: View {
                         .parsingMode(.onlyEquations)
                         .fixedSize(horizontal: false, vertical: true)
                         .multilineTextAlignment(.leading)
-                        .font(.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     // Optional diagram
                     if q.diagramPresent, let key = q.questionDiagramKey {
@@ -310,9 +309,8 @@ struct ChoiceRow: View {
                 .parsingMode(.onlyEquations)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.leading)
-                .font(.body)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
             if let key = choice.diagramKey {
                 DiagramView(diagramKey: key)
                     .frame(maxWidth: 120)
