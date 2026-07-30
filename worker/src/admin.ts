@@ -212,8 +212,20 @@ export async function handleAdminGetQuestions(
   const paper   = url.searchParams.get('paper')  ? Number(url.searchParams.get('paper'))  : null;
   const year    = url.searchParams.get('year')   ? Number(url.searchParams.get('year'))   : null;
   const month   = url.searchParams.get('month');
+  const status  = url.searchParams.get('status');
   const limit   = Number(url.searchParams.get('limit')  ?? 50);
   const cursor  = Number(url.searchParams.get('cursor') ?? 0);
+
+  let statusClause = '';
+  let statusParam: string | null = null;
+  if (status === 'unreviewed') {
+    statusClause = 'AND q.review_count = 0';
+  } else if (status === 'reviewed') {
+    statusClause = 'AND q.review_count > 0';
+  } else if (status === 'correct' || status === 'needs_fix') {
+    statusClause = 'AND q.latest_review_status = ?5';
+    statusParam = status;
+  }
 
   const { results } = await env.DB.prepare(`
     SELECT q.*, s.name AS subject_name
@@ -223,9 +235,10 @@ export async function handleAdminGetQuestions(
       AND (?2 IS NULL OR q.paper = ?2)
       AND (?3 IS NULL OR q.year  = ?3)
       AND (?4 IS NULL OR q.month = ?4)
+      ${statusClause}
     ORDER BY q.id
-    LIMIT ?5 OFFSET ?6
-  `).bind(subject, paper, year, month, limit, cursor).all();
+    LIMIT ?6 OFFSET ?7
+  `).bind(subject, paper, year, month, statusParam, limit, cursor).all();
 
   return Response.json(results);
 }

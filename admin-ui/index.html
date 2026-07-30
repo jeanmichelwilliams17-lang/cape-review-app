@@ -99,7 +99,7 @@
       <div class="card" style="margin-bottom: 24px;">
         <div class="form-group">
           <label for="upload-paper-type">Paper Type</label>
-          <select id="upload-paper-type" class="input" style="max-width: 200px;">
+          <select id="upload-paper-type" class="input select-input" style="max-width: 200px;">
             <option value="1">Paper 1 (MCQ)</option>
             <option value="2">Paper 2 (Structured)</option>
           </select>
@@ -146,16 +146,29 @@
       <!-- Filters -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="flex gap-3" style="flex-wrap: wrap; align-items: flex-end;">
-          <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+          <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
             <label for="filter-subject">Subject</label>
-            <input id="filter-subject" class="input" placeholder="e.g. AccountingU1" />
+            <div class="searchable-dropdown" id="subject-dropdown">
+              <input id="filter-subject" class="input" placeholder="Search subject…" autocomplete="off" />
+              <div class="dropdown-list hidden" id="subject-dropdown-list"></div>
+            </div>
           </div>
           <div class="form-group" style="margin: 0;">
             <label for="filter-paper">Paper</label>
-            <select id="filter-paper" class="input">
+            <select id="filter-paper" class="input select-input">
               <option value="">All</option>
               <option value="1">Paper 1</option>
               <option value="2">Paper 2</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="filter-status">Status</label>
+            <select id="filter-status" class="input select-input">
+              <option value="">All</option>
+              <option value="unreviewed">Unreviewed</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="correct">Correct</option>
+              <option value="needs_fix">Needs Fix</option>
             </select>
           </div>
           <div class="form-group" style="margin: 0;">
@@ -167,6 +180,7 @@
             <input id="filter-month" class="input" placeholder="e.g. May" style="width: 110px;" />
           </div>
           <button class="btn btn-primary" id="btn-filter-apply">Search</button>
+          <button class="btn btn-ghost" id="btn-filter-clear">Clear</button>
         </div>
       </div>
 

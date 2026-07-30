@@ -416,3 +416,58 @@ label { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
   font-size: 0.9rem;
   color: var(--text);
 }
+
+/* ── Select input (dark theme fix) ───────────────────────── */
+.select-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238890a4' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+.select-input option {
+  background: #161922;
+  color: var(--text);
+}
+
+/* ── Searchable dropdown ─────────────────────────────────── */
+.searchable-dropdown {
+  position: relative;
+  width: 100%;
+}
+.searchable-dropdown .input {
+  width: 100%;
+}
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #161922;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  z-index: 50;
+  box-shadow: var(--shadow);
+}
+.dropdown-list.hidden { display: none; }
+.dropdown-item {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.dropdown-item:hover,
+.dropdown-item.active {
+  background: var(--accent-dim);
+  color: var(--text);
+}
+.dropdown-item.active {
+  color: var(--accent);
+  font-weight: 500;
+}

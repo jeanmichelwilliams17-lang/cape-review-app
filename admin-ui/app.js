@@ -65,6 +65,7 @@ document.getElementById('btn-save-settings').addEventListener('click', () => {
   cfg.apiToken  = document.getElementById('cfg-api-token').value.trim();
   settingsPanel.classList.remove('open');
   toast('Settings saved', 'success');
+  loadSubjectList();
   loadPapers();
 });
 // Pre-fill from storage
@@ -317,6 +318,7 @@ document.getElementById('btn-confirm-import').addEventListener('click', async ()
 // ── Question Editor ───────────────────────────────────────────
 let editorCursor = 0;
 const EDITOR_LIMIT = 50;
+let allSubjects = [];
 
 document.getElementById('btn-filter-apply').addEventListener('click', () => {
   editorCursor = 0;
@@ -328,6 +330,63 @@ document.getElementById('btn-prev-page').addEventListener('click', () => {
 document.getElementById('btn-next-page').addEventListener('click', () => {
   editorCursor += EDITOR_LIMIT;
   loadEditorQuestions();
+});
+document.getElementById('btn-filter-clear').addEventListener('click', () => {
+  document.getElementById('filter-subject').value = '';
+  document.getElementById('filter-paper').value = '';
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-year').value = '';
+  document.getElementById('filter-month').value = '';
+  editorCursor = 0;
+  loadEditorQuestions();
+});
+
+// ── Searchable subject dropdown ───────────────────────────────
+async function loadSubjectList() {
+  try {
+    const subjects = await api('/subjects');
+    allSubjects = subjects.map(s => s.name);
+    renderSubjectDropdown('');
+  } catch {}
+}
+
+function renderSubjectDropdown(query) {
+  const list = document.getElementById('subject-dropdown-list');
+  const current = document.getElementById('filter-subject').value;
+  const filtered = allSubjects.filter(s =>
+    s.toLowerCase().includes(query.toLowerCase())
+  );
+  list.innerHTML = filtered.map(s =>
+    `<div class="dropdown-item${s === current ? ' active' : ''}">${escHtml(s)}</div>`
+  ).join('');
+
+  list.querySelectorAll('.dropdown-item').forEach(el => {
+    el.addEventListener('click', () => {
+      document.getElementById('filter-subject').value = el.textContent;
+      list.classList.add('hidden');
+      editorCursor = 0;
+      loadEditorQuestions();
+    });
+  });
+}
+
+const subjectInput = document.getElementById('filter-subject');
+const subjectList  = document.getElementById('subject-dropdown-list');
+
+subjectInput.addEventListener('input', () => {
+  renderSubjectDropdown(subjectInput.value);
+  subjectList.classList.remove('hidden');
+});
+
+subjectInput.addEventListener('focus', () => {
+  renderSubjectDropdown(subjectInput.value);
+  subjectList.classList.remove('hidden');
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.searchable-dropdown')) {
+    subjectList.classList.add('hidden');
+  }
 });
 
 async function loadEditorQuestions() {
@@ -344,12 +403,14 @@ async function loadEditorQuestions() {
   const paper   = document.getElementById('filter-paper').value || null;
   const year    = document.getElementById('filter-year').value  || null;
   const month   = document.getElementById('filter-month').value.trim() || null;
+  const status  = document.getElementById('filter-status').value || null;
 
   const params = new URLSearchParams({ limit: EDITOR_LIMIT, cursor: editorCursor });
   if (subject) params.set('subject', subject);
   if (paper)   params.set('paper',   paper);
   if (year)    params.set('year',    year);
   if (month)   params.set('month',   month);
+  if (status)  params.set('status',  status);
 
   try {
     const questions = await api(`/admin/questions?${params}`);
@@ -558,6 +619,7 @@ function escAttr(str) { return escHtml(str); }
 
 // ── Init ──────────────────────────────────────────────────────
 showView('papers');
+loadSubjectList();
 if (!cfg.workerUrl || !cfg.apiToken) {
   setTimeout(() => {
     settingsPanel.classList.add('open');
