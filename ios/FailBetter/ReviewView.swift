@@ -150,10 +150,9 @@ struct ReviewView: View {
                 reviewer:      reviewerName,
                 note:          $reviewNote,
                 isSubmitting:  isSubmitting,
+                onSubmit:      { status in submitReview(question: q, status: status) },
                 onUnreview:    { unreview(question: q) }
-            ) { status in
-                submitReview(question: q, status: status)
-            }
+            )
 
             // ── Prev / Next navigation ────────────────────────────
             HStack {
