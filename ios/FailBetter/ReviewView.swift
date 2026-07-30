@@ -99,7 +99,7 @@ struct ReviewView: View {
                 VStack(alignment: .leading, spacing: 20) {
 
                     // Question text — render the Validated Question Code (LaTeX)
-                    LaTeX(q.questionCode)
+                    LaTeX(stripLaTeXWrapper(q.questionCode))
                         .parsingMode(.onlyEquations)
                         .font(.body)
                         .fontWeight(.medium)
@@ -164,50 +164,6 @@ struct ReviewView: View {
         }
     }
 
-    // MARK: - Networking
-
-    private func loadQuestions() {
-        isLoading = true
-        errorMessage = nil
-        Task {
-            do {
-                let batch = try await APIClient.shared.fetchQuestions(
-                    paper:        paper,
-                    subject:      subjectName,
-                    reviewer:     reviewerName,
-                    reviewStatus: "unreviewed",
-                    cursor:       cursor,
-                    limit:        limit
-                )
-                questions.append(contentsOf: batch)
-                hasMore   = batch.count == limit
-                cursor   += batch.count
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-            isLoading = false
-        }
-    }
-
-    private func submitReview(question: Question, status: String) {
-        isSubmitting = true
-        Task {
-            do {
-                try await APIClient.shared.submitReview(
-                    questionID: question.id,
-                    reviewer:   reviewerName,
-                    status:     status,
-                    note:       reviewNote.isEmpty ? nil : reviewNote
-                )
-                advance()
-            } catch {
-                // Non-fatal: show inline error but stay on current question
-                errorMessage = error.localizedDescription
-            }
-            isSubmitting  = false
-        }
-    }
-
     private func advance() {
         reviewNote = ""
         errorMessage = nil
@@ -221,6 +177,22 @@ struct ReviewView: View {
             }
         }
     }
+}
+
+// MARK: - Helpers
+
+private func stripLaTeXWrapper(_ text: String) -> String {
+    var s = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let r = s.range(of: #"^LaTeX\(""#, options: .regularExpression) {
+        s = String(s[r.upperBound...])
+    }
+    if let r = s.range(of: #""\)\.parsingMode\(.onlyEquations\)$"#, options: .regularExpression) {
+        s = String(s[..<r.lowerBound])
+    }
+    if let r = s.range(of: #""\)$"#, options: .regularExpression) {
+        s = String(s[..<r.lowerBound])
+    }
+    return s
 }
 
 // MARK: - Supporting views
@@ -262,7 +234,7 @@ struct ChoiceRow: View {
                 .foregroundStyle(isCorrect ? Color.green : Color.primary)
                 .frame(width: 24)
             // Render the validated answer code (LaTeX)
-            LaTeX(choice.answerCode)
+            LaTeX(stripLaTeXWrapper(choice.answerCode))
                 .parsingMode(.onlyEquations)
                 .font(.body)
                 .fontWeight(.medium)
