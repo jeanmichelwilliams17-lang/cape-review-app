@@ -177,6 +177,49 @@ struct ReviewView: View {
             }
         }
     }
+
+    // MARK: - Networking
+
+    private func loadQuestions() {
+        isLoading = true
+        errorMessage = nil
+        Task {
+            do {
+                let batch = try await APIClient.shared.fetchQuestions(
+                    paper:        paper,
+                    subject:      subjectName,
+                    reviewer:     reviewerName,
+                    reviewStatus: "unreviewed",
+                    cursor:       cursor,
+                    limit:        limit
+                )
+                questions.append(contentsOf: batch)
+                hasMore   = batch.count == limit
+                cursor   += batch.count
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isLoading = false
+        }
+    }
+
+    private func submitReview(question: Question, status: String) {
+        isSubmitting = true
+        Task {
+            do {
+                try await APIClient.shared.submitReview(
+                    questionID: question.id,
+                    reviewer:   reviewerName,
+                    status:     status,
+                    note:       reviewNote.isEmpty ? nil : reviewNote
+                )
+                advance()
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+            isSubmitting = false
+        }
+    }
 }
 
 // MARK: - Helpers
