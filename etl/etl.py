@@ -52,18 +52,31 @@ def sql_str(v) -> str:
 
 
 def build_diagram_key(subject: str, month, year, paper: int, number: int,
+                      unit: str | None = None,
                       choice_label: str | None = None) -> str:
     """
     Deterministic diagram key.
-    cape_{subject_slug}_{month_slug}_{year}_{paper}_{number}[_{choice_label}]
+    New format: cape_{unit}_{subject_slug}_{month_slug}_{year}_{paper}_{number}[_{choice_label}]
 
-    Example: cape_accountingu1_may_2017_1_1
-             cape_accountingu1_may_2017_1_1_a
+    Unit is normalised: "U2" -> "2", "Unit 2" -> "2", "2" -> "2".
+    Subject slug strips any trailing unit suffix (e.g. "PhysicsU2" -> "physics").
+
+    Example: cape_2_physics_may_2024_1_45
+             cape_2_physics_may_2024_1_45_a
     """
-    subject_slug = re.sub(r'\s+', '', subject.lower())
+    # Normalise unit: strip 'U'/'Unit ' prefix, keep just the number
+    import re as _re
+    if unit:
+        unit_slug = _re.sub(r'^[Uu]nit\s*', '', str(unit).strip())
+        unit_slug = _re.sub(r'^[Uu]', '', unit_slug).strip() or 'u'
+    else:
+        unit_slug = 'u'
+
+    # Strip any trailing unit suffix from the subject (e.g. "PhysicsU2" -> "physics")
+    subject_slug = _re.sub(r'u\d+$', '', re.sub(r'\s+', '', subject.lower()), flags=_re.IGNORECASE)
     month_slug   = (str(month).lower() if month else 'unknown')
     year_val     = int(year) if year else 0
-    base = f"cape_{subject_slug}_{month_slug}_{year_val}_{paper}_{number}"
+    base = f"cape_{unit_slug}_{subject_slug}_{month_slug}_{year_val}_{paper}_{number}"
     if choice_label:
         return f"{base}_{choice_label.lower()}"
     return base
@@ -96,6 +109,7 @@ def rows_from_p1(ws, sheet_name: str):
 
         subject = norm(row[idx['Subject']]) if 'Subject' in idx else None
         exam    = norm(row[idx['Exam']])    if 'Exam'    in idx else 'CAPE'
+        unit    = norm(row[idx['Unit']])    if 'Unit'    in idx else None   # NEW
         month   = norm(row[idx['Month']])   if 'Month'   in idx else None
         year    = norm(row[idx['Year']])    if 'Year'    in idx else None
         paper   = norm(row[idx['Paper']])   if 'Paper'   in idx else 1
@@ -108,14 +122,20 @@ def rows_from_p1(ws, sheet_name: str):
                   if idx.get('Question Diagram Path Prefix') is not None else None
         diag_present = norm(row[idx.get('Diagram Present', -1)]) \
                        if idx.get('Diagram Present') is not None else None
+        # Validated question code: prefer 'Validated Question Code', then 'Q', then raw
         q_code  = norm(row[idx.get('Validated Question Code', -1)]) \
-                  if idx.get('Validated Question Code') is not None else q_text
+                  if idx.get('Validated Question Code') is not None else None
+        if q_code is None:
+            q_code = norm(row[idx['Q']]) if 'Q' in idx else None
+        q_code = q_code or q_text
 
         choices = []
         # Detect validated answer column name pattern once per sheet
-        # Tries: "Validated Answer A", "Validated A", "Answer A Code", falling back to Answer A
+        # Tries 'Validated Answer A Code', 'Validated Answer A', 'Validated A',
+        # 'Answer A Code', single-letter 'A', falling back to raw 'Answer A'
         def validated_ans_key(lbl: str) -> str | None:
-            for pat in (f'Validated Answer {lbl}', f'Validated {lbl}', f'Answer {lbl} Code'):
+            for pat in (f'Validated Answer {lbl} Code', f'Validated Answer {lbl}',
+                        f'Validated {lbl}', f'Answer {lbl} Code'):
                 if pat in idx:
                     return pat
             return None
@@ -130,7 +150,10 @@ def rows_from_p1(ws, sheet_name: str):
             if not ans_text:
                 continue
 
+            # Prefer validated code column, then single-letter shorthand column
             ans_code = norm(row[idx[val_key]]) if val_key else None
+            if ans_code is None and label in idx:
+                ans_code = norm(row[idx[label]])
             if ans_code is None and not validated_warned:
                 print(f"    [WARN] No validated answer column found for '{label}' in '{sheet_name}' "
                       f"— using answer_raw as fallback. Check column names.")
@@ -143,7 +166,9 @@ def rows_from_p1(ws, sheet_name: str):
                 'answer_raw':  ans_text,
                 'answer_code': ans_code,
                 'diagram_key': ans_diag or build_diagram_key(
-                    subject or '', month, year, int(paper or 1), int(number or 0), label
+                    subject or '', month, year,
+                    int(paper or 1), int(number or 0),
+                    unit=unit, choice_label=label
                 ),
             })
 
@@ -151,6 +176,7 @@ def rows_from_p1(ws, sheet_name: str):
             'source_sheet': sheet_name,
             'exam':     str(exam or 'CAPE'),
             'subject':  str(subject or ''),
+            'unit':     unit,
             'month':    month,
             'year':     int(year) if year is not None else None,
             'paper':    int(paper) if paper is not None else 1,
@@ -165,7 +191,9 @@ def rows_from_p1(ws, sheet_name: str):
             'question_raw':  q_text,
             'question_code': str(q_code or q_text),
             'question_diagram_key': q_diag or build_diagram_key(
-                subject or '', month, year, int(paper or 1), int(number or 0)
+                subject or '', month, year,
+                int(paper or 1), int(number or 0),
+                unit=unit
             ),
             'diagram_present': 1 if diag_present and str(diag_present).strip().lower() in ('yes', '1', 'true') else 0,
             'choices': choices,
@@ -189,6 +217,7 @@ def rows_from_p2(ws, sheet_name: str):
 
         subject = norm(row[idx['Subject']]) if 'Subject' in idx else None
         exam    = norm(row[idx['Exam']])    if 'Exam'    in idx else 'CAPE'
+        unit    = norm(row[idx['Unit']])    if 'Unit'    in idx else None   # NEW
         month   = norm(row[idx['Month']])   if 'Month'   in idx else None
         year    = norm(row[idx['Year']])    if 'Year'    in idx else None
         paper   = norm(row[idx['Paper']])   if 'Paper'   in idx else 2
@@ -203,13 +232,18 @@ def rows_from_p2(ws, sheet_name: str):
                   if idx.get('Question Diagram Path Prefix') is not None else None
         diag_present = norm(row[idx.get('Diagram Present', -1)]) \
                        if idx.get('Diagram Present') is not None else None
+        # Validated question code: prefer 'Validated Question Code', then 'Q', then raw
         q_code  = norm(row[idx.get('Validated Question Code', -1)]) \
-                  if idx.get('Validated Question Code') is not None else q_text
+                  if idx.get('Validated Question Code') is not None else None
+        if q_code is None:
+            q_code = norm(row[idx['Q']]) if 'Q' in idx else None
+        q_code = q_code or q_text
 
         yield {
             'source_sheet': sheet_name,
             'exam':     str(exam or 'CAPE'),
             'subject':  str(subject or ''),
+            'unit':     unit,
             'month':    month,
             'year':     int(year) if year is not None else None,
             'paper':    int(paper) if paper is not None else 2,
@@ -224,7 +258,9 @@ def rows_from_p2(ws, sheet_name: str):
             'question_raw':  q_text,
             'question_code': str(q_code or q_text),
             'question_diagram_key': q_diag or build_diagram_key(
-                subject or '', month, year, int(paper or 2), int(number or 0)
+                subject or '', month, year,
+                int(paper or 2), int(number or 0),
+                unit=unit
             ),
             'diagram_present': 1 if diag_present and str(diag_present).strip().lower() in ('yes', '1', 'true') else 0,
             'choices': [],

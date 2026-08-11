@@ -224,8 +224,19 @@ function processFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     const wb = XLSX.read(e.target.result, { type: 'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    parsedRows = XLSX.utils.sheet_to_json(ws, { defval: null });
+
+    // Collect rows from ALL sheets (supports multi-subject master sheets).
+    // Each row gets a hidden _sheet property for traceability.
+    parsedRows = [];
+    for (const sheetName of wb.SheetNames) {
+      const ws = wb.Sheets[sheetName];
+      const sheetRows = XLSX.utils.sheet_to_json(ws, { defval: null });
+      for (const row of sheetRows) {
+        row._sheet = sheetName;
+        parsedRows.push(row);
+      }
+    }
+
     validateAndPreview(parsedRows);
   };
   reader.readAsArrayBuffer(file);
@@ -234,10 +245,22 @@ function processFile(file) {
 function validateAndPreview(rows) {
   if (!rows.length) { toast('File is empty', 'error'); return; }
 
-  const headers = Object.keys(rows[0]);
+  // Derive visible headers (exclude internal _sheet key)
+  const headers = Object.keys(rows[0]).filter(h => h !== '_sheet');
+
+  // Auto-detect paper type from column headers
+  const hasAnswerA = headers.includes('Answer A');
+  const hasPartOrMarks = headers.includes('Part') || headers.includes('Marks');
+  if (hasAnswerA) {
+    document.getElementById('upload-paper-type').value = '1';
+  } else if (hasPartOrMarks) {
+    document.getElementById('upload-paper-type').value = '2';
+  }
+
   let validCount = 0, warnCount = 0, errorCount = 0;
 
-  // Track natural keys for dup detection within the file
+  // Track natural keys for dup detection within the file.
+  // Include Unit so different units on a master sheet don't collide.
   const seenKeys = new Set();
 
   const theadHtml = `<tr>${headers.map(h => `<th>${escHtml(h)}</th>`).join('')}<th>Status</th></tr>`;
@@ -247,10 +270,11 @@ function validateAndPreview(rows) {
   tbody.innerHTML = '';
 
   rows.forEach((row, i) => {
-    const q = row['Question'];
-    const subj = row['Subject'];
-    const year = row['Year'];
-    const num  = row['Number'];
+    const q     = row['Question'];
+    const subj  = row['Subject'];
+    const unit  = row['Unit']  ?? '';
+    const year  = row['Year'];
+    const num   = row['Number'];
     const part    = row['Part']    ?? null;
     const subpart = row['Subpart'] ?? null;
 
@@ -262,7 +286,8 @@ function validateAndPreview(rows) {
       statusBadge = '<span class="badge badge-red">Missing Question</span>';
       errorCount++;
     } else {
-      const natKey = `${subj}|${year}|${num}|${part}|${subpart}`;
+      // Include unit in the natural key so multi-subject master sheets work correctly
+      const natKey = `${subj}|${unit}|${year}|${num}|${part}|${subpart}`;
       if (seenKeys.has(natKey)) {
         rowClass = 'row-warn';
         statusBadge = '<span class="badge badge-yellow">Duplicate key</span>';

@@ -108,8 +108,9 @@ export interface ReviewSubmission {
 export interface ImportRow {
   [key: string]: unknown;
   Question?: string;
-  Subject?: string;
   Exam?: string;
+  Unit?: string;                        // NEW — e.g. "1", "2", "U1", "U2"
+  Subject?: string;
   Month?: string;
   Year?: number;
   Paper?: number;
@@ -125,10 +126,19 @@ export interface ImportRow {
   'Answer B'?: string;
   'Answer C'?: string;
   'Answer D'?: string;
+  'Validated Question Code'?: string;
+  'Validated Answer A Code'?: string;   // NEW — per-choice validated code (P1 master sheet)
+  'Validated Answer B Code'?: string;
+  'Validated Answer C Code'?: string;
+  'Validated Answer D Code'?: string;
+  Q?: string;                           // NEW — shorthand validated question code column
+  A?: string;                           // NEW — shorthand validated answer A code
+  B?: string;                           // NEW — shorthand validated answer B code
+  C?: string;                           // NEW — shorthand validated answer C code
+  D?: string;                           // NEW — shorthand validated answer D code
   'Question Diagram Path Prefix'?: string;
   'A Diagram Path Prefix'?: string;
   'B Diagram Path Prefix'?: string;
   'C Diagram Path Prefix'?: string;
   'D Diagram Path Prefix'?: string;
-  'Validated Question Code'?: string;
 }

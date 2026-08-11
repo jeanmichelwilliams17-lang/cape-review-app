@@ -25,20 +25,32 @@ async function upsertSubject(env: Env, name: string): Promise<number> {
 
 // ---------------------------------------------------------------------------
 // Helper: build a diagram_key from a row's metadata
-// Convention: cape_{subject_slug}_{month_slug}_{year}_{paper}_{number}
-//             + optional _{choice_label} for choice diagrams
+// New convention: cape_{unit}_{subject_slug}_{month_slug}_{year}_{paper}_{number}
+//                 + optional _{choice_label} for choice diagrams
+//
+// Unit is normalised: "U2" → "2", "Unit 2" → "2", "2" → "2".
+// Subject slug strips any embedded unit suffix (e.g. "PhysicsU2" → "physics").
 // ---------------------------------------------------------------------------
+function normaliseUnit(unit: string | undefined): string {
+  if (!unit) return 'u';
+  // Strip leading 'U' or 'Unit ' prefix and whitespace → keep just the number
+  return String(unit).trim().replace(/^[Uu]nit\s*/i, '').replace(/^[Uu]/i, '').trim() || 'u';
+}
+
 function buildDiagramKey(
   subject: string,
   month: string | undefined,
   year: number | undefined,
   paper: number,
   number: number,
+  unit?: string,
   choiceLabel?: string
 ): string {
-  const subjectSlug = subject.toLowerCase().replace(/\s+/g, '');
-  const monthSlug = (month ?? 'unknown').toLowerCase();
-  const base = `cape_${subjectSlug}_${monthSlug}_${year ?? 0}_${paper}_${number}`;
+  const unitSlug    = normaliseUnit(unit);
+  // Strip any trailing unit suffix from the subject slug (e.g. "PhysicsU2" → "physics")
+  const subjectSlug = subject.toLowerCase().replace(/\s+/g, '').replace(/u\d+$/i, '');
+  const monthSlug   = (month ?? 'unknown').toLowerCase();
+  const base = `cape_${unitSlug}_${subjectSlug}_${monthSlug}_${year ?? 0}_${paper}_${number}`;
   return choiceLabel ? `${base}_${choiceLabel.toLowerCase()}` : base;
 }
 
@@ -98,6 +110,9 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
     const subject = String(row.Subject ?? '').trim();
     if (!subject) { skipped++; continue; }
 
+    // Unit from the new master-sheet format (e.g. "2", "U2", "Unit 2")
+    const unit = row.Unit ? String(row.Unit) : undefined;
+
     const subjectId = await upsertSubject(env, subject);
     const month   = row.Month   ? String(row.Month)   : null;
     const year    = row.Year    ? Number(row.Year)    : null;
@@ -110,13 +125,17 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
       month ?? undefined,
       year ?? undefined,
       paper,
-      num
+      num,
+      unit          // NEW — unit feeds the diagram key
     );
 
-    const questionCode = String(row['Validated Question Code'] ?? row.Question);
+    // Validated question code: prefer 'Validated Question Code', then 'Q', then raw
+    const questionCode = String(
+      row['Validated Question Code'] ?? row.Q ?? row.Question
+    );
     const correctChoice = paper === 1 ? (row.Correct ? String(row.Correct) : null) : null;
     const marks = paper === 2 ? (row.Marks != null ? Number(row.Marks) : null) : null;
-    const sourceSheet = String(row._sheet ?? 'imported');
+    const sourceSheet = String((row as Record<string, unknown>)._sheet ?? 'imported');
 
     stmts.push(
       env.DB.prepare(`
@@ -141,8 +160,8 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
         String(row.Exam ?? 'CAPE'),
         subjectId,
         month, year, paper, num, part, subpart,
-        row.Section ? String(row.Section) : null,
-        row.Topic   ? String(row.Topic)   : null,
+        row.Section    ? String(row.Section)    : null,
+        row.Topic      ? String(row.Topic)      : null,
         row.Difficulty ? String(row.Difficulty) : null,
         marks,
         correctChoice,
@@ -154,17 +173,26 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
 
     // Paper 1: upsert 4 choice rows
     if (paper === 1) {
-      for (const label of ['A', 'B', 'C', 'D']) {
-        const answerKey = `Answer ${label}` as keyof ImportRow;
-        const diagKeyChoice = `${label} Diagram Path Prefix` as keyof ImportRow;
-        const answerText = row[answerKey] ? String(row[answerKey]) : '';
+      for (const label of ['A', 'B', 'C', 'D'] as const) {
+        const answerRawKey  = `Answer ${label}` as keyof ImportRow;
+        const answerCodeKey = `Validated Answer ${label} Code` as keyof ImportRow;
+        const diagPrefixKey = `${label} Diagram Path Prefix` as keyof ImportRow;
+        const shorthandKey  = label as keyof ImportRow; // single-letter column A/B/C/D
+
+        const answerText = row[answerRawKey] ? String(row[answerRawKey]) : '';
         if (!answerText) continue;
 
-        const choiceDiagKey = buildDiagramKey(
-          subject, month ?? undefined, year ?? undefined, paper, num, label
+        // Validated answer code: prefer 'Validated Answer X Code', then single-letter
+        // shorthand column, then fall back to raw answer text
+        const answerCode = String(
+          row[answerCodeKey] ?? row[shorthandKey] ?? answerText
         );
 
-        // We need the question id — use a subselect so we can batch this
+        const choiceDiagKey = buildDiagramKey(
+          subject, month ?? undefined, year ?? undefined, paper, num, unit, label
+        );
+
+        // Use a subselect on the question natural key so we can batch this statement
         stmts.push(
           env.DB.prepare(`
             INSERT INTO choices (question_id, label, answer_raw, answer_code, diagram_key)
@@ -179,8 +207,8 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
           `).bind(
             label,
             answerText,
-            answerText, // answer_code = same text (Swift applies .parsingMode in-app)
-            row[diagKeyChoice] ? String(row[diagKeyChoice]) : choiceDiagKey,
+            answerCode,
+            row[diagPrefixKey] ? String(row[diagPrefixKey]) : choiceDiagKey,
             subjectId,
             month, year,
             paper, num, part, subpart
