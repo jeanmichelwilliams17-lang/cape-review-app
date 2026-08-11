@@ -131,6 +131,13 @@
           <button class="btn btn-primary" id="btn-confirm-import">✓ Confirm Import</button>
           <button class="btn btn-ghost"   id="btn-cancel-upload">Cancel</button>
         </div>
+        <!-- Import progress bar (hidden until import starts) -->
+        <div id="import-progress-wrap" class="hidden mt-4">
+          <div class="progress-bar" style="height:10px;border-radius:6px;overflow:hidden;">
+            <div id="import-progress-fill" class="progress-fill" style="width:0%;transition:width 0.3s ease;"></div>
+          </div>
+          <p id="import-progress-label" class="text-muted text-sm mt-4" style="margin-top:6px;">Starting…</p>
+        </div>
       </div>
     </section>
 

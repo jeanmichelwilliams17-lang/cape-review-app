@@ -318,27 +318,63 @@ document.getElementById('btn-cancel-upload').addEventListener('click', () => {
 
 document.getElementById('btn-confirm-import').addEventListener('click', async () => {
   if (!parsedRows.length) return;
-  const paper = Number(document.getElementById('upload-paper-type').value);
-  const btn = document.getElementById('btn-confirm-import');
-  btn.disabled = true;
-  btn.textContent = 'Importing…';
+  const paper   = Number(document.getElementById('upload-paper-type').value);
+  const btn     = document.getElementById('btn-confirm-import');
+  const cancelBtn = document.getElementById('btn-cancel-upload');
+  const progressWrap = document.getElementById('import-progress-wrap');
+  const progressFill = document.getElementById('import-progress-fill');
+  const progressLabel = document.getElementById('import-progress-label');
 
-  try {
-    const result = await api('/admin/import', {
-      method: 'POST',
-      body: JSON.stringify({ paper, rows: parsedRows }),
-    });
-    toast(`Imported ${result.imported} rows (${result.skipped} skipped)`, 'success');
+  const CHUNK_SIZE = 200; // rows per request — keeps each Worker invocation well under timeout
+  const chunks = [];
+  for (let i = 0; i < parsedRows.length; i += CHUNK_SIZE) {
+    chunks.push(parsedRows.slice(i, i + CHUNK_SIZE));
+  }
+
+  btn.disabled = true;
+  cancelBtn.disabled = true;
+  btn.textContent = 'Importing…';
+  progressWrap.classList.remove('hidden');
+
+  let totalImported = 0;
+  let totalSkipped  = 0;
+  let failed = false;
+
+  for (let ci = 0; ci < chunks.length; ci++) {
+    const pct = Math.round((ci / chunks.length) * 100);
+    progressFill.style.width  = `${pct}%`;
+    progressLabel.textContent = `Chunk ${ci + 1} / ${chunks.length} (${pct}%)`;
+
+    try {
+      const result = await api('/admin/import', {
+        method: 'POST',
+        body: JSON.stringify({ paper, rows: chunks[ci] }),
+      });
+      totalImported += result.imported ?? 0;
+      totalSkipped  += result.skipped  ?? 0;
+    } catch (err) {
+      toast(`Import failed at chunk ${ci + 1}: ${err.message}`, 'error');
+      failed = true;
+      break;
+    }
+  }
+
+  progressFill.style.width  = '100%';
+  progressLabel.textContent = failed ? 'Import stopped due to error' : 'Complete!';
+
+  if (!failed) {
+    toast(`Imported ${totalImported} rows (${totalSkipped} skipped)`, 'success');
     parsedRows = [];
     document.getElementById('upload-summary').classList.add('hidden');
     showView('papers');
-  } catch (err) {
-    toast(`Import failed: ${err.message}`, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '✓ Confirm Import';
   }
+
+  setTimeout(() => progressWrap.classList.add('hidden'), 2000);
+  btn.disabled = false;
+  cancelBtn.disabled = false;
+  btn.textContent = '✓ Confirm Import';
 });
+
 
 // ── Question Editor ───────────────────────────────────────────
 let editorCursor = 0;
