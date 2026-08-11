@@ -24,19 +24,26 @@ async function upsertSubject(env: Env, name: string): Promise<number> {
 }
 
 // ---------------------------------------------------------------------------
-// Helper: build a diagram_key from a row's metadata
-// New convention: cape_{unit}_{subject_slug}_{month_slug}_{year}_{paper}_{number}
-//                 + optional _{choice_label} for choice diagrams
-//
-// Unit is normalised: "U2" → "2", "Unit 2" → "2", "2" → "2".
-// Subject slug strips any embedded unit suffix (e.g. "PhysicsU2" → "physics").
+// Helper: normalise the Unit column value → just the number string
+// "U2" → "2", "Unit 2" → "2", "2" → "2"
 // ---------------------------------------------------------------------------
 function normaliseUnit(unit: string | undefined): string {
   if (!unit) return 'u';
-  // Strip leading 'U' or 'Unit ' prefix and whitespace → keep just the number
-  return String(unit).trim().replace(/^[Uu]nit\s*/i, '').replace(/^[Uu]/i, '').trim() || 'u';
+  return String(unit).trim()
+    .replace(/^[Uu]nit\s*/i, '')  // strip "Unit " prefix
+    .replace(/^[Uu]/i, '')         // strip leading "U"
+    .trim() || 'u';
 }
 
+// ---------------------------------------------------------------------------
+// Helper: build a diagram_key from a row's metadata
+// Format: cape_{unit}_{subject_slug}_{month_slug}_{year}_{paper}_{number}
+//         + optional _{choice_label} for choice diagrams
+//
+// Subject is stored combined (e.g. "PhysicsU2") — we strip the trailing
+// unit suffix to get the slug (e.g. "physics"), then put the unit first.
+// Example: PhysicsU2 + Unit "2" → cape_2_physics_may_2024_1_45
+// ---------------------------------------------------------------------------
 function buildDiagramKey(
   subject: string,
   month: string | undefined,
@@ -47,7 +54,7 @@ function buildDiagramKey(
   choiceLabel?: string
 ): string {
   const unitSlug    = normaliseUnit(unit);
-  // Strip any trailing unit suffix from the subject slug (e.g. "PhysicsU2" → "physics")
+  // Strip trailing unit suffix from combined subject name (e.g. "PhysicsU2" → "physics")
   const subjectSlug = subject.toLowerCase().replace(/\s+/g, '').replace(/u\d+$/i, '');
   const monthSlug   = (month ?? 'unknown').toLowerCase();
   const base = `cape_${unitSlug}_${subjectSlug}_${monthSlug}_${year ?? 0}_${paper}_${number}`;
@@ -83,9 +90,21 @@ export async function handleGetPapers(env: Env): Promise<Response> {
 // ---------------------------------------------------------------------------
 // POST /admin/import
 // Body: { paper: 1|2, rows: ImportRow[] }
-// Bulk-upserts subjects, questions, and choices (P1) using a single batch.
+// Bulk-upserts subjects, questions, and choices (P1).
 // Idempotent — safe to re-run after spreadsheet corrections.
+//
+// D1 hard-limits batch() to 100 statements. We flush every BATCH_SIZE rows
+// worth of statements to stay comfortably under that limit.
+// Subject IDs are cached in a Map to avoid N sequential DB round-trips.
 // ---------------------------------------------------------------------------
+const BATCH_SIZE = 75; // safely under D1's 100-statement limit
+
+async function flushStmts(env: Env, stmts: D1PreparedStatement[]): Promise<void> {
+  for (let i = 0; i < stmts.length; i += BATCH_SIZE) {
+    await env.DB.batch(stmts.slice(i, i + BATCH_SIZE));
+  }
+}
+
 export async function handleImport(req: Request, env: Env): Promise<Response> {
   let body: { paper: 1 | 2; rows: ImportRow[] };
   try {
@@ -99,43 +118,43 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
     return new Response('paper must be 1 or 2', { status: 400 });
   }
 
+  // Cache subject name → id to avoid one DB call per row
+  const subjectCache = new Map<string, number>();
+  async function getSubjectId(name: string): Promise<number> {
+    if (subjectCache.has(name)) return subjectCache.get(name)!;
+    const id = await upsertSubject(env, name);
+    subjectCache.set(name, id);
+    return id;
+  }
+
   const stmts: D1PreparedStatement[] = [];
   let skipped = 0;
   let processed = 0;
 
   for (const row of rows) {
-    // Skip blank template rows (Question column is required)
+    // Skip blank rows — Question is required
     if (!row.Question) { skipped++; continue; }
 
     const subject = String(row.Subject ?? '').trim();
     if (!subject) { skipped++; continue; }
 
-    // Unit from the new master-sheet format (e.g. "2", "U2", "Unit 2")
-    const unit = row.Unit ? String(row.Unit) : undefined;
-
-    const subjectId = await upsertSubject(env, subject);
-    const month   = row.Month   ? String(row.Month)   : null;
-    const year    = row.Year    ? Number(row.Year)    : null;
-    const num     = Number(row.Number ?? 0);
-    const part    = row.Part    ? String(row.Part)    : null;
-    const subpart = row.Subpart ? String(row.Subpart) : null;
+    const unit      = row.Unit ? String(row.Unit) : undefined;
+    const subjectId = await getSubjectId(subject);
+    const month     = row.Month   ? String(row.Month)   : null;
+    const year      = row.Year    ? Number(row.Year)    : null;
+    const num       = Number(row.Number ?? 0);
+    const part      = row.Part    ? String(row.Part)    : null;
+    const subpart   = row.Subpart ? String(row.Subpart) : null;
 
     const diagKey = buildDiagramKey(
-      subject,
-      month ?? undefined,
-      year ?? undefined,
-      paper,
-      num,
-      unit          // NEW — unit feeds the diagram key
+      subject, month ?? undefined, year ?? undefined, paper, num, unit
     );
 
-    // Validated question code: prefer 'Validated Question Code', then 'Q', then raw
-    const questionCode = String(
-      row['Validated Question Code'] ?? row.Q ?? row.Question
-    );
+    // Validated question code: prefer 'Validated Question Code', fall back to raw
+    const questionCode  = String(row['Validated Question Code'] ?? row.Question);
     const correctChoice = paper === 1 ? (row.Correct ? String(row.Correct) : null) : null;
-    const marks = paper === 2 ? (row.Marks != null ? Number(row.Marks) : null) : null;
-    const sourceSheet = String((row as Record<string, unknown>)._sheet ?? 'imported');
+    const marks         = paper === 2 ? (row.Marks != null ? Number(row.Marks) : null) : null;
+    const sourceSheet   = String((row as Record<string, unknown>)._sheet ?? 'imported');
 
     stmts.push(
       env.DB.prepare(`
@@ -171,28 +190,24 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
       )
     );
 
-    // Paper 1: upsert 4 choice rows
+    // Paper 1: upsert up to 4 choice rows
     if (paper === 1) {
       for (const label of ['A', 'B', 'C', 'D'] as const) {
         const answerRawKey  = `Answer ${label}` as keyof ImportRow;
         const answerCodeKey = `Validated Answer ${label} Code` as keyof ImportRow;
         const diagPrefixKey = `${label} Diagram Path Prefix` as keyof ImportRow;
-        const shorthandKey  = label as keyof ImportRow; // single-letter column A/B/C/D
+        const shorthandKey  = label as keyof ImportRow; // single-letter A/B/C/D column
 
         const answerText = row[answerRawKey] ? String(row[answerRawKey]) : '';
         if (!answerText) continue;
 
-        // Validated answer code: prefer 'Validated Answer X Code', then single-letter
-        // shorthand column, then fall back to raw answer text
-        const answerCode = String(
-          row[answerCodeKey] ?? row[shorthandKey] ?? answerText
-        );
+        // Prefer 'Validated Answer X Code', then single-letter shorthand, then raw
+        const answerCode = String(row[answerCodeKey] ?? row[shorthandKey] ?? answerText);
 
         const choiceDiagKey = buildDiagramKey(
           subject, month ?? undefined, year ?? undefined, paper, num, unit, label
         );
 
-        // Use a subselect on the question natural key so we can batch this statement
         stmts.push(
           env.DB.prepare(`
             INSERT INTO choices (question_id, label, answer_raw, answer_code, diagram_key)
@@ -218,11 +233,16 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
     }
 
     processed++;
+
+    // Flush statements to D1 every BATCH_SIZE to stay under D1's 100-stmt limit
+    if (stmts.length >= BATCH_SIZE) {
+      await flushStmts(env, stmts.splice(0));
+    }
   }
 
-  // Execute all statements in a single atomic batch
+  // Flush any remaining statements
   if (stmts.length > 0) {
-    await env.DB.batch(stmts);
+    await flushStmts(env, stmts);
   }
 
   return Response.json({ imported: processed, skipped });
@@ -349,7 +369,7 @@ export async function handleDeletePaper(
   }
 
   const { subject, paper, year, month } = body;
-  const subjectId = await upsertSubject(env, subject); // upsert is safe here — won't create if already exists
+  const subjectId = await upsertSubject(env, subject);
 
   const { meta } = await env.DB.prepare(`
     DELETE FROM questions

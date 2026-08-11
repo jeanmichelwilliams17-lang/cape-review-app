@@ -127,15 +127,14 @@ export interface ImportRow {
   'Answer C'?: string;
   'Answer D'?: string;
   'Validated Question Code'?: string;
-  'Validated Answer A Code'?: string;   // NEW — per-choice validated code (P1 master sheet)
+  'Validated Answer A Code'?: string;   // per-choice validated code (P1 master sheet)
   'Validated Answer B Code'?: string;
   'Validated Answer C Code'?: string;
   'Validated Answer D Code'?: string;
-  Q?: string;                           // NEW — shorthand validated question code column
-  A?: string;                           // NEW — shorthand validated answer A code
-  B?: string;                           // NEW — shorthand validated answer B code
-  C?: string;                           // NEW — shorthand validated answer C code
-  D?: string;                           // NEW — shorthand validated answer D code
+  A?: string;                           // single-letter shorthand validated answer code
+  B?: string;
+  C?: string;
+  D?: string;
   'Question Diagram Path Prefix'?: string;
   'A Diagram Path Prefix'?: string;
   'B Diagram Path Prefix'?: string;
