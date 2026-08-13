@@ -77,20 +77,15 @@ export default {
       if (pathname === '/subjects' && method === 'GET') {
         const { results } = await env.DB.prepare(`
           SELECT
-            MIN(s.id) AS id,
-            CASE
-              WHEN s.name LIKE '%U1' OR s.name LIKE '%U2' THEN s.name
-              WHEN q.question_diagram_key LIKE 'cape_1_%' THEN s.name || ' U1'
-              WHEN q.question_diagram_key LIKE 'cape_2_%' THEN s.name || ' U2'
-              ELSE s.name || ' U1'
-            END AS name,
+            s.id,
+            s.name,
             q.year,
             SUM(CASE WHEN q.paper = 1 THEN 1 ELSE 0 END) AS p1_count,
             SUM(CASE WHEN q.paper = 2 THEN 1 ELSE 0 END) AS p2_count
           FROM subjects s
           JOIN questions q ON q.subject_id = s.id
-          GROUP BY name, q.year
-          ORDER BY name, q.year
+          GROUP BY s.id, s.name, q.year
+          ORDER BY s.name, q.year
         `).all();
         return withCors(Response.json(results));
       }

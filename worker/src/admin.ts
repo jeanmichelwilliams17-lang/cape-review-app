@@ -341,10 +341,12 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
     const rawSubject = String(row.Subject ?? '').trim();
     if (!rawSubject) { skipped++; continue; }
 
-    const subject   = cleanSubjectName(rawSubject);
-    const rawUnit   = row.Unit ?? row.unit ?? row.UNIT ?? (row as Record<string, unknown>)['Unit '] ?? (row as Record<string, unknown>)['unit '];
-    const unit      = rawUnit != null ? String(rawUnit).trim() : undefined;
-    const subjectId = await getSubjectId(subject);
+    const baseSubj   = cleanSubjectName(rawSubject);
+    const rawUnit    = row.Unit ?? row.unit ?? row.UNIT ?? (row as Record<string, unknown>)['Unit '] ?? (row as Record<string, unknown>)['unit '];
+    const unit       = rawUnit != null ? String(rawUnit).trim() : undefined;
+    const unitNum    = normaliseUnit(unit, rawSubject);
+    const subject    = `${baseSubj} U${unitNum}`;
+    const subjectId  = await getSubjectId(subject);
     const month     = row.Month   ? String(row.Month)   : null;
     const year      = row.Year    ? Number(row.Year)    : null;
     const num       = Number(row.Number ?? 0);
@@ -353,7 +355,7 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
 
     const explicitQuestionDiagKey = row['Question Diagram Path Prefix'] ? String(row['Question Diagram Path Prefix']).trim() : null;
     const diagKey = explicitQuestionDiagKey || buildDiagramKey(
-      subject, month ?? undefined, year ?? undefined, paper, num, unit
+      baseSubj, month ?? undefined, year ?? undefined, paper, num, unitNum
     );
 
     // Validated question code: prefer 'Validated Question Code', fall back to 'Q', then raw 'Question'
@@ -417,7 +419,7 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
 
         const explicitChoiceDiagKey = row[diagPrefixKey] ? String(row[diagPrefixKey]).trim() : null;
         const choiceDiagKey = explicitChoiceDiagKey || buildDiagramKey(
-          subject, month ?? undefined, year ?? undefined, paper, num, unit, label
+          baseSubj, month ?? undefined, year ?? undefined, paper, num, unitNum, label
         );
 
         stmts.push(
