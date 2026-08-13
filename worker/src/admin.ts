@@ -9,6 +9,66 @@
 import { Env, ImportRow } from './types';
 
 // ---------------------------------------------------------------------------
+// Helper: audit all ImageKit diagram files and update D1 questions
+// ---------------------------------------------------------------------------
+export async function handleAuditAndFixDiagrams(env: Env): Promise<Response> {
+  const privateKey = env.IMAGEKIT_PRIVATE_KEY ?? '';
+  if (!privateKey) {
+    return Response.json({ error: 'IMAGEKIT_PRIVATE_KEY missing' }, { status: 500 });
+  }
+
+  const authHeader = 'Basic ' + btoa(privateKey + ':');
+  let skip = 0;
+  let allFiles: Array<{ name: string; filePath: string }> = [];
+
+  while (true) {
+    try {
+      const res = await fetch(`https://api.imagekit.io/v1/files?limit=1000&skip=${skip}`, {
+        headers: { Authorization: authHeader },
+      });
+      if (!res.ok) break;
+      const files = (await res.json()) as Array<{ name: string; filePath: string }>;
+      if (!files || files.length === 0) break;
+      allFiles = allFiles.concat(files);
+      if (files.length < 1000) break;
+      skip += files.length;
+    } catch {
+      break;
+    }
+  }
+
+  let updatedCount = 0;
+  const auditLogs: string[] = [];
+
+  for (const f of allFiles) {
+    const filename = f.name;
+    if (!filename.endsWith('.png') && !filename.endsWith('.jpg') && !filename.endsWith('.jpeg')) continue;
+    const diagramKey = filename.replace(/\.(png|jpg|jpeg)$/i, '');
+
+    const m = diagramKey.match(/^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)/i);
+    const baseQuestionKey = m ? m[1] : diagramKey;
+
+    const result = await env.DB.prepare(`
+      UPDATE questions
+      SET diagram_present = 1,
+          question_diagram_key = ?1
+      WHERE (question_diagram_key = ?1 OR question_diagram_key = ?2)
+    `).bind(diagramKey, baseQuestionKey).run();
+
+    if (result.meta.changes > 0) {
+      updatedCount += result.meta.changes;
+      auditLogs.push(`Updated ${result.meta.changes} questions for key: ${diagramKey}`);
+    }
+  }
+
+  return Response.json({
+    totalImageKitFiles: allFiles.length,
+    questionsUpdated: updatedCount,
+    auditLogs: auditLogs.slice(0, 50),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Helper: debug ImageKit media library API
 // ---------------------------------------------------------------------------
 export async function handleDebugImageKit(env: Env): Promise<Response> {

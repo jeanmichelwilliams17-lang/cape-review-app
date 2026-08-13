@@ -12,6 +12,7 @@ import {
   handleDeleteQuestion,
   handleDeletePaper,
   handleDebugImageKit,
+  handleAuditAndFixDiagrams,
 } from './admin';
 
 export default {
@@ -61,6 +62,10 @@ export default {
     }
 
     try {
+      if (pathname === '/admin/audit-diagrams' && (method === 'POST' || method === 'GET')) {
+        return withCors(await handleAuditAndFixDiagrams(env));
+      }
+
       if (pathname === '/admin/debug-imagekit' && method === 'GET') {
         return withCors(await handleDebugImageKit(env));
       }
