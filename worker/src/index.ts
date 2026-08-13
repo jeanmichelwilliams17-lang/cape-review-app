@@ -39,11 +39,7 @@ export default {
     // Images are public (ImageKit signed URLs handle their own auth).
     // ─────────────────────────────────────────────────────────────────────────
     const imageMatch = pathname.match(/^\/images\/([^/]+)$/);
-    const isImageRequest = ((imageMatch && method === 'GET') || pathname === '/images/debug-imagekit');
-
-    if (pathname === '/images/debug-imagekit' && method === 'GET') {
-      return withCors(await handleDebugImageKit(env));
-    }
+    const isImageRequest = imageMatch && method === 'GET';
 
     if (!isImageRequest) {
       const authHeader = request.headers.get('Authorization');

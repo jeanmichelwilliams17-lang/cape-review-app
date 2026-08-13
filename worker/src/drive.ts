@@ -59,11 +59,35 @@ export async function handleImageProxy(
     const paperStr = parts[5];
 
     const subjName = SUBJECT_MAP[subjStr] || (subjStr.charAt(0).toUpperCase() + subjStr.slice(1));
-    const unitFolder = `U${unitStr}`;
-    const pFolder = `P${paperStr}`;
+    const unitFolders = [`U${unitStr}`, unitStr === '1' ? 'U2' : 'U1'];
+    const paperFolders = [`P${paperStr}`, paperStr === '1' ? 'P2' : 'P1'];
+    const unitPrefixes = ['cape_1_', 'cape_2_'];
+    const subpartSuffixes = ['', '_e_i', '_a', '_b', '_c', '_d', '_e', '_f', '_a_i', '_b_i', '_c_i', '_d_i', '_1', '_2', '_3', '_1_a'];
 
-    candidatePaths.push(`${subjName}/${unitFolder}/${pFolder}/${yearStr}/output/${diagramKey}.png`);
-    candidatePaths.push(`${subjName}/${unitFolder}/${pFolder}/${yearStr}/${diagramKey}.png`);
+    // Base key without prefix (e.g. "appliedmathematics_may_2022_2_1")
+    const rawKeyWithoutPrefix = parts.slice(2).join('_');
+
+    // First try exact key as requested
+    for (const uFolder of unitFolders) {
+      for (const pFolder of paperFolders) {
+        candidatePaths.push(`${subjName}/${uFolder}/${pFolder}/${yearStr}/output/${diagramKey}.png`);
+        candidatePaths.push(`${subjName}/${uFolder}/${pFolder}/${yearStr}/${diagramKey}.png`);
+      }
+    }
+
+    // Next try subpart suffixes and unit prefix swaps
+    for (const uFolder of unitFolders) {
+      for (const pFolder of paperFolders) {
+        for (const prefix of unitPrefixes) {
+          for (const suffix of subpartSuffixes) {
+            const candidateKey = `${prefix}${rawKeyWithoutPrefix}${suffix}`;
+            if (candidateKey !== diagramKey) {
+              candidatePaths.push(`${subjName}/${uFolder}/${pFolder}/${yearStr}/output/${candidateKey}.png`);
+            }
+          }
+        }
+      }
+    }
   }
 
   // Priority 2: Check `diagrams` table for explicit imagekit_path / drive_path
@@ -150,6 +174,41 @@ export async function handleImageProxy(
         headers,
       });
     }
+  }
+
+  // Priority 4: ImageKit Search API fallback for subpart/naming variations
+  if (env.IMAGEKIT_PRIVATE_KEY && env.IMAGEKIT_PRIVATE_KEY.trim() !== '') {
+    try {
+      const parts = diagramKey.split('_');
+      if (parts.length >= 6 && parts[0].toLowerCase() === 'cape') {
+        const subjStr = parts[2].toLowerCase();
+        const yearStr = parts[4];
+        const paperStr = parts[5];
+        const numStr = parts[6] ? parts[6].replace(/\D/g, '') : '';
+
+        const searchQuery = numStr
+          ? `name:"*${subjStr}*${yearStr}*_${paperStr}_${numStr}*"`
+          : `name:"*${subjStr}*${yearStr}*_${paperStr}*"`;
+
+        const authHeader = 'Basic ' + btoa(env.IMAGEKIT_PRIVATE_KEY + ':');
+        const searchUrl = `https://api.imagekit.io/v1/files?searchQuery=${encodeURIComponent(searchQuery)}&limit=1`;
+
+        const searchRes = await fetch(searchUrl, { headers: { Authorization: authHeader } });
+        if (searchRes.ok) {
+          const files = (await searchRes.json()) as Array<{ filePath?: string; url?: string }>;
+          if (files && files.length > 0 && files[0].url) {
+            const foundUrl = files[0].url;
+            const imgResp = await fetch(foundUrl, { headers: { 'User-Agent': 'Cloudflare-Worker' } });
+            if (imgResp.ok) {
+              const headers = new Headers(imgResp.headers);
+              headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+              headers.set('Access-Control-Allow-Origin', '*');
+              return new Response(imgResp.body, { status: 200, headers });
+            }
+          }
+        }
+      }
+    } catch {}
   }
 
   // If no path succeeded

@@ -16,7 +16,8 @@ export async function handleDebugImageKit(env: Env): Promise<Response> {
   const authHeader = 'Basic ' + btoa(privateKey + ':');
 
   try {
-    const res = await fetch('https://api.imagekit.io/v1/files?limit=25', {
+    const searchUrl = 'https://api.imagekit.io/v1/files?searchQuery=' + encodeURIComponent('name : cape_1_appliedmathematics_may_2022_2_1*');
+    const res = await fetch(searchUrl, {
       headers: {
         'Authorization': authHeader,
       },
