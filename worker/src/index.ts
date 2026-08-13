@@ -13,10 +13,11 @@ import {
   handleDeletePaper,
   handleDebugImageKit,
   handleAuditAndFixDiagrams,
+  runFullDiagramAudit,
 } from './admin';
 
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const { pathname, method } = { pathname: url.pathname, method: request.method };
 
@@ -330,7 +331,10 @@ export default {
           return withCors(await handleGetPapers(env));
         }
         if (pathname === '/admin/import' && method === 'POST') {
-          return withCors(await handleImport(request, env));
+          const response = await handleImport(request, env);
+          // Auto-match diagrams in the background — no need to wait for it
+          ctx.waitUntil(runFullDiagramAudit(env));
+          return withCors(response);
         }
         if (pathname === '/admin/questions' && method === 'GET') {
           return withCors(await handleAdminGetQuestions(url, env));

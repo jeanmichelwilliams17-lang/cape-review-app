@@ -9,8 +9,133 @@
 import { Env, ImportRow } from './types';
 
 // ---------------------------------------------------------------------------
-// Helper: audit ImageKit diagram files and update D1 questions
-// Accepts ?skip=N to paginate — call repeatedly until hasMore=false.
+// Internal: process one page of ImageKit files and update both questions
+// and choice diagram keys in D1. Returns { filesInPage, questionsUpdated,
+// choicesUpdated, hasMore, nextSkip }.
+//
+// Paper 1 can have up to 5 images per question:
+//   • cape_{u}_{subj}_{mon}_{yr}_{paper}_{num}          → question diagram
+//   • cape_{u}_{subj}_{mon}_{yr}_{paper}_{num}_{a|b|c|d} → choice diagrams
+// ---------------------------------------------------------------------------
+async function auditPage(
+  env: Env,
+  authHeader: string,
+  pageSkip: number,
+  pageLimit: number
+): Promise<{
+  filesInPage: number;
+  questionsUpdated: number;
+  choicesUpdated: number;
+  hasMore: boolean;
+  nextSkip: number;
+}> {
+  let files: Array<{ name: string }> = [];
+  try {
+    const res = await fetch(
+      `https://api.imagekit.io/v1/files?limit=${pageLimit}&skip=${pageSkip}`,
+      { headers: { Authorization: authHeader } }
+    );
+    if (res.ok) {
+      files = (await res.json()) as Array<{ name: string }>;
+    }
+  } catch { /* swallow network errors */ }
+
+  const CHOICE_LABELS = new Set(['a', 'b', 'c', 'd']);
+  const qStmts: ReturnType<typeof env.DB.prepare>[] = [];
+  const cStmts: ReturnType<typeof env.DB.prepare>[] = [];
+
+  for (const f of files) {
+    const filename = f.name;
+    if (!filename.endsWith('.png') && !filename.endsWith('.jpg') && !filename.endsWith('.jpeg')) continue;
+    const diagramKey = filename.replace(/\.(png|jpg|jpeg)$/i, '').toLowerCase();
+
+    // Detect whether this is a choice diagram (ends in _a / _b / _c / _d)
+    // Pattern: cape_{u}_{subj}_{mon}_{yr}_{paper}_{num}_{label}
+    const choiceMatch = diagramKey.match(
+      /^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)_([a-z])$/i
+    );
+
+    if (choiceMatch && CHOICE_LABELS.has(choiceMatch[2].toLowerCase())) {
+      // ── Choice diagram ──
+      const baseKey   = choiceMatch[1];          // e.g. cape_1_accounting_may_2018_1_26
+      const label     = choiceMatch[2].toUpperCase(); // e.g. "A"
+      // Update the choice row whose diagram_key matches (exact or base)
+      cStmts.push(
+        env.DB.prepare(`
+          UPDATE choices
+          SET diagram_key = ?1
+          WHERE (diagram_key = ?1 OR diagram_key = ?2)
+            AND label = ?3
+        `).bind(diagramKey, baseKey + '_' + label.toLowerCase(), label)
+      );
+      // Also ensure the parent question has diagram_present = 1
+      qStmts.push(
+        env.DB.prepare(`
+          UPDATE questions
+          SET diagram_present = 1
+          WHERE question_diagram_key = ?1 OR question_diagram_key LIKE ?2
+        `).bind(baseKey, baseKey + '%')
+      );
+    } else {
+      // ── Question diagram ──
+      const m = diagramKey.match(/^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)/i);
+      const baseKey = m ? m[1] : diagramKey;
+      qStmts.push(
+        env.DB.prepare(`
+          UPDATE questions
+          SET diagram_present = 1,
+              question_diagram_key = ?1
+          WHERE question_diagram_key = ?1 OR question_diagram_key = ?2
+        `).bind(diagramKey, baseKey)
+      );
+    }
+  }
+
+  const BATCH_LIMIT = 75;
+  let questionsUpdated = 0;
+  let choicesUpdated   = 0;
+
+  // Flush question statements
+  for (let i = 0; i < qStmts.length; i += BATCH_LIMIT) {
+    const res = await env.DB.batch(qStmts.slice(i, i + BATCH_LIMIT));
+    questionsUpdated += res.reduce((s, r) => s + r.meta.changes, 0);
+  }
+  // Flush choice statements
+  for (let i = 0; i < cStmts.length; i += BATCH_LIMIT) {
+    const res = await env.DB.batch(cStmts.slice(i, i + BATCH_LIMIT));
+    choicesUpdated += res.reduce((s, r) => s + r.meta.changes, 0);
+  }
+
+  const hasMore = files.length === pageLimit;
+  return {
+    filesInPage: files.length,
+    questionsUpdated,
+    choicesUpdated,
+    hasMore,
+    nextSkip: pageSkip + pageLimit,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Exported: run the full audit across ALL ImageKit pages (used by waitUntil
+// after import so it runs in the background without blocking the response).
+// ---------------------------------------------------------------------------
+export async function runFullDiagramAudit(env: Env): Promise<void> {
+  const privateKey = env.IMAGEKIT_PRIVATE_KEY ?? '';
+  if (!privateKey) return;
+  const authHeader = 'Basic ' + btoa(privateKey + ':');
+  const pageLimit = 500;
+  let skip = 0;
+  for (;;) {
+    const page = await auditPage(env, authHeader, skip, pageLimit);
+    if (!page.hasMore) break;
+    skip = page.nextSkip;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HTTP handler: audit one page of ImageKit files (paginated via ?skip=N)
+// Call repeatedly until hasMore=false.
 // ---------------------------------------------------------------------------
 export async function handleAuditAndFixDiagrams(
   env: Env,
@@ -21,71 +146,14 @@ export async function handleAuditAndFixDiagrams(
     return Response.json({ error: 'IMAGEKIT_PRIVATE_KEY missing' }, { status: 500 });
   }
 
-  const pageSkip = Number(url.searchParams.get('skip') ?? 0);
-  const pageLimit = 500; // process 500 files per call to stay well within Worker CPU limits
-
+  const pageSkip  = Number(url.searchParams.get('skip') ?? 0);
+  const pageLimit = 500;
   const authHeader = 'Basic ' + btoa(privateKey + ':');
 
-  // Fetch one page of ImageKit files
-  let files: Array<{ name: string; filePath: string }> = [];
-  try {
-    const res = await fetch(
-      `https://api.imagekit.io/v1/files?limit=${pageLimit}&skip=${pageSkip}`,
-      { headers: { Authorization: authHeader } }
-    );
-    if (!res.ok) {
-      const errText = await res.text();
-      return Response.json({ error: `ImageKit API error ${res.status}: ${errText}` }, { status: 502 });
-    }
-    files = (await res.json()) as Array<{ name: string; filePath: string }>;
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return Response.json({ error: msg }, { status: 500 });
-  }
-
-  let updatedCount = 0;
-  const auditLogs: string[] = [];
-
-  // Build batch of D1 statements for this page
-  const statements: ReturnType<typeof env.DB.prepare>[] = [];
-  for (const f of files) {
-    const filename = f.name;
-    if (!filename.endsWith('.png') && !filename.endsWith('.jpg') && !filename.endsWith('.jpeg')) continue;
-    const diagramKey = filename.replace(/\.(png|jpg|jpeg)$/i, '');
-    const m = diagramKey.match(/^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)/i);
-    const baseQuestionKey = m ? m[1] : diagramKey;
-
-    statements.push(
-      env.DB.prepare(`
-        UPDATE questions
-        SET diagram_present = 1,
-            question_diagram_key = ?1
-        WHERE question_diagram_key = ?1 OR question_diagram_key = ?2
-      `).bind(diagramKey, baseQuestionKey)
-    );
-  }
-
-  // Run batch if there are statements
-  if (statements.length > 0) {
-    const results = await env.DB.batch(statements);
-    for (let i = 0; i < results.length; i++) {
-      const r = results[i];
-      if (r.meta.changes > 0) {
-        updatedCount += r.meta.changes;
-        const filename = files[i].name.replace(/\.(png|jpg|jpeg)$/i, '');
-        auditLogs.push(`+${r.meta.changes} rows for ${filename}`);
-      }
-    }
-  }
-
-  const hasMore = files.length === pageLimit;
+  const page = await auditPage(env, authHeader, pageSkip, pageLimit);
   return Response.json({
     skip: pageSkip,
-    filesInPage: files.length,
-    questionsUpdated: updatedCount,
-    hasMore,
-    nextSkip: hasMore ? pageSkip + pageLimit : null,
-    auditLogs,
+    ...page,
   });
 }
 
