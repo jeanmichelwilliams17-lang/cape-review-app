@@ -228,10 +228,19 @@ function normaliseUnit(unit: string | undefined, subject?: string): string {
 // e.g. "Applied Mathematics U2" → "AppliedMathematics"
 // ---------------------------------------------------------------------------
 function cleanSubjectName(subject: string): string {
-  return subject.trim()
+  const s = subject.trim()
     .replace(/\s*(?:[Uu]nit\s*|[Uu]|\s+)[12]$/i, '')
     .replace(/\s+/g, '')
     .trim();
+
+  const lower = s.toLowerCase();
+  if (lower === 'i.t' || lower === 'it' || lower === 'informationtechnology') {
+    return 'InformationTechnology';
+  }
+  if (lower === 'mob' || lower === 'managementofbusiness') {
+    return 'ManagementOfBusiness';
+  }
+  return s;
 }
 
 // ---------------------------------------------------------------------------
@@ -329,9 +338,10 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
     // Skip blank rows — Question is required
     if (!row.Question) { skipped++; continue; }
 
-    const subject = String(row.Subject ?? '').trim();
-    if (!subject) { skipped++; continue; }
+    const rawSubject = String(row.Subject ?? '').trim();
+    if (!rawSubject) { skipped++; continue; }
 
+    const subject   = cleanSubjectName(rawSubject);
     const rawUnit   = row.Unit ?? row.unit ?? row.UNIT ?? (row as Record<string, unknown>)['Unit '] ?? (row as Record<string, unknown>)['unit '];
     const unit      = rawUnit != null ? String(rawUnit).trim() : undefined;
     const subjectId = await getSubjectId(subject);
@@ -341,12 +351,13 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
     const part      = row.Part    ? String(row.Part)    : null;
     const subpart   = row.Subpart ? String(row.Subpart) : null;
 
-    const diagKey = buildDiagramKey(
+    const explicitQuestionDiagKey = row['Question Diagram Path Prefix'] ? String(row['Question Diagram Path Prefix']).trim() : null;
+    const diagKey = explicitQuestionDiagKey || buildDiagramKey(
       subject, month ?? undefined, year ?? undefined, paper, num, unit
     );
 
-    // Validated question code: prefer 'Validated Question Code', fall back to raw
-    const questionCode  = String(row['Validated Question Code'] ?? row.Question);
+    // Validated question code: prefer 'Validated Question Code', fall back to 'Q', then raw 'Question'
+    const questionCode  = String(row['Validated Question Code'] ?? row['Q'] ?? row.Question);
     const correctChoice = paper === 1 ? (row.Correct ? String(row.Correct) : null) : null;
     const marks         = paper === 2 ? (row.Marks != null ? Number(row.Marks) : null) : null;
     const sourceSheet   = String((row as Record<string, unknown>)._sheet ?? 'imported');
@@ -404,7 +415,8 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
         // Prefer 'Validated Answer X Code', then single-letter shorthand, then raw
         const answerCode = String(row[answerCodeKey] ?? row[shorthandKey] ?? answerText);
 
-        const choiceDiagKey = buildDiagramKey(
+        const explicitChoiceDiagKey = row[diagPrefixKey] ? String(row[diagPrefixKey]).trim() : null;
+        const choiceDiagKey = explicitChoiceDiagKey || buildDiagramKey(
           subject, month ?? undefined, year ?? undefined, paper, num, unit, label
         );
 
@@ -423,7 +435,7 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
             label,
             answerText,
             answerCode,
-            row[diagPrefixKey] ? String(row[diagPrefixKey]) : choiceDiagKey,
+            choiceDiagKey,
             subjectId,
             month, year,
             paper, num, part, subpart
