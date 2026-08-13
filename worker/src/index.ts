@@ -77,7 +77,7 @@ export default {
       if (pathname === '/subjects' && method === 'GET') {
         const { results } = await env.DB.prepare(`
           SELECT
-            s.id,
+            MIN(s.id) AS id,
             CASE
               WHEN s.name LIKE '%U1' OR s.name LIKE '%U2' THEN s.name
               WHEN q.question_diagram_key LIKE 'cape_1_%' THEN s.name || ' U1'
@@ -89,7 +89,7 @@ export default {
             SUM(CASE WHEN q.paper = 2 THEN 1 ELSE 0 END) AS p2_count
           FROM subjects s
           JOIN questions q ON q.subject_id = s.id
-          GROUP BY s.id, name, q.year
+          GROUP BY name, q.year
           ORDER BY name, q.year
         `).all();
         return withCors(Response.json(results));
@@ -120,10 +120,10 @@ export default {
         let baseSubject = rawSubj;
         let unitPattern: string | null = null;
         if (rawSubj) {
-          const match = rawSubj.match(/^(.*?)\s*(?:Unit\s*([12])|U([12]))$/i);
+          const match = rawSubj.match(/^(.*?)\s*(?:Unit\s*([12])|U([12])|([12]))$/i);
           if (match) {
             baseSubject = match[1].trim();
-            const uNum = match[2] || match[3];
+            const uNum = match[2] || match[3] || match[4];
             unitPattern = `cape_${uNum}_%`;
           }
         }

@@ -202,25 +202,42 @@ async function upsertSubject(env: Env, name: string): Promise<number> {
 }
 
 // ---------------------------------------------------------------------------
-// Helper: normalise the Unit column value → just the number string
-// "U2" → "2", "Unit 2" → "2", "2" → "2"
 // ---------------------------------------------------------------------------
-function normaliseUnit(unit: string | undefined): string {
-  if (!unit) return 'u';
-  return String(unit).trim()
-    .replace(/^[Uu]nit\s*/i, '')  // strip "Unit " prefix
-    .replace(/^[Uu]/i, '')         // strip leading "U"
-    .trim() || 'u';
+// Helper: normalise the Unit value → "1" or "2"
+// Checks the explicit Unit column first, then falls back to Subject string.
+// ---------------------------------------------------------------------------
+function normaliseUnit(unit: string | undefined, subject?: string): string {
+  if (unit != null && String(unit).trim() !== '') {
+    const cleaned = String(unit).trim()
+      .replace(/^[Uu]nit\s*/i, '')
+      .replace(/^[Uu]/i, '')
+      .trim();
+    if (cleaned === '1' || cleaned === '2') return cleaned;
+  }
+
+  if (subject) {
+    const m = subject.match(/(?:[Uu]nit\s*|[Uu]|\s+)([12])$/i);
+    if (m) return m[1];
+  }
+
+  return '1';
+}
+
+// ---------------------------------------------------------------------------
+// Helper: clean subject name by removing trailing unit indicators
+// e.g. "Applied Mathematics U2" → "AppliedMathematics"
+// ---------------------------------------------------------------------------
+function cleanSubjectName(subject: string): string {
+  return subject.trim()
+    .replace(/\s*(?:[Uu]nit\s*|[Uu]|\s+)[12]$/i, '')
+    .replace(/\s+/g, '')
+    .trim();
 }
 
 // ---------------------------------------------------------------------------
 // Helper: build a diagram_key from a row's metadata
 // Format: cape_{unit}_{subject_slug}_{month_slug}_{year}_{paper}_{number}
 //         + optional _{choice_label} for choice diagrams
-//
-// Subject is stored combined (e.g. "PhysicsU2") — we strip the trailing
-// unit suffix to get the slug (e.g. "physics"), then put the unit first.
-// Example: PhysicsU2 + Unit "2" → cape_2_physics_may_2024_1_45
 // ---------------------------------------------------------------------------
 function buildDiagramKey(
   subject: string,
@@ -231,9 +248,8 @@ function buildDiagramKey(
   unit?: string,
   choiceLabel?: string
 ): string {
-  const unitSlug    = normaliseUnit(unit);
-  // Strip trailing unit suffix from combined subject name (e.g. "PhysicsU2" → "physics")
-  const subjectSlug = subject.toLowerCase().replace(/\s+/g, '').replace(/u\d+$/i, '');
+  const unitSlug    = normaliseUnit(unit, subject);
+  const subjectSlug = cleanSubjectName(subject).toLowerCase();
   const monthSlug   = (month ?? 'unknown').toLowerCase();
   const base = `cape_${unitSlug}_${subjectSlug}_${monthSlug}_${year ?? 0}_${paper}_${number}`;
   return choiceLabel ? `${base}_${choiceLabel.toLowerCase()}` : base;
