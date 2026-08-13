@@ -33,6 +33,5 @@ struct DiagramView: View {
                 }
             }
         }
-        }
     }
 }
