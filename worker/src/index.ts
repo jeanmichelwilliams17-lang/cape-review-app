@@ -61,20 +61,25 @@ export default {
 
     try {
       // -----------------------------------------------------------------------
-      // GET /subjects
+      // GET /subjects — lists subjects with Unit 1 / Unit 2 separation
       // -----------------------------------------------------------------------
       if (pathname === '/subjects' && method === 'GET') {
         const { results } = await env.DB.prepare(`
           SELECT
             s.id,
-            s.name,
+            CASE
+              WHEN s.name LIKE '%U1' OR s.name LIKE '%U2' THEN s.name
+              WHEN q.question_diagram_key LIKE 'cape_1_%' THEN s.name || ' U1'
+              WHEN q.question_diagram_key LIKE 'cape_2_%' THEN s.name || ' U2'
+              ELSE s.name || ' U1'
+            END AS name,
             q.year,
             SUM(CASE WHEN q.paper = 1 THEN 1 ELSE 0 END) AS p1_count,
             SUM(CASE WHEN q.paper = 2 THEN 1 ELSE 0 END) AS p2_count
           FROM subjects s
-          LEFT JOIN questions q ON q.subject_id = s.id
-          GROUP BY s.id, s.name, q.year
-          ORDER BY s.name, q.year
+          JOIN questions q ON q.subject_id = s.id
+          GROUP BY s.id, name, q.year
+          ORDER BY name, q.year
         `).all();
         return withCors(Response.json(results));
       }
@@ -92,23 +97,33 @@ export default {
       // -----------------------------------------------------------------------
       // GET /questions
       // Supports: paper, subject, review_status, reviewer, cursor, limit
-      // "unreviewed by me": when review_status=unreviewed AND reviewer is set,
-      // excludes questions this reviewer has already submitted any review for.
       // -----------------------------------------------------------------------
       if (pathname === '/questions' && method === 'GET') {
         const paper    = url.searchParams.get('paper');
-        const subject  = url.searchParams.get('subject');
+        const rawSubj  = url.searchParams.get('subject');
         const status   = url.searchParams.get('review_status');
         const reviewer = url.searchParams.get('reviewer');
         const limit    = Number(url.searchParams.get('limit')  ?? 50);
         const cursor   = Number(url.searchParams.get('cursor') ?? 0);
+
+        let baseSubject = rawSubj;
+        let unitPattern: string | null = null;
+        if (rawSubj) {
+          const match = rawSubj.match(/^(.*?)\s*(?:Unit\s*([12])|U([12]))$/i);
+          if (match) {
+            baseSubject = match[1].trim();
+            const uNum = match[2] || match[3];
+            unitPattern = `cape_${uNum}_%`;
+          }
+        }
 
         const { results } = await env.DB.prepare(`
           SELECT q.*, s.name AS subject_name
           FROM questions q
           JOIN subjects s ON s.id = q.subject_id
           WHERE (?1 IS NULL OR q.paper = CAST(?1 AS INTEGER))
-            AND (?2 IS NULL OR s.name  = ?2)
+            AND (?2 IS NULL OR s.name = ?2 OR s.name = ?7)
+            AND (?8 IS NULL OR q.question_diagram_key LIKE ?8)
             AND (
               ?3 IS NULL
               OR (
@@ -129,7 +144,7 @@ export default {
             )
           ORDER BY q.id
           LIMIT ?5 OFFSET ?6
-        `).bind(paper, subject, status, reviewer, limit, cursor).all();
+        `).bind(paper, rawSubj, status, reviewer, limit, cursor, baseSubject, unitPattern).all();
 
         return withCors(Response.json(results));
       }
