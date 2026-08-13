@@ -157,7 +157,43 @@ export default {
           LIMIT ?5 OFFSET ?6
         `).bind(paper, rawSubj, status, reviewer, limit, cursor, baseSubject, unitPattern).all();
 
-        return withCors(Response.json(results));
+        const questionsList = (results ?? []) as Array<Record<string, unknown>>;
+        const p1QuestionIds = questionsList
+          .filter(q => Number(q.paper) === 1)
+          .map(q => Number(q.id));
+
+        if (p1QuestionIds.length > 0) {
+          const placeholders = p1QuestionIds.map(() => '?').join(',');
+          const { results: choicesRows } = await env.DB.prepare(`
+            SELECT id, question_id, label, answer_raw, answer_code, diagram_key
+            FROM choices
+            WHERE question_id IN (${placeholders})
+            ORDER BY question_id, label
+          `).bind(...p1QuestionIds).all<{
+            id: number;
+            question_id: number;
+            label: string;
+            answer_raw: string;
+            answer_code: string;
+            diagram_key: string | null;
+          }>();
+
+          const choicesMap = new Map<number, typeof choicesRows>();
+          for (const c of choicesRows) {
+            if (!choicesMap.has(c.question_id)) {
+              choicesMap.set(c.question_id, []);
+            }
+            choicesMap.get(c.question_id)!.push(c);
+          }
+
+          for (const q of questionsList) {
+            if (Number(q.paper) === 1) {
+              q.choices = choicesMap.get(Number(q.id)) ?? [];
+            }
+          }
+        }
+
+        return withCors(Response.json(questionsList));
       }
 
       // -----------------------------------------------------------------------
