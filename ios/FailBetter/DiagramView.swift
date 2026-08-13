@@ -17,22 +17,22 @@ struct DiagramView: View {
                         .resizable()
                         .scaledToFit()
                         .cornerRadius(8)
+                        .frame(maxWidth: .infinity)
 
                 case .failure:
                     // Fail silently — many questions simply have no diagram.
-                    // The `diagram_present` flag on the parent view guards this,
-                    // so if we're here and there's a genuine 404 it just disappears.
                     EmptyView()
 
                 case .empty:
                     ProgressView()
                         .controlSize(.small)
+                        .frame(maxWidth: .infinity)
 
                 @unknown default:
                     EmptyView()
                 }
             }
-            .frame(maxWidth: .infinity)
+        }
         }
     }
 }

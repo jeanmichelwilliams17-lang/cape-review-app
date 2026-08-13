@@ -4,14 +4,19 @@ import Foundation
 // MARK: - Subject
 
 struct Subject: Codable, Identifiable {
-    let id: Int
+    let dbId: Int
     let name: String
     let year: Int?
     let p1Count: Int?
     let p2Count: Int?
 
+    var id: String {
+        "\(dbId)-\(name)-\(year ?? 0)"
+    }
+
     enum CodingKeys: String, CodingKey {
-        case id, name, year
+        case dbId = "id"
+        case name, year
         case p1Count = "p1_count"
         case p2Count = "p2_count"
     }
