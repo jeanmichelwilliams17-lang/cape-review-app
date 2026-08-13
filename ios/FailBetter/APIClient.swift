@@ -90,7 +90,9 @@ final class APIClient {
 
     // ── Image URL (for AsyncImage / DiagramView) ─────────────────────────
     func imageURL(forDiagramKey key: String) -> URL? {
-        workerURL?.appendingPathComponent("images/\(key)")
+        guard let workerURL else { return nil }
+        let safeKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
+        return workerURL.appendingPathComponent("images/\(safeKey)")
     }
 
     // MARK: - Public API

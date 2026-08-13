@@ -156,13 +156,16 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
     const marks         = paper === 2 ? (row.Marks != null ? Number(row.Marks) : null) : null;
     const sourceSheet   = String((row as Record<string, unknown>)._sheet ?? 'imported');
 
+    const rawDiagPres = String(row['Diagram Present'] ?? row['Diagram_Present'] ?? (row as Record<string, unknown>).diagram_present ?? '');
+    const diagPresent = (rawDiagPres && ['yes', '1', 'true'].includes(rawDiagPres.trim().toLowerCase())) || row['Question Diagram Path Prefix'] ? 1 : 0;
+
     stmts.push(
       env.DB.prepare(`
         INSERT INTO questions (
           source_workbook, source_sheet, exam, subject_id, month, year, paper,
           number, part, subpart, section, topic, difficulty, marks, correct_choice,
-          question_raw, question_code, question_diagram_key
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+          question_raw, question_code, question_diagram_key, diagram_present
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(source_workbook, subject_id, month, year, paper, number, part, subpart)
         DO UPDATE SET
           question_raw          = excluded.question_raw,
@@ -172,7 +175,8 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
           difficulty            = excluded.difficulty,
           marks                 = excluded.marks,
           correct_choice        = excluded.correct_choice,
-          question_diagram_key  = excluded.question_diagram_key
+          question_diagram_key  = excluded.question_diagram_key,
+          diagram_present       = excluded.diagram_present
       `).bind(
         paper === 1 ? 'P1' : 'P2',
         sourceSheet,
@@ -186,7 +190,8 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
         correctChoice,
         String(row.Question),
         questionCode,
-        diagKey
+        diagKey,
+        diagPresent
       )
     );
 

@@ -103,7 +103,13 @@ struct Question: Codable, Identifiable {
         section              = try c.decodeIfPresent(String.self, forKey: .section)
         topic                = try c.decodeIfPresent(String.self, forKey: .topic)
         difficulty           = try c.decodeIfPresent(String.self, forKey: .difficulty)
-        marks                = try c.decodeIfPresent(Double.self, forKey: .marks)
+        if let doubleVal = try? c.decodeIfPresent(Double.self, forKey: .marks) {
+            marks = doubleVal
+        } else if let intVal = try? c.decodeIfPresent(Int.self, forKey: .marks) {
+            marks = Double(intVal)
+        } else {
+            marks = nil
+        }
         correctChoice        = try c.decodeIfPresent(String.self, forKey: .correctChoice)
         questionRaw          = try c.decode(String.self, forKey: .questionRaw)
         questionCode         = try c.decode(String.self, forKey: .questionCode)

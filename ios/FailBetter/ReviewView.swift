@@ -116,7 +116,7 @@ struct ReviewView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     // Optional diagram
-                    if q.diagramPresent, let key = q.questionDiagramKey {
+                    if (q.diagramPresent || !(q.questionDiagramKey?.isEmpty ?? true)), let key = q.questionDiagramKey, !key.isEmpty {
                         DiagramView(diagramKey: key)
                     }
 

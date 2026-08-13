@@ -5,12 +5,9 @@
 // Images are stored in nested ImageKit folders:
 //   {IMAGEKIT_FOLDER}/{Subject}/P{paper}/{year}/output/{filename}.png
 //
-// We query the questions table to get the subject name, paper, and year,
-// then construct the full ImageKit path and sign it.
-//
-// The diagram_key in the DB is all-lowercase but the actual filenames may
-// preserve subject casing. We try the DB key first, then a reconstructed
-// key using the subject name casing from the DB.
+// We query:
+//   1. `diagrams` table for direct `drive_path` lookup.
+//   2. `questions` + `choices` + `subjects` table to reconstruct ImageKit path.
 //
 // Signed URL format (ImageKit docs):
 //   signature = HMAC-SHA1( privateKey, urlPath + expiry )
@@ -33,41 +30,74 @@ export async function handleImageProxy(
   const base = env.IMAGEKIT_BASE_URL.replace(/\/$/, '');
   const folder = (env.IMAGEKIT_FOLDER ?? 'Diagrams').replace(/^\/|\/$/g, '');
 
-  let imgPath: string;
-  try {
-    const row = await env.DB.prepare(`
-      SELECT s.name AS subject_name, q.paper, q.year
-      FROM questions q
-      JOIN subjects s ON s.id = q.subject_id
-      WHERE q.question_diagram_key = ?1
-      LIMIT 1
-    `).bind(diagramKey).first<{ subject_name: string; paper: number; year: number }>();
+  let imgPath: string | null = null;
 
-    if (row) {
-      const parts = diagramKey.split('_');
-      const month = parts.length >= 4 ? parts[2] : 'unknown';
-      const num = parts.length >= 6 ? parts[parts.length - 1] : '0';
-      // Subject name is e.g. "AppliedMathematicsU1"
-      // ImageKit filename uses: lowercase alphabetic part + preserve unit suffix (U1)
-      const subjectSlug = row.subject_name.replace(/\s+/g, '');
-      // "AppliedMathematicsU1" → "appliedmathematicsU1"
-      // Split: PascalCase letters + unit suffix (e.g. U1, U2)
-      const unitMatch = subjectSlug.match(/^(.*?)(U\d+)$/);
-      const fileSubjectSlug = unitMatch
-        ? unitMatch[1].toLowerCase() + unitMatch[2]
-        : subjectSlug.toLowerCase();
-      const reconstructedKey = `cape_${fileSubjectSlug}_${month}_${row.year}_${row.paper}_${num}`;
-      imgPath = `${folder}/${row.subject_name}/P${row.paper}/${row.year}/output/${reconstructedKey}.png`;
+  try {
+    // 1. First priority: Check `diagrams` table for explicit drive_path
+    const diagRow = await env.DB.prepare(`
+      SELECT drive_path FROM diagrams WHERE diagram_key = ?1 LIMIT 1
+    `).bind(diagramKey).first<{ drive_path: string }>();
+
+    if (diagRow?.drive_path) {
+      imgPath = diagRow.drive_path;
     } else {
-      imgPath = `${folder}/${diagramKey}.png`;
+      // 2. Second priority: Query questions/choices/subjects to reconstruct path
+      const choiceMatch = diagramKey.match(/_([abcd])$/i);
+      const choiceLabel = choiceMatch ? choiceMatch[1].toLowerCase() : null;
+      const baseDiagramKey = choiceMatch ? diagramKey.replace(/_([abcd])$/i, '') : diagramKey;
+
+      const row = await env.DB.prepare(`
+        SELECT s.name AS subject_name, q.paper, q.year, q.number, q.month
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        LEFT JOIN choices c ON c.question_id = q.id
+        WHERE q.question_diagram_key = ?1 OR c.diagram_key = ?1 OR q.question_diagram_key = ?2
+        LIMIT 1
+      `).bind(diagramKey, baseDiagramKey).first<{
+        subject_name: string;
+        paper: number;
+        year: number;
+        number: number;
+        month: string | null;
+      }>();
+
+      if (row) {
+        const parts = baseDiagramKey.split('_');
+        const monthSlug = (row.month ?? (parts.length >= 4 ? parts[3] : 'unknown')).toLowerCase();
+
+        // Subject name is e.g. "AppliedMathematicsU1" or "PhysicsU2"
+        const subjectSlug = row.subject_name.replace(/\s+/g, '');
+        const unitMatch = subjectSlug.match(/^(.*?)(U\d+)$/i);
+        const fileSubjectSlug = unitMatch
+          ? unitMatch[1].toLowerCase() + unitMatch[2].toUpperCase()
+          : subjectSlug.toLowerCase();
+
+        const reconstructedKey = choiceLabel
+          ? `cape_${fileSubjectSlug}_${monthSlug}_${row.year}_${row.paper}_${row.number}_${choiceLabel}`
+          : `cape_${fileSubjectSlug}_${monthSlug}_${row.year}_${row.paper}_${row.number}`;
+
+        imgPath = `${row.subject_name}/P${row.paper}/${row.year}/output/${reconstructedKey}.png`;
+      }
     }
-  } catch {
-    imgPath = `${folder}/${diagramKey}.png`;
+  } catch (err) {
+    console.error('Image proxy lookup error:', err);
   }
 
+  // Fallback if no metadata found in DB
+  if (!imgPath) {
+    imgPath = `${diagramKey}.png`;
+  }
+
+  // Clean path format with folder prefix
+  let cleanPath = imgPath.replace(/^\/+/, '');
+  if (folder && !cleanPath.toLowerCase().startsWith(folder.toLowerCase() + '/')) {
+    cleanPath = `${folder}/${cleanPath}`;
+  }
+
+  const pathForSignature = cleanPath.startsWith('/') ? cleanPath : '/' + cleanPath;
   const expiry = Math.floor(Date.now() / 1000) + EXPIRY_SECONDS;
-  const signature = await hmacSha1Hex(env.IMAGEKIT_PRIVATE_KEY, `${imgPath}${expiry}`);
-  const signedUrl = `${base}/${imgPath}?ik-s=${signature}&ik-t=${expiry}`;
+  const signature = await hmacSha1Hex(env.IMAGEKIT_PRIVATE_KEY, `${pathForSignature}${expiry}`);
+  const signedUrl = `${base}${pathForSignature}?ik-s=${signature}&ik-t=${expiry}`;
 
   return Response.redirect(signedUrl, 302);
 }
