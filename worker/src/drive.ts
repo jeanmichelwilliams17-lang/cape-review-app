@@ -41,9 +41,8 @@ export async function handleImageProxy(
     if (diagRow?.drive_path) {
       imgPath = diagRow.drive_path;
     } else {
-      // 2. Second priority: Query questions/choices/subjects to reconstruct path
+      // 2. Second priority: Query questions/choices/subjects to find subject, paper, year
       const choiceMatch = diagramKey.match(/_([abcd])$/i);
-      const choiceLabel = choiceMatch ? choiceMatch[1].toLowerCase() : null;
       const baseDiagramKey = choiceMatch ? diagramKey.replace(/_([abcd])$/i, '') : diagramKey;
 
       const row = await env.DB.prepare(`
@@ -61,22 +60,8 @@ export async function handleImageProxy(
         month: string | null;
       }>();
 
-      if (row) {
-        const parts = baseDiagramKey.split('_');
-        const monthSlug = (row.month ?? (parts.length >= 4 ? parts[3] : 'unknown')).toLowerCase();
-
-        // Subject name is e.g. "AppliedMathematicsU1" or "PhysicsU2"
-        const subjectSlug = row.subject_name.replace(/\s+/g, '');
-        const unitMatch = subjectSlug.match(/^(.*?)(U\d+)$/i);
-        const fileSubjectSlug = unitMatch
-          ? unitMatch[1].toLowerCase() + unitMatch[2].toUpperCase()
-          : subjectSlug.toLowerCase();
-
-        const reconstructedKey = choiceLabel
-          ? `cape_${fileSubjectSlug}_${monthSlug}_${row.year}_${row.paper}_${row.number}_${choiceLabel}`
-          : `cape_${fileSubjectSlug}_${monthSlug}_${row.year}_${row.paper}_${row.number}`;
-
-        imgPath = `${row.subject_name}/P${row.paper}/${row.year}/output/${reconstructedKey}.png`;
+      if (row && row.paper && row.year) {
+        imgPath = `${row.subject_name}/P${row.paper}/${row.year}/output/${diagramKey}.png`;
       }
     }
   } catch (err) {

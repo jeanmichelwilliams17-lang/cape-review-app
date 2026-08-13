@@ -48,7 +48,7 @@ struct ReviewView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .task(id: reviewerName) {
+        .task(id: "\(paper)-\(subjectName ?? "")-\(reviewerName)") {
             guard !reviewerName.isEmpty else { return }
             questions = []
             cursor    = 0

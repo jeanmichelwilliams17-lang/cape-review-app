@@ -26,7 +26,7 @@ struct DiagramView: View {
 
                 case .empty:
                     ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 60)
+                        .controlSize(.small)
 
                 @unknown default:
                     EmptyView()

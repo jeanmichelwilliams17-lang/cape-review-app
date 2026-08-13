@@ -94,15 +94,42 @@ struct Question: Codable, Identifiable {
     // Convert the DB integer flag (0/1) to Bool
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        id                   = try c.decode(Int.self,    forKey: .id)
-        paper                = try c.decode(Int.self,    forKey: .paper)
-        subjectName          = try c.decode(String.self, forKey: .subjectName)
-        number               = try c.decode(Int.self,    forKey: .number)
-        part                 = try c.decodeIfPresent(String.self, forKey: .part)
-        subpart              = try c.decodeIfPresent(String.self, forKey: .subpart)
-        section              = try c.decodeIfPresent(String.self, forKey: .section)
-        topic                = try c.decodeIfPresent(String.self, forKey: .topic)
-        difficulty           = try c.decodeIfPresent(String.self, forKey: .difficulty)
+        id = try c.decode(Int.self, forKey: .id)
+        paper = (try? c.decodeIfPresent(Int.self, forKey: .paper)) ?? 1
+        subjectName = (try? c.decodeIfPresent(String.self, forKey: .subjectName)) ?? ""
+        number = (try? c.decodeIfPresent(Int.self, forKey: .number)) ?? 0
+
+        // Part: String or Int
+        if let s = try? c.decodeIfPresent(String.self, forKey: .part) {
+            part = s
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .part) {
+            part = String(i)
+        } else {
+            part = nil
+        }
+
+        // Subpart: String or Int
+        if let s = try? c.decodeIfPresent(String.self, forKey: .subpart) {
+            subpart = s
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .subpart) {
+            subpart = String(i)
+        } else {
+            subpart = nil
+        }
+
+        section = try? c.decodeIfPresent(String.self, forKey: .section)
+        topic = try? c.decodeIfPresent(String.self, forKey: .topic)
+
+        // Difficulty: String or Int
+        if let s = try? c.decodeIfPresent(String.self, forKey: .difficulty) {
+            difficulty = s
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .difficulty) {
+            difficulty = String(i)
+        } else {
+            difficulty = nil
+        }
+
+        // Marks: Double or Int
         if let doubleVal = try? c.decodeIfPresent(Double.self, forKey: .marks) {
             marks = doubleVal
         } else if let intVal = try? c.decodeIfPresent(Int.self, forKey: .marks) {
@@ -110,22 +137,35 @@ struct Question: Codable, Identifiable {
         } else {
             marks = nil
         }
-        correctChoice        = try c.decodeIfPresent(String.self, forKey: .correctChoice)
-        questionRaw          = try c.decode(String.self, forKey: .questionRaw)
-        questionCode         = try c.decode(String.self, forKey: .questionCode)
-        questionDiagramKey   = try c.decodeIfPresent(String.self, forKey: .questionDiagramKey)
-        year                 = try c.decodeIfPresent(Int.self,    forKey: .year)
-        month                = try c.decodeIfPresent(String.self, forKey: .month)
-        reviewCount          = try c.decode(Int.self,    forKey: .reviewCount)
-        latestReviewStatus   = try c.decode(String.self, forKey: .latestReviewStatus)
-        choices              = try c.decodeIfPresent([Choice].self,      forKey: .choices)
-        reviews              = try c.decodeIfPresent([ReviewEntry].self, forKey: .reviews)
 
-        // Stored as INTEGER 0/1 in D1
-        let dpInt  = try c.decodeIfPresent(Int.self, forKey: .diagramPresent) ?? 0
-        let hcrInt = try c.decodeIfPresent(Int.self, forKey: .hasConflictingReviews) ?? 0
-        diagramPresent         = dpInt  != 0
-        hasConflictingReviews  = hcrInt != 0
+        correctChoice = try? c.decodeIfPresent(String.self, forKey: .correctChoice)
+        questionRaw = (try? c.decodeIfPresent(String.self, forKey: .questionRaw)) ?? ""
+        questionCode = (try? c.decodeIfPresent(String.self, forKey: .questionCode)) ?? questionRaw
+        questionDiagramKey = try? c.decodeIfPresent(String.self, forKey: .questionDiagramKey)
+        year = try? c.decodeIfPresent(Int.self, forKey: .year)
+        month = try? c.decodeIfPresent(String.self, forKey: .month)
+        reviewCount = (try? c.decodeIfPresent(Int.self, forKey: .reviewCount)) ?? 0
+        latestReviewStatus = (try? c.decodeIfPresent(String.self, forKey: .latestReviewStatus)) ?? "unreviewed"
+        choices = try? c.decodeIfPresent([Choice].self, forKey: .choices)
+        reviews = try? c.decodeIfPresent([ReviewEntry].self, forKey: .reviews)
+
+        // DiagramPresent: Bool or Int
+        if let b = try? c.decodeIfPresent(Bool.self, forKey: .diagramPresent) {
+            diagramPresent = b
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .diagramPresent) {
+            diagramPresent = (i != 0)
+        } else {
+            diagramPresent = false
+        }
+
+        // HasConflictingReviews: Bool or Int
+        if let b = try? c.decodeIfPresent(Bool.self, forKey: .hasConflictingReviews) {
+            hasConflictingReviews = b
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .hasConflictingReviews) {
+            hasConflictingReviews = (i != 0)
+        } else {
+            hasConflictingReviews = false
+        }
     }
 }
 
