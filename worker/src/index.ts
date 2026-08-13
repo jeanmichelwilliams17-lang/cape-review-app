@@ -63,7 +63,7 @@ export default {
 
     try {
       if (pathname === '/admin/audit-diagrams' && (method === 'POST' || method === 'GET')) {
-        return withCors(await handleAuditAndFixDiagrams(env));
+        return withCors(await handleAuditAndFixDiagrams(env, url));
       }
 
       if (pathname === '/admin/debug-imagekit' && method === 'GET') {

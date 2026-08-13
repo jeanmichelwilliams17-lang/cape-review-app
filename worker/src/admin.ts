@@ -9,62 +9,83 @@
 import { Env, ImportRow } from './types';
 
 // ---------------------------------------------------------------------------
-// Helper: audit all ImageKit diagram files and update D1 questions
+// Helper: audit ImageKit diagram files and update D1 questions
+// Accepts ?skip=N to paginate — call repeatedly until hasMore=false.
 // ---------------------------------------------------------------------------
-export async function handleAuditAndFixDiagrams(env: Env): Promise<Response> {
+export async function handleAuditAndFixDiagrams(
+  env: Env,
+  url: URL
+): Promise<Response> {
   const privateKey = env.IMAGEKIT_PRIVATE_KEY ?? '';
   if (!privateKey) {
     return Response.json({ error: 'IMAGEKIT_PRIVATE_KEY missing' }, { status: 500 });
   }
 
-  const authHeader = 'Basic ' + btoa(privateKey + ':');
-  let skip = 0;
-  let allFiles: Array<{ name: string; filePath: string }> = [];
+  const pageSkip = Number(url.searchParams.get('skip') ?? 0);
+  const pageLimit = 500; // process 500 files per call to stay well within Worker CPU limits
 
-  while (true) {
-    try {
-      const res = await fetch(`https://api.imagekit.io/v1/files?limit=1000&skip=${skip}`, {
-        headers: { Authorization: authHeader },
-      });
-      if (!res.ok) break;
-      const files = (await res.json()) as Array<{ name: string; filePath: string }>;
-      if (!files || files.length === 0) break;
-      allFiles = allFiles.concat(files);
-      if (files.length < 1000) break;
-      skip += files.length;
-    } catch {
-      break;
+  const authHeader = 'Basic ' + btoa(privateKey + ':');
+
+  // Fetch one page of ImageKit files
+  let files: Array<{ name: string; filePath: string }> = [];
+  try {
+    const res = await fetch(
+      `https://api.imagekit.io/v1/files?limit=${pageLimit}&skip=${pageSkip}`,
+      { headers: { Authorization: authHeader } }
+    );
+    if (!res.ok) {
+      const errText = await res.text();
+      return Response.json({ error: `ImageKit API error ${res.status}: ${errText}` }, { status: 502 });
     }
+    files = (await res.json()) as Array<{ name: string; filePath: string }>;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return Response.json({ error: msg }, { status: 500 });
   }
 
   let updatedCount = 0;
   const auditLogs: string[] = [];
 
-  for (const f of allFiles) {
+  // Build batch of D1 statements for this page
+  const statements: ReturnType<typeof env.DB.prepare>[] = [];
+  for (const f of files) {
     const filename = f.name;
     if (!filename.endsWith('.png') && !filename.endsWith('.jpg') && !filename.endsWith('.jpeg')) continue;
     const diagramKey = filename.replace(/\.(png|jpg|jpeg)$/i, '');
-
     const m = diagramKey.match(/^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)/i);
     const baseQuestionKey = m ? m[1] : diagramKey;
 
-    const result = await env.DB.prepare(`
-      UPDATE questions
-      SET diagram_present = 1,
-          question_diagram_key = ?1
-      WHERE (question_diagram_key = ?1 OR question_diagram_key = ?2)
-    `).bind(diagramKey, baseQuestionKey).run();
+    statements.push(
+      env.DB.prepare(`
+        UPDATE questions
+        SET diagram_present = 1,
+            question_diagram_key = ?1
+        WHERE question_diagram_key = ?1 OR question_diagram_key = ?2
+      `).bind(diagramKey, baseQuestionKey)
+    );
+  }
 
-    if (result.meta.changes > 0) {
-      updatedCount += result.meta.changes;
-      auditLogs.push(`Updated ${result.meta.changes} questions for key: ${diagramKey}`);
+  // Run batch if there are statements
+  if (statements.length > 0) {
+    const results = await env.DB.batch(statements);
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.meta.changes > 0) {
+        updatedCount += r.meta.changes;
+        const filename = files[i].name.replace(/\.(png|jpg|jpeg)$/i, '');
+        auditLogs.push(`+${r.meta.changes} rows for ${filename}`);
+      }
     }
   }
 
+  const hasMore = files.length === pageLimit;
   return Response.json({
-    totalImageKitFiles: allFiles.length,
+    skip: pageSkip,
+    filesInPage: files.length,
     questionsUpdated: updatedCount,
-    auditLogs: auditLogs.slice(0, 50),
+    hasMore,
+    nextSkip: hasMore ? pageSkip + pageLimit : null,
+    auditLogs,
   });
 }
 
