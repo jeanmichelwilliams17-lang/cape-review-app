@@ -272,7 +272,7 @@ function validateAndPreview(rows) {
   rows.forEach((row, i) => {
     const q     = row['Question'];
     const subj  = row['Subject'];
-    const unit  = row['Unit']  ?? '';
+    const unit  = row['Unit'] ?? row['unit'] ?? row['UNIT'] ?? '';
     const year  = row['Year'];
     const num   = row['Number'];
     const part    = row['Part']    ?? null;

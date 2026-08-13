@@ -332,7 +332,8 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
     const subject = String(row.Subject ?? '').trim();
     if (!subject) { skipped++; continue; }
 
-    const unit      = row.Unit ? String(row.Unit) : undefined;
+    const rawUnit   = row.Unit ?? row.unit ?? row.UNIT ?? (row as Record<string, unknown>)['Unit '] ?? (row as Record<string, unknown>)['unit '];
+    const unit      = rawUnit != null ? String(rawUnit).trim() : undefined;
     const subjectId = await getSubjectId(subject);
     const month     = row.Month   ? String(row.Month)   : null;
     const year      = row.Year    ? Number(row.Year)    : null;
