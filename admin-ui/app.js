@@ -345,10 +345,14 @@ document.getElementById('btn-confirm-import').addEventListener('click', async ()
     progressFill.style.width  = `${pct}%`;
     progressLabel.textContent = `Chunk ${ci + 1} / ${chunks.length} (${pct}%)`;
 
+    const isLastChunk = ci === chunks.length - 1;
+
     try {
       const result = await api('/admin/import', {
         method: 'POST',
-        body: JSON.stringify({ paper, rows: chunks[ci] }),
+        // Only trigger the background diagram audit on the final chunk so
+        // it runs once after all rows are inserted (not 25× in parallel).
+        body: JSON.stringify({ paper, rows: chunks[ci], triggerAudit: isLastChunk }),
       });
       totalImported += result.imported ?? 0;
       totalSkipped  += result.skipped  ?? 0;

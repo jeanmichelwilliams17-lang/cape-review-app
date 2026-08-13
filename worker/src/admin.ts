@@ -283,17 +283,17 @@ async function flushStmts(env: Env, stmts: D1PreparedStatement[]): Promise<void>
   }
 }
 
-export async function handleImport(req: Request, env: Env): Promise<Response> {
-  let body: { paper: 1 | 2; rows: ImportRow[] };
+export async function handleImport(req: Request, env: Env): Promise<{ response: Response; triggerAudit: boolean }> {
+  let body: { paper: 1 | 2; rows: ImportRow[]; triggerAudit?: boolean };
   try {
     body = await req.json();
   } catch {
-    return new Response('Invalid JSON body', { status: 400 });
+    return { response: new Response('Invalid JSON body', { status: 400 }), triggerAudit: false };
   }
 
-  const { paper, rows } = body;
+  const { paper, rows, triggerAudit = false } = body;
   if (paper !== 1 && paper !== 2) {
-    return new Response('paper must be 1 or 2', { status: 400 });
+    return { response: new Response('paper must be 1 or 2', { status: 400 }), triggerAudit: false };
   }
 
   // Cache subject name → id to avoid one DB call per row
@@ -428,7 +428,7 @@ export async function handleImport(req: Request, env: Env): Promise<Response> {
     await flushStmts(env, stmts);
   }
 
-  return Response.json({ imported: processed, skipped });
+  return { response: Response.json({ imported: processed, skipped }), triggerAudit };
 }
 
 // ---------------------------------------------------------------------------

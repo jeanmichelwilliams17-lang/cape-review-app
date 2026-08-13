@@ -331,9 +331,10 @@ export default {
           return withCors(await handleGetPapers(env));
         }
         if (pathname === '/admin/import' && method === 'POST') {
-          const response = await handleImport(request, env);
-          // Auto-match diagrams in the background — no need to wait for it
-          ctx.waitUntil(runFullDiagramAudit(env));
+          const { response, triggerAudit } = await handleImport(request, env);
+          // Only run the full ImageKit audit on the last chunk (triggerAudit=true)
+          // so we don't fire 25 parallel scans for a 5,000-row upload.
+          if (triggerAudit) ctx.waitUntil(runFullDiagramAudit(env));
           return withCors(response);
         }
         if (pathname === '/admin/questions' && method === 'GET') {
