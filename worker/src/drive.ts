@@ -18,6 +18,23 @@ import { Env } from './types';
 
 const EXPIRY_SECONDS = 3600; // 1 hour
 
+const SUBJECT_MAP: Record<string, string> = {
+  accounting: 'Accounting',
+  appliedmathematics: 'AppliedMathematics',
+  biology: 'Biology',
+  chemistry: 'Chemistry',
+  computerscience: 'ComputerScience',
+  economics: 'Economics',
+  entrepreneurship: 'Entrepreneurship',
+  informationtechnology: 'InformationTechnology',
+  literature: 'Literature',
+  managementofbusiness: 'ManagementOfBusiness',
+  physics: 'Physics',
+  puremathematics: 'PureMathematics',
+  sociology: 'Sociology',
+  tourism: 'Tourism',
+};
+
 /**
  * Handles GET /images/:diagram_key
  * Looks up subject/paper/year from D1, signs the ImageKit URL, and redirects.
@@ -33,7 +50,23 @@ export async function handleImageProxy(
   // Candidate paths to try on ImageKit
   const candidatePaths: string[] = [];
 
-  // Priority 1: Check `diagrams` table for explicit imagekit_path / drive_path
+  // Priority 1: Deterministic key parsing (cape_{unit}_{subject}_{month}_{year}_{paper}_{number}...)
+  const parts = diagramKey.split('_');
+  if (parts.length >= 6 && parts[0].toLowerCase() === 'cape') {
+    const unitStr = parts[1];
+    const subjStr = parts[2].toLowerCase();
+    const yearStr = parts[4];
+    const paperStr = parts[5];
+
+    const subjName = SUBJECT_MAP[subjStr] || (subjStr.charAt(0).toUpperCase() + subjStr.slice(1));
+    const unitFolder = `U${unitStr}`;
+    const pFolder = `P${paperStr}`;
+
+    candidatePaths.push(`${subjName}/${unitFolder}/${pFolder}/${yearStr}/output/${diagramKey}.png`);
+    candidatePaths.push(`${subjName}/${unitFolder}/${pFolder}/${yearStr}/${diagramKey}.png`);
+  }
+
+  // Priority 2: Check `diagrams` table for explicit imagekit_path / drive_path
   try {
     const diagRow = await env.DB.prepare(`
       SELECT imagekit_path, drive_path FROM diagrams WHERE diagram_key = ?1 LIMIT 1
@@ -45,8 +78,8 @@ export async function handleImageProxy(
 
   // Priority 2: Reconstruct nested paths from question/choice metadata
   try {
-    const choiceMatch = diagramKey.match(/_([abcd])$/i);
-    const baseDiagramKey = choiceMatch ? diagramKey.replace(/_([abcd])$/i, '') : diagramKey;
+    const baseMatch = diagramKey.match(/^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)/i);
+    const baseQuestionKey = baseMatch ? baseMatch[1] : diagramKey;
 
     const row = await env.DB.prepare(`
       SELECT s.name AS subject_name, q.paper, q.year
@@ -55,11 +88,22 @@ export async function handleImageProxy(
       LEFT JOIN choices c ON c.question_id = q.id
       WHERE q.question_diagram_key = ?1 OR c.diagram_key = ?1 OR q.question_diagram_key = ?2
       LIMIT 1
-    `).bind(diagramKey, baseDiagramKey).first<{ subject_name: string; paper: number; year: number }>();
+    `).bind(diagramKey, baseQuestionKey).first<{ subject_name: string; paper: number; year: number }>();
 
     if (row && row.paper && row.year) {
-      candidatePaths.push(`${row.subject_name}/P${row.paper}/${row.year}/output/${diagramKey}.png`);
-      candidatePaths.push(`${row.subject_name}/P${row.paper}/${row.year}/${diagramKey}.png`);
+      const uMatch = diagramKey.match(/^cape_([12])_/i);
+      const unitNum = uMatch ? uMatch[1] : (row.subject_name.match(/U([12])$/i)?.[1] ?? '1');
+      const unitFolder = `U${unitNum}`;
+      const altUnitFolder = unitNum === '1' ? 'U2' : 'U1';
+      const cleanSubject = row.subject_name.replace(/U[12]$/i, '').trim();
+
+      const paperFolders = [`P${row.paper}`, row.paper === 1 ? 'P2' : 'P1'];
+      for (const pFolder of paperFolders) {
+        candidatePaths.push(`${cleanSubject}/${unitFolder}/${pFolder}/${row.year}/output/${diagramKey}.png`);
+        candidatePaths.push(`${cleanSubject}/${altUnitFolder}/${pFolder}/${row.year}/output/${diagramKey}.png`);
+        candidatePaths.push(`${row.subject_name}/${pFolder}/${row.year}/output/${diagramKey}.png`);
+        candidatePaths.push(`${cleanSubject}/${unitFolder}/${pFolder}/${row.year}/${diagramKey}.png`);
+      }
     }
   } catch {}
 

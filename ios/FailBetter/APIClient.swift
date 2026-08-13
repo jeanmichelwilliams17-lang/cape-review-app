@@ -92,7 +92,7 @@ final class APIClient {
     func imageURL(forDiagramKey key: String) -> URL? {
         guard let workerURL else { return nil }
         let safeKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
-        return workerURL.appendingPathComponent("images/\(safeKey)")
+        return workerURL.appendingPathComponent("images").appendingPathComponent(safeKey)
     }
 
     // MARK: - Public API

@@ -9,6 +9,34 @@
 import { Env, ImportRow } from './types';
 
 // ---------------------------------------------------------------------------
+// Helper: debug ImageKit media library API
+// ---------------------------------------------------------------------------
+export async function handleDebugImageKit(env: Env): Promise<Response> {
+  const privateKey = env.IMAGEKIT_PRIVATE_KEY ?? '';
+  const authHeader = 'Basic ' + btoa(privateKey + ':');
+
+  try {
+    const res = await fetch('https://api.imagekit.io/v1/files?limit=25', {
+      headers: {
+        'Authorization': authHeader,
+      },
+    });
+    const data = await res.json();
+    return Response.json({
+      status: res.status,
+      hasPrivateKey: Boolean(privateKey),
+      keyPrefix: privateKey.substring(0, 8),
+      baseUrl: env.IMAGEKIT_BASE_URL,
+      folder: env.IMAGEKIT_FOLDER,
+      data,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return Response.json({ error: message, hasPrivateKey: Boolean(privateKey) }, { status: 500 });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Helper: upsert a subject name and return its ID
 // ---------------------------------------------------------------------------
 async function upsertSubject(env: Env, name: string): Promise<number> {

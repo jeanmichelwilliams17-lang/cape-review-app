@@ -11,6 +11,7 @@ import {
   handleUpdateQuestion,
   handleDeleteQuestion,
   handleDeletePaper,
+  handleDebugImageKit,
 } from './admin';
 
 export default {
@@ -38,7 +39,11 @@ export default {
     // Images are public (ImageKit signed URLs handle their own auth).
     // ─────────────────────────────────────────────────────────────────────────
     const imageMatch = pathname.match(/^\/images\/([^/]+)$/);
-    const isImageRequest = imageMatch && method === 'GET';
+    const isImageRequest = ((imageMatch && method === 'GET') || pathname === '/images/debug-imagekit');
+
+    if (pathname === '/images/debug-imagekit' && method === 'GET') {
+      return withCors(await handleDebugImageKit(env));
+    }
 
     if (!isImageRequest) {
       const authHeader = request.headers.get('Authorization');
@@ -60,6 +65,10 @@ export default {
     }
 
     try {
+      if (pathname === '/admin/debug-imagekit' && method === 'GET') {
+        return withCors(await handleDebugImageKit(env));
+      }
+
       // -----------------------------------------------------------------------
       // GET /subjects — lists subjects with Unit 1 / Unit 2 separation
       // -----------------------------------------------------------------------
