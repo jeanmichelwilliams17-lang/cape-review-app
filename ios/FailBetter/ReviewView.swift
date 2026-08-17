@@ -27,7 +27,7 @@ final class ImagePrefetcher {
             }
             if let choices = q.choices {
                 for choice in choices {
-                    if let key = choice.diagramKey, DiagramPathCache.shared.directURL(for: key) != nil {
+                    if let key = choice.diagramKey, DiagramPathCache.shared.hasDiagram(for: key) {
                         prefetchKey(key)
                     }
                 }
