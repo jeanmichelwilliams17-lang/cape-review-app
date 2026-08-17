@@ -39,15 +39,16 @@ async function api(path, opts = {}) {
 }
 
 // ── Router / view switcher ───────────────────────────────────
-const VIEWS = ['papers', 'upload', 'editor', 'stats'];
+const VIEWS = ['papers', 'upload', 'editor', 'reviews', 'stats'];
 
 function showView(viewId) {
   VIEWS.forEach(v => {
     document.getElementById(`view-${v}`).classList.toggle('hidden', v !== viewId);
     document.getElementById(`nav-${v}`).classList.toggle('active', v !== viewId ? false : true);
   });
-  if (viewId === 'papers') loadPapers();
-  if (viewId === 'stats')  loadStats();
+  if (viewId === 'papers')  loadPapers();
+  if (viewId === 'reviews') loadReviews();
+  if (viewId === 'stats')   loadStats();
 }
 
 VIEWS.forEach(v =>
@@ -114,14 +115,19 @@ async function loadPapers() {
         </td>
         <td>
           <div class="flex gap-2">
+            <button class="btn btn-ghost btn-sm btn-reviews-paper"
+              data-subject="${escAttr(p.subject)}"
+              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
+              👁 Reviews
+            </button>
             <button class="btn btn-ghost btn-sm btn-edit-paper"
               data-subject="${escAttr(p.subject)}"
-              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month)}">
+              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
               Edit
             </button>
             <button class="btn btn-danger btn-sm btn-delete-paper"
               data-subject="${escAttr(p.subject)}"
-              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month)}">
+              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
               Delete
             </button>
           </div>
@@ -130,6 +136,17 @@ async function loadPapers() {
     });
 
     tableWrap.classList.remove('hidden');
+
+    // Review Log → jump to reviews view with filters pre-filled
+    tbody.querySelectorAll('.btn-reviews-paper').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('rev-filter-subject').value = btn.dataset.subject;
+        document.getElementById('rev-filter-paper').value   = btn.dataset.paper;
+        document.getElementById('rev-filter-year').value    = btn.dataset.year;
+        document.getElementById('rev-filter-month').value   = btn.dataset.month;
+        showView('reviews');
+      });
+    });
 
     // Edit → jump to editor with filters pre-filled
     tbody.querySelectorAll('.btn-edit-paper').forEach(btn => {
@@ -412,6 +429,7 @@ async function loadSubjectList() {
     const subjects = await api('/subjects');
     allSubjects = subjects.map(s => s.name);
     renderSubjectDropdown('');
+    renderRevSubjectDropdown('');
   } catch {}
 }
 
@@ -435,6 +453,25 @@ function renderSubjectDropdown(query) {
   });
 }
 
+function renderRevSubjectDropdown(query) {
+  const list = document.getElementById('rev-subject-dropdown-list');
+  const current = document.getElementById('rev-filter-subject').value;
+  const filtered = allSubjects.filter(s =>
+    s.toLowerCase().includes(query.toLowerCase())
+  );
+  list.innerHTML = filtered.map(s =>
+    `<div class="dropdown-item${s === current ? ' active' : ''}">${escHtml(s)}</div>`
+  ).join('');
+
+  list.querySelectorAll('.dropdown-item').forEach(el => {
+    el.addEventListener('click', () => {
+      document.getElementById('rev-filter-subject').value = el.textContent;
+      list.classList.add('hidden');
+      loadReviews();
+    });
+  });
+}
+
 const subjectInput = document.getElementById('filter-subject');
 const subjectList  = document.getElementById('subject-dropdown-list');
 
@@ -448,9 +485,25 @@ subjectInput.addEventListener('focus', () => {
   subjectList.classList.remove('hidden');
 });
 
+const revSubjectInput = document.getElementById('rev-filter-subject');
+const revSubjectList  = document.getElementById('rev-subject-dropdown-list');
+
+revSubjectInput.addEventListener('input', () => {
+  renderRevSubjectDropdown(revSubjectInput.value);
+  revSubjectList.classList.remove('hidden');
+});
+
+revSubjectInput.addEventListener('focus', () => {
+  renderRevSubjectDropdown(revSubjectInput.value);
+  revSubjectList.classList.remove('hidden');
+});
+
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.searchable-dropdown')) {
+  if (!e.target.closest('#subject-dropdown')) {
     subjectList.classList.add('hidden');
+  }
+  if (!e.target.closest('#rev-subject-dropdown')) {
+    revSubjectList.classList.add('hidden');
   }
 });
 
@@ -625,6 +678,144 @@ function renderLatex(text, elementId) {
   }
 }
 
+// ── Review Log view ───────────────────────────────────────────────
+async function loadReviews() {
+  const loadingEl = document.getElementById('reviews-loading');
+  const emptyEl   = document.getElementById('reviews-empty');
+  const tableWrap = document.getElementById('reviews-table-wrap');
+  const tbody     = document.getElementById('reviews-tbody');
+
+  const subject  = document.getElementById('rev-filter-subject').value.trim();
+  const paper    = document.getElementById('rev-filter-paper').value.trim();
+  const year     = document.getElementById('rev-filter-year').value.trim();
+  const month    = document.getElementById('rev-filter-month').value.trim();
+  const reviewer = document.getElementById('rev-filter-reviewer').value.trim();
+  const status   = document.getElementById('rev-filter-status').value.trim();
+
+  const params = new URLSearchParams();
+  if (subject)  params.set('subject', subject);
+  if (paper)    params.set('paper', paper);
+  if (year)     params.set('year', year);
+  if (month)    params.set('month', month);
+  if (reviewer) params.set('reviewer', reviewer);
+  if (status)   params.set('status', status);
+  params.set('limit', '500');
+
+  loadingEl.classList.remove('hidden');
+  emptyEl.classList.add('hidden');
+  tableWrap.classList.add('hidden');
+
+  try {
+    const items = await api(`/admin/reviews?${params.toString()}`);
+    loadingEl.classList.add('hidden');
+
+    if (!items || !items.length) {
+      emptyEl.classList.remove('hidden');
+      document.getElementById('stat-rev-total').textContent = '0';
+      document.getElementById('stat-rev-reviewed').textContent = '0';
+      document.getElementById('stat-rev-count').textContent = '0';
+      document.getElementById('stat-rev-users').textContent = '0';
+      return;
+    }
+
+    let totalReviewedCount = 0;
+    let totalReviewActions = 0;
+    const reviewersSet = new Set();
+
+    tbody.innerHTML = '';
+    items.forEach(q => {
+      if (q.review_count > 0) totalReviewedCount++;
+      totalReviewActions += (q.review_count || 0);
+
+      const qLabel = `Q${q.number}${q.part ? ' (' + q.part + (q.subpart ? ' ' + q.subpart : '') + ')' : ''}`;
+      const sitLabel = `${q.subject} P${q.paper} ${q.year || ''}`;
+
+      let statusBadge = '<span class="badge">Unreviewed</span>';
+      if (q.latest_review_status === 'correct') {
+        statusBadge = '<span class="badge badge-green">✓ Correct</span>';
+      } else if (q.latest_review_status === 'needs_fix') {
+        statusBadge = '<span class="badge badge-red">⚠ Needs Fix</span>';
+      }
+      if (q.has_conflicting_reviews) {
+        statusBadge += ' <span class="badge badge-yellow" style="margin-left:4px;">⚡ Conflict</span>';
+      }
+
+      let logHtml = '';
+      if (q.reviews && q.reviews.length > 0) {
+        logHtml = '<div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;">';
+        q.reviews.forEach(r => {
+          if (r.reviewer_id) reviewersSet.add(r.reviewer_id);
+          const stBadge = r.status === 'correct'
+            ? '<span class="badge badge-green" style="font-size:10px;padding:1px 5px;">Correct</span>'
+            : '<span class="badge badge-red" style="font-size:10px;padding:1px 5px;">Needs Fix</span>';
+          const dtStr = r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString() : '';
+          const noteText = r.note ? `<span class="text-muted text-xs"> — "${escHtml(r.note)}"</span>` : '';
+          logHtml += `<div style="font-size:12px;line-height:1.4;">
+            <strong>${escHtml(r.reviewer_id || 'Anonymous')}</strong> ${stBadge} <span class="text-muted text-xs">${dtStr}</span>${noteText}
+          </div>`;
+        });
+        logHtml += '</div>';
+      } else {
+        logHtml = '<span class="text-muted text-xs">No reviews recorded yet</span>';
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${escHtml(sitLabel)}</strong></td>
+        <td><span class="badge badge-accent">${escHtml(qLabel)}</span></td>
+        <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escAttr(q.question_raw)}">
+          ${escHtml(q.question_raw)}
+        </td>
+        <td><strong>${q.review_count || 0}</strong> review${q.review_count === 1 ? '' : 's'}</td>
+        <td>${statusBadge}</td>
+        <td>${logHtml}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm btn-jump-editor"
+            data-subject="${escAttr(q.subject)}"
+            data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
+            Edit
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('stat-rev-total').textContent = items.length;
+    document.getElementById('stat-rev-reviewed').textContent = totalReviewedCount;
+    document.getElementById('stat-rev-count').textContent = totalReviewActions;
+    document.getElementById('stat-rev-users').textContent = reviewersSet.size;
+
+    tableWrap.classList.remove('hidden');
+
+    tbody.querySelectorAll('.btn-jump-editor').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('filter-subject').value = btn.dataset.subject;
+        document.getElementById('filter-paper').value   = btn.dataset.paper;
+        document.getElementById('filter-year').value    = btn.dataset.year;
+        document.getElementById('filter-month').value   = btn.dataset.month;
+        showView('editor');
+        loadEditorQuestions();
+      });
+    });
+
+  } catch (err) {
+    loadingEl.classList.add('hidden');
+    toast(`Failed to load review history: ${err.message}`, 'error');
+  }
+}
+
+document.getElementById('btn-reviews-apply').addEventListener('click', loadReviews);
+document.getElementById('btn-refresh-reviews').addEventListener('click', loadReviews);
+document.getElementById('btn-reviews-clear').addEventListener('click', () => {
+  document.getElementById('rev-filter-subject').value = '';
+  document.getElementById('rev-filter-paper').value   = '';
+  document.getElementById('rev-filter-year').value    = '';
+  document.getElementById('rev-filter-month').value   = '';
+  document.getElementById('rev-filter-reviewer').value = '';
+  document.getElementById('rev-filter-status').value   = '';
+  loadReviews();
+});
+
 // ── Stats view ────────────────────────────────────────────────
 async function loadStats() {
   const loadEl = document.getElementById('stats-loading');
@@ -658,8 +849,27 @@ async function loadStats() {
             </div>
             <span class="text-muted text-sm">${pct}%</span>
           </div>
+        </td>
+        <td>
+          <button class="btn btn-ghost btn-sm btn-stat-reviews"
+            data-subject="${escAttr(s.subject)}"
+            data-paper="${s.paper}">
+            👁 Reviews
+          </button>
         </td>`;
       tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll('.btn-stat-reviews').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('rev-filter-subject').value = btn.dataset.subject;
+        document.getElementById('rev-filter-paper').value   = btn.dataset.paper;
+        document.getElementById('rev-filter-year').value    = '';
+        document.getElementById('rev-filter-month').value   = '';
+        document.getElementById('rev-filter-reviewer').value = '';
+        document.getElementById('rev-filter-status').value   = '';
+        showView('reviews');
+      });
     });
 
     wrap.classList.remove('hidden');

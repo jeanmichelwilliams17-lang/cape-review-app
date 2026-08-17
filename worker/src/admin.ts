@@ -468,31 +468,50 @@ export async function handleAdminGetQuestions(
   const year    = url.searchParams.get('year')   ? Number(url.searchParams.get('year'))   : null;
   const month   = url.searchParams.get('month');
   const status  = url.searchParams.get('status');
-  const limit   = Number(url.searchParams.get('limit')  ?? 50);
-  const cursor  = Number(url.searchParams.get('cursor') ?? 0);
+  const limit   = Math.min(Math.max(Number(url.searchParams.get('limit') ?? 50), 1), 500);
+  const cursor  = Math.max(Number(url.searchParams.get('cursor') ?? 0), 0);
 
-  let statusClause = '';
-  let statusParam: string | null = null;
+  const whereClauses: string[] = [];
+  const params: unknown[] = [];
+
+  if (subject) {
+    whereClauses.push('s.name = ?');
+    params.push(subject);
+  }
+  if (paper !== null && !isNaN(paper)) {
+    whereClauses.push('q.paper = ?');
+    params.push(paper);
+  }
+  if (year !== null && !isNaN(year)) {
+    whereClauses.push('q.year = ?');
+    params.push(year);
+  }
+  if (month) {
+    whereClauses.push('q.month = ?');
+    params.push(month);
+  }
   if (status === 'unreviewed') {
-    statusClause = 'AND q.review_count = 0';
+    whereClauses.push('q.review_count = 0');
   } else if (status === 'reviewed') {
-    statusClause = 'AND q.review_count > 0';
+    whereClauses.push('q.review_count > 0');
   } else if (status === 'correct' || status === 'needs_fix') {
-    statusClause = 'AND q.latest_review_status = ?5';
-    statusParam = status;
+    whereClauses.push('q.latest_review_status = ?');
+    params.push(status);
   }
 
-  const { results } = await env.DB.prepare(`
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+  const sql = `
     SELECT q.*, s.name AS subject_name
     FROM questions q
     JOIN subjects s ON s.id = q.subject_id
-    WHERE (?1 IS NULL OR s.name = ?1)
-      AND (?2 IS NULL OR q.paper = ?2)
-      AND (?3 IS NULL OR q.year  = ?3)
-      AND (?4 IS NULL OR q.month = ?4)
-      ${statusClause}
+    ${whereSql}
     ORDER BY q.id
-  `).bind(subject, paper, year, month, statusParam, limit, cursor).all();
+    LIMIT ? OFFSET ?
+  `;
+
+  params.push(limit, cursor);
+
+  const { results } = await env.DB.prepare(sql).bind(...params).all();
 
   const questionsList = (results ?? []) as Array<Record<string, unknown>>;
   const p1QuestionIds = questionsList
@@ -531,6 +550,130 @@ export async function handleAdminGetQuestions(
   }
 
   return Response.json(questionsList);
+}
+
+// ---------------------------------------------------------------------------
+// GET /admin/reviews?subject=&paper=&year=&month=&reviewer=&status=&limit=&cursor=
+// Detailed review history per question showing who reviewed, how many times, and status notes.
+// ---------------------------------------------------------------------------
+export async function handleAdminGetReviews(
+  url: URL,
+  env: Env
+): Promise<Response> {
+  const subject  = url.searchParams.get('subject');
+  const paper    = url.searchParams.get('paper') ? Number(url.searchParams.get('paper')) : null;
+  const year     = url.searchParams.get('year')  ? Number(url.searchParams.get('year'))  : null;
+  const month    = url.searchParams.get('month');
+  const reviewer = url.searchParams.get('reviewer');
+  const status   = url.searchParams.get('status');
+  const limit    = Math.min(Math.max(Number(url.searchParams.get('limit') ?? 100), 1), 1000);
+  const cursor   = Math.max(Number(url.searchParams.get('cursor') ?? 0), 0);
+
+  const whereClauses: string[] = [];
+  const params: unknown[] = [];
+
+  if (subject) {
+    whereClauses.push('s.name = ?');
+    params.push(subject);
+  }
+  if (paper !== null && !isNaN(paper)) {
+    whereClauses.push('q.paper = ?');
+    params.push(paper);
+  }
+  if (year !== null && !isNaN(year)) {
+    whereClauses.push('q.year = ?');
+    params.push(year);
+  }
+  if (month) {
+    whereClauses.push('q.month = ?');
+    params.push(month);
+  }
+  if (reviewer) {
+    whereClauses.push('r.reviewer_id LIKE ?');
+    params.push(`%${reviewer}%`);
+  }
+  if (status === 'unreviewed') {
+    whereClauses.push('q.review_count = 0');
+  } else if (status === 'reviewed') {
+    whereClauses.push('q.review_count > 0');
+  } else if (status === 'correct' || status === 'needs_fix') {
+    whereClauses.push('r.status = ?');
+    params.push(status);
+  } else if (status === 'conflicts') {
+    whereClauses.push('q.has_conflicting_reviews = 1');
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+  const sql = `
+    SELECT 
+      q.id AS question_id,
+      s.name AS subject,
+      q.paper,
+      q.year,
+      q.month,
+      q.number,
+      q.part,
+      q.subpart,
+      q.question_raw,
+      q.question_code,
+      q.correct_choice,
+      q.review_count,
+      q.latest_review_status,
+      q.has_conflicting_reviews,
+      r.id AS review_id,
+      r.reviewer_id,
+      r.status AS review_status,
+      r.note AS review_note,
+      r.created_at AS reviewed_at
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    LEFT JOIN reviews r ON r.question_id = q.id
+    ${whereSql}
+    ORDER BY s.name, q.paper, q.year, q.number, q.part, q.subpart, r.created_at DESC
+    LIMIT ? OFFSET ?
+  `;
+
+  params.push(limit, cursor);
+
+  const { results } = await env.DB.prepare(sql).bind(...params).all();
+
+  const questionsMap = new Map<number, any>();
+  for (const row of (results ?? []) as any[]) {
+    const qid = row.question_id;
+    if (!questionsMap.has(qid)) {
+      questionsMap.set(qid, {
+        question_id: qid,
+        subject: row.subject,
+        paper: row.paper,
+        year: row.year,
+        month: row.month,
+        number: row.number,
+        part: row.part,
+        subpart: row.subpart,
+        question_raw: row.question_raw,
+        question_code: row.question_code,
+        correct_choice: row.correct_choice,
+        review_count: row.review_count,
+        latest_review_status: row.latest_review_status,
+        has_conflicting_reviews: row.has_conflicting_reviews,
+        reviews: []
+      });
+    }
+
+    if (row.review_id) {
+      questionsMap.get(qid).reviews.push({
+        review_id: row.review_id,
+        reviewer_id: row.reviewer_id,
+        status: row.review_status,
+        note: row.review_note,
+        reviewed_at: row.reviewed_at
+      });
+    }
+  }
+
+  const items = Array.from(questionsMap.values());
+  return Response.json(items);
 }
 
 // ---------------------------------------------------------------------------

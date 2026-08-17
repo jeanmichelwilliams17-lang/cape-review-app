@@ -39,6 +39,9 @@
     <button class="nav-btn" id="nav-editor" data-view="editor">
       <span class="nav-icon">✏️</span> Question Editor
     </button>
+    <button class="nav-btn" id="nav-reviews" data-view="reviews">
+      <span class="nav-icon">👁</span> Review Log
+    </button>
     <button class="nav-btn" id="nav-stats" data-view="stats">
       <span class="nav-icon">📊</span> Stats
     </button>
@@ -227,6 +230,112 @@
       </div>
     </section>
 
+    <!-- === REVIEW LOG / HISTORY VIEW === -->
+    <section id="view-reviews" class="view hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Review Log & History</h1>
+          <p class="page-subtitle">Track which questions were reviewed, how many times, and by whom</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" id="btn-refresh-reviews">↺ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="flex gap-3" style="flex-wrap: wrap; align-items: flex-end;">
+          <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
+            <label for="rev-filter-subject">Subject</label>
+            <div class="searchable-dropdown" id="rev-subject-dropdown">
+              <input id="rev-filter-subject" class="input" placeholder="Search subject…" autocomplete="off" />
+              <div class="dropdown-list hidden" id="rev-subject-dropdown-list"></div>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="rev-filter-paper">Paper</label>
+            <select id="rev-filter-paper" class="input select-input">
+              <option value="">All</option>
+              <option value="1">Paper 1</option>
+              <option value="2">Paper 2</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="rev-filter-year">Year</label>
+            <input id="rev-filter-year" class="input" type="number" placeholder="e.g. 2024" style="width: 110px;" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="rev-filter-month">Month</label>
+            <input id="rev-filter-month" class="input" placeholder="e.g. May" style="width: 110px;" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="rev-filter-reviewer">Reviewer ID</label>
+            <input id="rev-filter-reviewer" class="input" placeholder="Search reviewer…" style="width: 150px;" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="rev-filter-status">Status</label>
+            <select id="rev-filter-status" class="input select-input">
+              <option value="">All</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="unreviewed">Unreviewed</option>
+              <option value="correct">Correct</option>
+              <option value="needs_fix">Needs Fix</option>
+              <option value="conflicts">Conflicts</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-reviews-apply">Search</button>
+          <button class="btn btn-ghost" id="btn-reviews-clear">Clear</button>
+        </div>
+      </div>
+
+      <!-- Stats Summary Strip -->
+      <div id="reviews-summary-strip" class="flex gap-4" style="margin-bottom: 20px; flex-wrap: wrap;">
+        <div class="card" style="padding: 16px; text-align: center; flex: 1; min-width: 140px;">
+          <div class="text-muted text-sm">Questions Shown</div>
+          <div class="text-xl font-bold" id="stat-rev-total">0</div>
+        </div>
+        <div class="card" style="padding: 16px; text-align: center; flex: 1; min-width: 140px;">
+          <div class="text-muted text-sm">Reviewed Questions</div>
+          <div class="text-xl font-bold" style="color:var(--green,#10b981);" id="stat-rev-reviewed">0</div>
+        </div>
+        <div class="card" style="padding: 16px; text-align: center; flex: 1; min-width: 140px;">
+          <div class="text-muted text-sm">Total Review Actions</div>
+          <div class="text-xl font-bold" style="color:var(--accent,#3b82f6);" id="stat-rev-count">0</div>
+        </div>
+        <div class="card" style="padding: 16px; text-align: center; flex: 1; min-width: 140px;">
+          <div class="text-muted text-sm">Distinct Reviewers</div>
+          <div class="text-xl font-bold" style="color:var(--primary,#8b5cf6);" id="stat-rev-users">0</div>
+        </div>
+      </div>
+
+      <div id="reviews-loading" class="empty-state hidden">
+        <div class="spinner"></div>
+        <p class="empty-state-text mt-4">Loading review history…</p>
+      </div>
+
+      <div id="reviews-empty" class="empty-state hidden">
+        <div class="empty-state-icon">📋</div>
+        <p class="empty-state-text">No review records found matching your filters.</p>
+      </div>
+
+      <div id="reviews-table-wrap" class="table-wrap hidden">
+        <table>
+          <thead>
+            <tr>
+              <th>Paper / Sitting</th>
+              <th>Q #</th>
+              <th>Question Preview</th>
+              <th>Review Count</th>
+              <th>Latest Status</th>
+              <th>Reviewers & Log History</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reviews-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- === STATS VIEW === -->
     <section id="view-stats" class="view hidden">
       <div class="page-header">
@@ -255,6 +364,7 @@
               <th>Unreviewed</th>
               <th>Conflicts</th>
               <th>Progress</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="stats-tbody"></tbody>

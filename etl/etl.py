@@ -371,11 +371,132 @@ def emit_diagram_upsert(d: dict) -> str:
 # =============================================================================
 # Main
 # =============================================================================
+import csv
+import re
+
+def rows_from_csv_dict(reader, is_p1: bool = True):
+    for row in reader:
+        q_text = norm(row.get('Question'))
+        if not q_text:
+            continue
+
+        subject = norm(row.get('Subject'))
+        exam    = norm(row.get('Exam')) or 'CAPE'
+        unit    = norm(row.get('Unit'))
+        month   = norm(row.get('Month'))
+        year    = norm(row.get('Year'))
+        paper   = norm(row.get('Paper')) or (1 if is_p1 else 2)
+        number  = norm(row.get('Number'))
+        section = norm(row.get('Section'))
+        topic   = norm(row.get('Topic'))
+        diff    = norm(row.get('Difficulty'))
+        correct = norm(row.get('Correct'))
+        q_diag  = norm(row.get('Question Diagram Path Prefix'))
+        diag_present = norm(row.get('Diagram Present'))
+        q_code  = norm(row.get('Validated Question Code')) or norm(row.get('Q')) or q_text
+
+        unit_slug = '1'
+        if unit:
+            u_clean = re.sub(r'^[Uu]nit\s*', '', str(unit).strip())
+            unit_slug = re.sub(r'^[Uu]', '', u_clean).strip() or '1'
+        elif subject:
+            m = re.search(r'U([12])$', str(subject), re.I)
+            if m:
+                unit_slug = m.group(1)
+
+        base_subj = re.sub(r'\s*U[12]$', '', str(subject or '').strip(), flags=re.I)
+        full_subject = f"{base_subj} U{unit_slug}" if base_subj else subject
+
+        if is_p1:
+            choices = []
+            for label in 'ABCD':
+                ans_text = norm(row.get(f'Answer {label}'))
+                if ans_text is None or ans_text == '':
+                    continue
+
+                ans_code = norm(row.get(f'Validated Answer {label} Code')) or norm(row.get(label)) or ans_text
+                ans_diag = norm(row.get(f'{label} Diagram Path Prefix'))
+                choices.append({
+                    'label':       label,
+                    'answer_raw':  ans_text,
+                    'answer_code': ans_code,
+                    'diagram_key': ans_diag or build_diagram_key(
+                        base_subj or '', month, year,
+                        int(paper or 1), int(number or 0),
+                        unit=unit_slug, choice_label=label
+                    ),
+                })
+
+            yield {
+                'source_sheet': 'imported',
+                'exam':     str(exam or 'CAPE'),
+                'subject':  str(full_subject or ''),
+                'unit':     unit_slug,
+                'month':    month,
+                'year':     int(year) if year is not None else None,
+                'paper':    int(paper) if paper is not None else 1,
+                'number':   int(number) if number is not None else 0,
+                'part':     None,
+                'subpart':  None,
+                'section':  section,
+                'topic':    topic,
+                'difficulty': diff,
+                'marks':    None,
+                'correct_choice': correct,
+                'question_raw':  q_text,
+                'question_code': str(q_code or q_text),
+                'question_diagram_key': q_diag or build_diagram_key(
+                    base_subj or '', month, year,
+                    int(paper or 1), int(number or 0),
+                    unit=unit_slug
+                ),
+                'diagram_present': 1 if diag_present and str(diag_present).strip().lower() in ('yes', '1', 'true') else 0,
+                'choices': choices,
+            }
+        else:
+            part    = norm(row.get('Part'))
+            subpart = norm(row.get('Subpart'))
+            marks   = norm(row.get('Marks'))
+            marks_val = None
+            if marks is not None:
+                m_str = str(marks).strip().lower()
+                if m_str not in ('none', 'null', '', '-'):
+                    try:
+                        marks_val = float(m_str)
+                    except ValueError:
+                        marks_val = None
+            yield {
+                'source_sheet': 'imported',
+                'exam':     str(exam or 'CAPE'),
+                'subject':  str(full_subject or ''),
+                'unit':     unit_slug,
+                'month':    month,
+                'year':     int(year) if year is not None else None,
+                'paper':    int(paper) if paper is not None else 2,
+                'number':   int(number) if number is not None else 0,
+                'part':     str(part) if part is not None else None,
+                'subpart':  str(subpart) if subpart is not None else None,
+                'section':  section,
+                'topic':    topic,
+                'difficulty': diff,
+                'marks':    marks_val,
+                'correct_choice': None,
+                'question_raw':  q_text,
+                'question_code': str(q_code or q_text),
+                'question_diagram_key': q_diag or build_diagram_key(
+                    base_subj or '', month, year,
+                    int(paper or 2), int(number or 0),
+                    unit=unit_slug
+                ),
+                'diagram_present': 1 if diag_present and str(diag_present).strip().lower() in ('yes', '1', 'true') else 0,
+                'choices': [],
+            }
+
 
 def main():
-    parser = argparse.ArgumentParser(description='CAPE Excel → D1 ETL')
-    parser.add_argument('--p1',  required=True, help='Path to Cape_P1_s.xlsx')
-    parser.add_argument('--p2',  required=True, help='Path to Cape_P2_s.xlsx')
+    parser = argparse.ArgumentParser(description='CAPE Excel/CSV → D1 ETL')
+    parser.add_argument('--p1',  required=True, help='Path to Cape_P1_s.xlsx or CSV')
+    parser.add_argument('--p2',  required=True, help='Path to Cape_P2_s.xlsx or CSV')
     parser.add_argument('--out', default='load_questions.sql', help='Output SQL file')
     args = parser.parse_args()
 
@@ -386,11 +507,6 @@ def main():
     for p in (p1_path, p2_path):
         if not p.exists():
             sys.exit(f"File not found: {p}")
-
-    print(f"Loading P1 workbook: {p1_path}")
-    wb_p1 = openpyxl.load_workbook(p1_path, data_only=True, read_only=True)
-    print(f"Loading P2 workbook: {p2_path}")
-    wb_p2 = openpyxl.load_workbook(p2_path, data_only=True, read_only=True)
 
     sql_lines: list[str] = [
         "-- Auto-generated by etl.py — do not edit by hand.",
@@ -412,43 +528,69 @@ def main():
             sql_lines.append(emit_subject_upsert(subject))
             seen_subjects.add(subject)
 
-    # ── Paper 1 sheets ────────────────────────────────────────────────────────
-    print("\nProcessing Paper 1 sheets…")
-    for sheet_name in wb_p1.sheetnames:
-        if not sheet_name.startswith('Converted -'):
-            print(f"  [SKIP] '{sheet_name}' (not a Converted sheet)")
-            continue
-        print(f"  Processing P1 sheet: {sheet_name}")
-        ws = wb_p1[sheet_name]
-        for row in rows_from_p1(ws, sheet_name):
-            if not row['subject']:
-                stats['skipped'] += 1
+    # ── Paper 1 ──────────────────────────────────────────────────────────────
+    print(f"\nProcessing Paper 1: {p1_path}…")
+    if p1_path.suffix.lower() == '.csv':
+        with open(p1_path, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            for row in rows_from_csv_dict(reader, is_p1=True):
+                if not row['subject']:
+                    stats['skipped'] += 1
+                    continue
+                ensure_subject(row['subject'])
+                sql_lines.append(emit_question_upsert(row, 'P1'))
+                for choice in row['choices']:
+                    sql_lines.append(emit_choice_upsert(row, choice, 'P1'))
+                    stats['p1_choices'] += 1
+                stats['p1_questions'] += 1
+    else:
+        wb_p1 = openpyxl.load_workbook(p1_path, data_only=True, read_only=True)
+        for sheet_name in wb_p1.sheetnames:
+            if not sheet_name.startswith('Converted -'):
+                print(f"  [SKIP] '{sheet_name}' (not a Converted sheet)")
                 continue
-            ensure_subject(row['subject'])
-            sql_lines.append(emit_question_upsert(row, 'P1'))
-            for choice in row['choices']:
-                sql_lines.append(emit_choice_upsert(row, choice, 'P1'))
-                stats['p1_choices'] += 1
-            stats['p1_questions'] += 1
+            print(f"  Processing P1 sheet: {sheet_name}")
+            ws = wb_p1[sheet_name]
+            for row in rows_from_p1(ws, sheet_name):
+                if not row['subject']:
+                    stats['skipped'] += 1
+                    continue
+                ensure_subject(row['subject'])
+                sql_lines.append(emit_question_upsert(row, 'P1'))
+                for choice in row['choices']:
+                    sql_lines.append(emit_choice_upsert(row, choice, 'P1'))
+                    stats['p1_choices'] += 1
+                stats['p1_questions'] += 1
 
-    # ── Paper 2 sheets ────────────────────────────────────────────────────────
-    print("\nProcessing Paper 2 sheets…")
-    for sheet_name in wb_p2.sheetnames:
-        if sheet_name.lower().startswith('diagram'):
-            # Process Diagrams sheet separately below
-            continue
-        if not sheet_name.startswith('Converted -'):
-            print(f"  [SKIP] '{sheet_name}' (not a Converted sheet)")
-            continue
-        print(f"  Processing P2 sheet: {sheet_name}")
-        ws = wb_p2[sheet_name]
-        for row in rows_from_p2(ws, sheet_name):
-            if not row['subject']:
-                stats['skipped'] += 1
+    # ── Paper 2 ──────────────────────────────────────────────────────────────
+    print(f"\nProcessing Paper 2: {p2_path}…")
+    if p2_path.suffix.lower() == '.csv':
+        with open(p2_path, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            for row in rows_from_csv_dict(reader, is_p1=False):
+                if not row['subject']:
+                    stats['skipped'] += 1
+                    continue
+                ensure_subject(row['subject'])
+                sql_lines.append(emit_question_upsert(row, 'P2'))
+                stats['p2_questions'] += 1
+    else:
+        wb_p2 = openpyxl.load_workbook(p2_path, data_only=True, read_only=True)
+        for sheet_name in wb_p2.sheetnames:
+            if sheet_name.lower().startswith('diagram'):
                 continue
-            ensure_subject(row['subject'])
-            sql_lines.append(emit_question_upsert(row, 'P2'))
-            stats['p2_questions'] += 1
+            if not sheet_name.startswith('Converted -'):
+                print(f"  [SKIP] '{sheet_name}' (not a Converted sheet)")
+                continue
+            print(f"  Processing P2 sheet: {sheet_name}")
+            ws = wb_p2[sheet_name]
+            for row in rows_from_p2(ws, sheet_name):
+                if not row['subject']:
+                    stats['skipped'] += 1
+                    continue
+                ensure_subject(row['subject'])
+                sql_lines.append(emit_question_upsert(row, 'P2'))
+                stats['p2_questions'] += 1
 
     # ── Diagrams sheet ────────────────────────────────────────────────────────
     print("\nProcessing Diagrams sheet…")

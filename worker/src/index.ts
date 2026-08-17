@@ -8,6 +8,7 @@ import {
   handleGetPapers,
   handleImport,
   handleAdminGetQuestions,
+  handleAdminGetReviews,
   handleUpdateQuestion,
   handleDeleteQuestion,
   handleDeletePaper,
@@ -406,6 +407,9 @@ export default {
         }
         if (pathname === '/admin/questions' && method === 'GET') {
           return withCors(await handleAdminGetQuestions(url, env));
+        }
+        if (pathname === '/admin/reviews' && method === 'GET') {
+          return withCors(await handleAdminGetReviews(url, env));
         }
         if (pathname === '/admin/papers' && method === 'DELETE') {
           return withCors(await handleDeletePaper(request, env));
