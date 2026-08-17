@@ -121,6 +121,7 @@ final class APIClient {
     func fetchQuestions(
         paper: Int? = nil,
         subject: String? = nil,
+        year: Int? = nil,
         reviewer: String? = nil,
         reviewStatus: String? = "unreviewed",
         cursor: Int = 0,
@@ -132,6 +133,7 @@ final class APIClient {
         ]
         if let paper    { params["paper"]         = String(paper) }
         if let subject  { params["subject"]       = subject }
+        if let year     { params["year"]          = String(year) }
         if let reviewer { params["reviewer"]      = reviewer }
         if let status   = reviewStatus { params["review_status"] = status }
 

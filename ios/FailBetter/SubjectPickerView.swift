@@ -24,12 +24,12 @@ struct SubjectPickerView: View {
                 } else {
                     List {
                         Section {
-                            NavigationLink(value: Route.review(paper: 1, subject: nil)) {
+                            NavigationLink(value: Route.review(paper: 1, subject: nil, year: nil)) {
                                 SubjectRow(name: "All Subjects — Paper 1",
                                            count: subjects.compactMap(\.p1Count).reduce(0, +),
                                            paper: 1)
                             }
-                            NavigationLink(value: Route.review(paper: 2, subject: nil)) {
+                            NavigationLink(value: Route.review(paper: 2, subject: nil, year: nil)) {
                                 SubjectRow(name: "All Subjects — Paper 2",
                                            count: subjects.compactMap(\.p2Count).reduce(0, +),
                                            paper: 2)
@@ -44,23 +44,23 @@ struct SubjectPickerView: View {
                                     ForEach(group.entries) { subj in
                                         if let year = subj.year {
                                             if let c = subj.p1Count, c > 0 {
-                                                NavigationLink(value: Route.review(paper: 1, subject: subj.name)) {
+                                                NavigationLink(value: Route.review(paper: 1, subject: subj.name, year: year)) {
                                                     SubjectRow(name: "\(year) Paper 1", count: c, paper: 1)
                                                 }
                                             }
                                             if let c = subj.p2Count, c > 0 {
-                                                NavigationLink(value: Route.review(paper: 2, subject: subj.name)) {
+                                                NavigationLink(value: Route.review(paper: 2, subject: subj.name, year: year)) {
                                                     SubjectRow(name: "\(year) Paper 2", count: c, paper: 2)
                                                 }
                                             }
                                         } else {
                                             if let c = subj.p1Count, c > 0 {
-                                                NavigationLink(value: Route.review(paper: 1, subject: subj.name)) {
+                                                NavigationLink(value: Route.review(paper: 1, subject: subj.name, year: nil)) {
                                                     SubjectRow(name: "Paper 1", count: c, paper: 1)
                                                 }
                                             }
                                             if let c = subj.p2Count, c > 0 {
-                                                NavigationLink(value: Route.review(paper: 2, subject: subj.name)) {
+                                                NavigationLink(value: Route.review(paper: 2, subject: subj.name, year: nil)) {
                                                     SubjectRow(name: "Paper 2", count: c, paper: 2)
                                                 }
                                             }
@@ -83,8 +83,8 @@ struct SubjectPickerView: View {
             .navigationTitle("CAPE Review")
             .navigationDestination(for: Route.self) { route in
                 switch route {
-                case .review(let paper, let subject):
-                    ReviewView(paper: paper, subjectName: subject)
+                case .review(let paper, let subject, let year):
+                    ReviewView(paper: paper, subjectName: subject, year: year)
                 case .stats:
                     StatsView()
                 case .settings:
@@ -137,7 +137,7 @@ struct SubjectPickerView: View {
 
 // ── Route enum for NavigationStack typed destinations ────────────────────────
 enum Route: Hashable {
-    case review(paper: Int, subject: String?)
+    case review(paper: Int, subject: String?, year: Int?)
     case stats
     case settings
 }

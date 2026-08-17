@@ -60,6 +60,7 @@ struct ReviewView: View {
 
     let paper: Int
     let subjectName: String?  // nil = all subjects
+    let year: Int?            // nil = all years
 
     @State private var questions:     [Question] = []
     @State private var currentIndex:  Int        = 0
@@ -92,11 +93,16 @@ struct ReviewView: View {
                 mainContent
             }
         }
-        .navigationTitle(subjectName.map { "\($0) · Paper \(paper)" } ?? "Paper \(paper) · All Subjects")
+        .navigationTitle(
+            subjectName.map { subj in
+                if let year { return "\(subj) (\(year)) · Paper \(paper)" }
+                return "\(subj) · Paper \(paper)"
+            } ?? "Paper \(paper) · All Subjects"
+        )
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .task(id: "\(paper)-\(subjectName ?? "")-\(reviewerName)") {
+        .task(id: "\(paper)-\(subjectName ?? "")-\(year ?? 0)-\(reviewerName)") {
             guard !reviewerName.isEmpty else { return }
             questions = []
             cursor    = 0
@@ -255,6 +261,7 @@ struct ReviewView: View {
                 let batch = try await APIClient.shared.fetchQuestions(
                     paper:        paper,
                     subject:      subjectName,
+                    year:         year,
                     reviewer:     reviewerName,
                     reviewStatus: "unreviewed",
                     cursor:       cursor,

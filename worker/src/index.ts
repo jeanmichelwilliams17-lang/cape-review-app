@@ -141,6 +141,7 @@ export default {
       if (pathname === '/questions' && method === 'GET') {
         const paper    = url.searchParams.get('paper');
         const rawSubj  = url.searchParams.get('subject');
+        const year     = url.searchParams.get('year');
         const status   = url.searchParams.get('review_status');
         const reviewer = url.searchParams.get('reviewer');
         const limit    = Number(url.searchParams.get('limit')  ?? 50);
@@ -164,6 +165,7 @@ export default {
           WHERE (?1 IS NULL OR q.paper = CAST(?1 AS INTEGER))
             AND (?2 IS NULL OR s.name = ?2 OR s.name = ?7)
             AND (?8 IS NULL OR q.question_diagram_key LIKE ?8)
+            AND (?9 IS NULL OR q.year = CAST(?9 AS INTEGER))
             AND (
               ?3 IS NULL
               OR (
@@ -184,7 +186,7 @@ export default {
             )
           ORDER BY q.id
           LIMIT ?5 OFFSET ?6
-        `).bind(paper, rawSubj, status, reviewer, limit, cursor, baseSubject, unitPattern).all();
+        `).bind(paper, rawSubj, status, reviewer, limit, cursor, baseSubject, unitPattern, year).all();
 
         const questionsList = (results ?? []) as Array<Record<string, unknown>>;
         const p1QuestionIds = questionsList
