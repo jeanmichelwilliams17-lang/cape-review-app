@@ -39,7 +39,7 @@ async function api(path, opts = {}) {
 }
 
 // ── Router / view switcher ───────────────────────────────────
-const VIEWS = ['papers', 'upload', 'editor', 'reviews', 'stats'];
+const VIEWS = ['papers', 'upload', 'editor', 'reviews', 'fixed', 'stats'];
 
 function showView(viewId) {
   VIEWS.forEach(v => {
@@ -48,6 +48,7 @@ function showView(viewId) {
   });
   if (viewId === 'papers')  loadPapers();
   if (viewId === 'reviews') loadReviews();
+  if (viewId === 'fixed')   loadFixedQuestions();
   if (viewId === 'stats')   loadStats();
 }
 
@@ -1263,6 +1264,190 @@ document.getElementById('btn-unreview-confirm').addEventListener('click', async 
   } finally {
     btn.disabled = false;
   }
+});
+
+// ── Fixed Questions view ───────────────────────────────────────────
+const FIXED_PAGE_SIZE = 50;
+let fixedQuestionsCache = [];
+let fixedCursor = 0;
+
+function renderFixedQuestionsPage() {
+  const tbody     = document.getElementById('fixed-tbody');
+  const tableWrap = document.getElementById('fixed-table-wrap');
+  const pager     = document.getElementById('fixed-pagination');
+
+  const page = fixedQuestionsCache.slice(fixedCursor, fixedCursor + FIXED_PAGE_SIZE);
+
+  tbody.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  page.forEach(fq => {
+    const sitLabel = `${fq.subject_name} P${fq.paper} ${fq.year || ''} ${fq.month || ''}`.trim();
+    const qLabel   = `Q${fq.number}${fq.part ? ' (' + fq.part + (fq.subpart ? ' ' + fq.subpart : '') + ')' : ''}`;
+
+    let statusBadge = '<span class="badge">Pending</span>';
+    if (fq.status === 'applied') {
+      statusBadge = '<span class="badge badge-green">✓ Active in DB</span>';
+    } else if (fq.status === 'approved') {
+      statusBadge = '<span class="badge badge-accent">Approved</span>';
+    } else if (fq.status === 'rejected') {
+      statusBadge = '<span class="badge badge-red">Rejected</span>';
+    }
+
+    const origLatex  = cleanAndRenderLatex(fq.original_question_raw || fq.active_question_raw);
+    const fixedLatex = cleanAndRenderLatex(fq.fixed_question_raw);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="checkbox" class="chk-fixed-row" data-id="${fq.id}" /></td>
+      <td><strong>${escHtml(sitLabel)}</strong></td>
+      <td><span class="badge badge-accent">${escHtml(qLabel)}</span></td>
+      <td style="max-width:280px;background:rgba(239,68,68,0.04);padding:8px;border-radius:6px;">
+        <div class="text-xs text-muted" style="margin-bottom:4px;font-weight:600;">Original</div>
+        <div class="text-sm">${origLatex}</div>
+      </td>
+      <td style="max-width:280px;background:rgba(16,185,129,0.06);padding:8px;border-radius:6px;">
+        <div class="text-xs text-muted" style="margin-bottom:4px;font-weight:600;color:var(--green,#10b981);">Fixed</div>
+        <div class="text-sm">${fixedLatex}</div>
+      </td>
+      <td>${statusBadge}</td>
+      <td>
+        <div class="flex gap-2">
+          ${fq.status !== 'applied' ? `<button class="btn btn-sm btn-apply-single" style="background:var(--green,#10b981);color:#fff;" data-id="${fq.id}">✓ Apply</button>` : '<span class="text-xs text-muted">Applied</span>'}
+          <button class="btn btn-ghost btn-sm btn-export-single" data-id="${fq.id}">⬇ CSV</button>
+        </div>
+      </td>
+    `;
+    frag.appendChild(tr);
+  });
+
+  tbody.appendChild(frag);
+  tableWrap.classList.remove('hidden');
+
+  const from = fixedCursor + 1;
+  const to   = Math.min(fixedCursor + FIXED_PAGE_SIZE, fixedQuestionsCache.length);
+  document.getElementById('fixed-page-info').textContent = `${from}–${to} of ${fixedQuestionsCache.length}`;
+  document.getElementById('btn-fixed-prev').disabled = fixedCursor === 0;
+  document.getElementById('btn-fixed-next').disabled = fixedCursor + FIXED_PAGE_SIZE >= fixedQuestionsCache.length;
+  pager.classList.remove('hidden');
+
+  tbody.querySelectorAll('.btn-apply-single').forEach(btn => {
+    btn.addEventListener('click', () => applyFixedQuestions([Number(btn.dataset.id)]));
+  });
+
+  tbody.querySelectorAll('.btn-export-single').forEach(btn => {
+    btn.addEventListener('click', () => exportFixedCSV([Number(btn.dataset.id)]));
+  });
+}
+
+async function loadFixedQuestions() {
+  const loadingEl = document.getElementById('fixed-loading');
+  const emptyEl   = document.getElementById('fixed-empty');
+  const tableWrap = document.getElementById('fixed-table-wrap');
+  const pager     = document.getElementById('fixed-pagination');
+
+  const subject = document.getElementById('fixed-filter-subject').value.trim();
+  const paper   = document.getElementById('fixed-filter-paper').value.trim();
+  const status  = document.getElementById('fixed-filter-status').value.trim();
+
+  const params = new URLSearchParams();
+  if (subject) params.set('subject', subject);
+  if (paper)   params.set('paper', paper);
+  if (status)  params.set('status', status);
+  params.set('limit', '1000');
+
+  loadingEl.classList.remove('hidden');
+  emptyEl.classList.add('hidden');
+  tableWrap.classList.add('hidden');
+  pager.classList.add('hidden');
+
+  try {
+    const items = await api(`/admin/fixed-questions?${params.toString()}`);
+    loadingEl.classList.add('hidden');
+
+    if (!items || !items.length) {
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    fixedQuestionsCache = items;
+    fixedCursor = 0;
+    renderFixedQuestionsPage();
+  } catch (err) {
+    loadingEl.classList.add('hidden');
+    toast(`Failed to load fixed questions: ${err.message}`, 'error');
+  }
+}
+
+function getSelectedFixedIds() {
+  const checkboxes = document.querySelectorAll('.chk-fixed-row:checked');
+  return Array.from(checkboxes).map(cb => Number(cb.dataset.id));
+}
+
+document.getElementById('chk-select-all-fixed').addEventListener('change', (e) => {
+  const isChecked = e.target.checked;
+  document.querySelectorAll('.chk-fixed-row').forEach(cb => cb.checked = isChecked);
+});
+
+async function applyFixedQuestions(ids) {
+  if (!ids || !ids.length) {
+    toast('Please select at least one fixed question to apply', 'warning');
+    return;
+  }
+  if (!confirm(`Apply ${ids.length} fixed question(s) to active database? (Original versions will be soft-preserved in question_history)`)) {
+    return;
+  }
+
+  try {
+    const res = await api('/admin/fixed-questions/apply', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    });
+    toast(`Successfully soft-applied ${res.appliedCount || 0} fixed question(s)`, 'success');
+    loadFixedQuestions();
+  } catch (err) {
+    toast(`Apply failed: ${err.message}`, 'error');
+  }
+}
+
+function exportFixedCSV(ids) {
+  let url = cfg.workerUrl.replace(/\/$/, '') + '/admin/fixed-questions/export';
+  if (ids && ids.length) {
+    url += `?ids=${ids.join(',')}`;
+  } else {
+    const subj = document.getElementById('fixed-filter-subject').value.trim();
+    if (subj) url += `?subject=${encodeURIComponent(subj)}`;
+  }
+  window.open(url, '_blank');
+}
+
+document.getElementById('btn-apply-fixed-soft').addEventListener('click', () => {
+  const selected = getSelectedFixedIds();
+  applyFixedQuestions(selected);
+});
+
+document.getElementById('btn-export-fixed-csv').addEventListener('click', () => {
+  const selected = getSelectedFixedIds();
+  exportFixedCSV(selected);
+});
+
+document.getElementById('btn-refresh-fixed').addEventListener('click', loadFixedQuestions);
+document.getElementById('btn-fixed-filter-apply').addEventListener('click', loadFixedQuestions);
+document.getElementById('btn-fixed-filter-clear').addEventListener('click', () => {
+  document.getElementById('fixed-filter-subject').value = '';
+  document.getElementById('fixed-filter-paper').value   = '';
+  document.getElementById('fixed-filter-status').value  = '';
+  loadFixedQuestions();
+});
+
+document.getElementById('btn-fixed-prev').addEventListener('click', () => {
+  fixedCursor = Math.max(0, fixedCursor - FIXED_PAGE_SIZE);
+  renderFixedQuestionsPage();
+});
+
+document.getElementById('btn-fixed-next').addEventListener('click', () => {
+  fixedCursor = Math.min(fixedQuestionsCache.length - 1, fixedCursor + FIXED_PAGE_SIZE);
+  renderFixedQuestionsPage();
 });
 
 // ── Utility ───────────────────────────────────────────────────

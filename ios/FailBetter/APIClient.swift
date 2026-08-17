@@ -164,18 +164,51 @@ final class APIClient {
         let _: [String: Bool] = try await execute(req) // { ok: true }
     }
 
-    /// Delete a reviewer's review for a question.
-    func deleteReview(questionID: Int, reviewer: String) async throws {
-        struct Body: Encodable { let reviewer: String }
-        let body = try JSONEncoder().encode(Body(reviewer: reviewer))
-        let req  = try request(path: "questions/\(questionID)/review", method: "DELETE", body: body)
-        let _: [String: Bool] = try await execute(req)
+    /// Delete a review submitted by a specific reviewer for a question.
+    func deleteReview(questionId: Int, reviewer: String) async throws {
+        struct DeleteBody: Encodable { let reviewer: String }
+        let body = try JSONEncoder().encode(DeleteBody(reviewer: reviewer))
+        let req = try request(path: "questions/\(questionId)/review", method: "DELETE", body: body)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+            let bodyText = String(data: data, encoding: .utf8) ?? ""
+            throw APIError.httpError(http.statusCode, bodyText)
+        }
     }
 
-    /// Fetch per-subject/paper review statistics.
-    func fetchStats() async throws -> [SubjectStats] {
-        let req = try request(path: "stats")
+    // MARK: - Fixed Questions API
+
+    /// Fetch list of proposed fixed questions.
+    func fetchFixedQuestions(subject: String? = nil, paper: Int? = nil, status: String? = nil) async throws -> [FixedQuestion] {
+        var params: [String: String] = ["limit": "500"]
+        if let subject, !subject.isEmpty { params["subject"] = subject }
+        if let paper { params["paper"] = String(paper) }
+        if let status, !status.isEmpty { params["status"] = status }
+
+        let req = try requestWithParams(path: "fixed-questions", params: params)
         return try await execute(req)
+    }
+
+    /// Submit a review (approved / needs_fix) for a fixed question.
+    func submitFixedQuestionReview(fixedQuestionId: Int, reviewer: String, status: String, note: String? = nil) async throws {
+        struct ReviewBody: Encodable {
+            let fixed_question_id: Int
+            let reviewer: String
+            let status: String
+            let note: String?
+        }
+        let body = try JSONEncoder().encode(ReviewBody(
+            fixed_question_id: fixedQuestionId,
+            reviewer: reviewer,
+            status: status,
+            note: note
+        ))
+        let req = try request(path: "fixed-questions/review", method: "POST", body: body)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+            let text = String(data: data, encoding: .utf8) ?? ""
+            throw APIError.httpError(http.statusCode, text)
+        }
     }
 
     /// Fetch all known reviewer names.

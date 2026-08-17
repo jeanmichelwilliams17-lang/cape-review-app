@@ -24,6 +24,15 @@ struct SubjectPickerView: View {
                 } else {
                     List {
                         Section {
+                            NavigationLink(value: Route.fixedQuestions) {
+                                HStack {
+                                    Label("Review Fixed Questions", systemImage: "sparkles")
+                                        .font(.headline)
+                                        .foregroundStyle(.purple)
+                                    Spacer()
+                                }
+                                .padding(.vertical, 2)
+                            }
                             NavigationLink(value: Route.review(paper: 1, subject: nil, year: nil)) {
                                 SubjectRow(name: "All Subjects — Paper 1",
                                            count: subjects.compactMap(\.p1Count).reduce(0, +),
@@ -85,6 +94,8 @@ struct SubjectPickerView: View {
                 switch route {
                 case .review(let paper, let subject, let year):
                     ReviewView(paper: paper, subjectName: subject, year: year)
+                case .fixedQuestions:
+                    FixedQuestionsReviewView()
                 case .stats:
                     StatsView()
                 case .settings:
@@ -138,6 +149,7 @@ struct SubjectPickerView: View {
 // ── Route enum for NavigationStack typed destinations ────────────────────────
 enum Route: Hashable {
     case review(paper: Int, subject: String?, year: Int?)
+    case fixedQuestions
     case stats
     case settings
 }

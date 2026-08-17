@@ -878,3 +878,277 @@ export async function handleUnreviewPaper(
 
   return Response.json({ ok: true, deleted: deleteRes.meta.changes, affectedQuestions: qIds.length });
 }
+
+// ---------------------------------------------------------------------------
+// GET /admin/fixed-questions?subject=&paper=&year=&status=&limit=&cursor=
+// List fixed questions with original vs fixed text comparisons.
+// ---------------------------------------------------------------------------
+export async function handleAdminGetFixedQuestions(
+  url: URL,
+  env: Env
+): Promise<Response> {
+  const subject = url.searchParams.get('subject');
+  const paper   = url.searchParams.get('paper') ? Number(url.searchParams.get('paper')) : null;
+  const year    = url.searchParams.get('year')  ? Number(url.searchParams.get('year'))  : null;
+  const status  = url.searchParams.get('status');
+  const limit   = Math.min(Math.max(Number(url.searchParams.get('limit') ?? 50), 1), 500);
+  const cursor  = Math.max(Number(url.searchParams.get('cursor') ?? 0), 0);
+
+  const whereClauses: string[] = [];
+  const params: unknown[] = [];
+
+  if (subject) {
+    whereClauses.push('fq.subject_name = ?');
+    params.push(subject);
+  }
+  if (paper !== null && !isNaN(paper)) {
+    whereClauses.push('fq.paper = ?');
+    params.push(paper);
+  }
+  if (year !== null && !isNaN(year)) {
+    whereClauses.push('fq.year = ?');
+    params.push(year);
+  }
+  if (status) {
+    whereClauses.push('fq.status = ?');
+    params.push(status);
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+  const sql = `
+    SELECT fq.*, q.question_code as active_question_code, q.question_raw as active_question_raw
+    FROM fixed_questions fq
+    LEFT JOIN questions q ON q.id = fq.original_question_id
+    ${whereSql}
+    ORDER BY fq.id ASC
+    LIMIT ? OFFSET ?
+  `;
+
+  params.push(limit, cursor);
+
+  const { results } = await env.DB.prepare(sql).bind(...params).all();
+  const list = (results ?? []) as Array<Record<string, unknown>>;
+
+  const fqIds = list.map(fq => Number(fq.id));
+  if (fqIds.length > 0) {
+    const placeholders = fqIds.map(() => '?').join(',');
+    const { results: revRows } = await env.DB.prepare(`
+      SELECT fixed_question_id, reviewer_id, status, note, reviewed_at
+      FROM fixed_question_reviews
+      WHERE fixed_question_id IN (${placeholders})
+      ORDER BY reviewed_at DESC
+    `).bind(...fqIds).all<{
+      fixed_question_id: number;
+      reviewer_id: string;
+      status: string;
+      note: string | null;
+      reviewed_at: string;
+    }>();
+
+    const revMap = new Map<number, any[]>();
+    for (const r of (revRows ?? [])) {
+      if (!revMap.has(r.fixed_question_id)) revMap.set(r.fixed_question_id, []);
+      revMap.get(r.fixed_question_id)!.push(r);
+    }
+
+    for (const fq of list) {
+      fq.reviews = revMap.get(Number(fq.id)) ?? [];
+    }
+  }
+
+  return Response.json(list);
+}
+
+// ---------------------------------------------------------------------------
+// POST /admin/fixed-questions/apply
+// Body: { ids: number[] }
+// Soft-overwrites active questions with approved fixed LaTeX without deleting
+// original records (archives previous version in question_history).
+// ---------------------------------------------------------------------------
+export async function handleApplyFixedQuestions(
+  req: Request,
+  env: Env
+): Promise<Response> {
+  let body: { ids: number[] };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response('Invalid JSON body', { status: 400 });
+  }
+
+  const ids = (body.ids || []).map(Number).filter(n => !isNaN(n));
+  if (!ids.length) {
+    return new Response('No fixed question IDs provided', { status: 400 });
+  }
+
+  const placeholders = ids.map(() => '?').join(',');
+  const { results: fqRows } = await env.DB.prepare(`
+    SELECT * FROM fixed_questions WHERE id IN (${placeholders})
+  `).bind(...ids).all<any>();
+
+  let appliedCount = 0;
+
+  for (const fq of (fqRows ?? [])) {
+    if (!fq.original_question_id) continue;
+
+    const activeQ = await env.DB.prepare(`
+      SELECT question_raw, question_code FROM questions WHERE id = ?
+    `).bind(fq.original_question_id).first<{ question_raw: string; question_code: string }>();
+
+    if (activeQ) {
+      // Soft preserve: archive active question version to question_history
+      await env.DB.prepare(`
+        INSERT INTO question_history (question_id, question_raw, question_code, replaced_by_fix_id)
+        VALUES (?, ?, ?, ?)
+      `).bind(fq.original_question_id, activeQ.question_raw, activeQ.question_code, fq.id).run();
+
+      // Soft-overwrite active question with fixed LaTeX
+      await env.DB.prepare(`
+        UPDATE questions
+        SET question_raw = ?,
+            question_code = ?
+        WHERE id = ?
+      `).bind(fq.fixed_question_raw, fq.fixed_question_code, fq.original_question_id).run();
+
+      // Also update choice codes if choice contains latex collision
+      if (fq.paper === 1) {
+        const { results: choices } = await env.DB.prepare(`
+          SELECT id, answer_raw, answer_code FROM choices WHERE question_id = ?
+        `).bind(fq.original_question_id).all<{ id: number; answer_raw: string; answer_code: string }>();
+
+        const pattern = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
+
+        for (const c of (choices ?? [])) {
+          if ((c.answer_raw && pattern.test(c.answer_raw)) || (c.answer_code && pattern.test(c.answer_code))) {
+            const newRaw = c.answer_raw ? c.answer_raw.replace(pattern, '$1 $2') : c.answer_raw;
+            const newCode = c.answer_code ? c.answer_code.replace(pattern, '$1 $2') : c.answer_code;
+            await env.DB.prepare(`
+              UPDATE choices SET answer_raw = ?, answer_code = ? WHERE id = ?
+            `).bind(newRaw, newCode, c.id).run();
+          }
+        }
+      }
+
+      // Mark fixed_question status as applied
+      await env.DB.prepare(`
+        UPDATE fixed_questions
+        SET status = 'applied', applied_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(fq.id).run();
+
+      appliedCount++;
+    }
+  }
+
+  return Response.json({ ok: true, appliedCount });
+}
+
+// ---------------------------------------------------------------------------
+// GET /admin/fixed-questions/export?ids=1,2,3
+// Generates and streams downloadable CSV of fixed questions in CAPEP1/CAPEP2 format.
+// ---------------------------------------------------------------------------
+export async function handleExportFixedQuestionsCSV(
+  url: URL,
+  env: Env
+): Promise<Response> {
+  const idsParam = url.searchParams.get('ids');
+  const subject  = url.searchParams.get('subject');
+
+  let whereSql = '';
+  const params: any[] = [];
+
+  if (idsParam) {
+    const ids = idsParam.split(',').map(Number).filter(n => !isNaN(n));
+    if (ids.length) {
+      whereSql = `WHERE fq.id IN (${ids.map(() => '?').join(',')})`;
+      params.push(...ids);
+    }
+  } else if (subject) {
+    whereSql = 'WHERE fq.subject_name = ?';
+    params.push(subject);
+  }
+
+  const { results: fqList } = await env.DB.prepare(`
+    SELECT fq.*, q.number as q_num, q.part as q_part, q.subpart as q_subpart,
+           q.unit_title, q.module_title, q.marks, q.correct_choice
+    FROM fixed_questions fq
+    LEFT JOIN questions q ON q.id = fq.original_question_id
+    ${whereSql}
+    ORDER BY fq.paper, fq.subject_name, fq.year, fq.number
+  `).bind(...params).all<any>();
+
+  const escCsv = (val: any) => {
+    if (val === null || val === undefined) return '""';
+    const str = String(val);
+    return `"${str.replace(/"/g, '""')}"`;
+  };
+
+  const header = [
+    'cape', 'paper', 'subject', 'month', 'year', 'number', 'part', 'unit_title',
+    'module_title', 'marks', 'answer_key', 'question_raw', 'answer_a_raw', 'answer_b_raw',
+    'answer_c_raw', 'answer_d_raw', 'validated_question_code', 'validated_answer_a_code',
+    'validated_answer_b_code', 'validated_answer_c_code', 'validated_answer_d_code',
+    'q', 'a', 'b', 'c', 'd', 'q_key', 'a_key', 'b_key', 'c_key', 'd_key'
+  ];
+
+  let csvContent = header.join(',') + '\n';
+
+  const pattern = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
+  const fixStr = (s: string | null | undefined) => s ? s.replace(pattern, '$1 $2') : '';
+
+  for (const fq of (fqList ?? [])) {
+    let choices: any[] = [];
+    if (fq.paper === 1 && fq.original_question_id) {
+      const { results } = await env.DB.prepare(`
+        SELECT label, answer_raw, answer_code, diagram_key FROM choices WHERE question_id = ? ORDER BY label
+      `).bind(fq.original_question_id).all<any>();
+      choices = results ?? [];
+    }
+
+    const findChoice = (lbl: string) => choices.find(c => String(c.label).toUpperCase() === lbl);
+    const cA = findChoice('A');
+    const cB = findChoice('B');
+    const cC = findChoice('C');
+    const cD = findChoice('D');
+
+    const row = [
+      escCsv('cape'),
+      escCsv(fq.paper),
+      escCsv(fq.subject_name ? fq.subject_name.replace(/ U[12]$/i, '') : ''),
+      escCsv(fq.month || 'May'),
+      escCsv(fq.year || ''),
+      escCsv(fq.number),
+      escCsv(fq.part || ''),
+      escCsv(fq.unit_title || ''),
+      escCsv(fq.module_title || ''),
+      escCsv(fq.marks || ''),
+      escCsv(fq.correct_choice || ''),
+      escCsv(fq.fixed_question_raw),
+      escCsv(fixStr(cA?.answer_raw)),
+      escCsv(fixStr(cB?.answer_raw)),
+      escCsv(fixStr(cC?.answer_raw)),
+      escCsv(fixStr(cD?.answer_raw)),
+      escCsv(fq.fixed_question_code),
+      escCsv(fixStr(cA?.answer_code)),
+      escCsv(fixStr(cB?.answer_code)),
+      escCsv(fixStr(cC?.answer_code)),
+      escCsv(fixStr(cD?.answer_code)),
+      escCsv(fq.fixed_question_raw),
+      escCsv(fixStr(cA?.answer_raw)),
+      escCsv(fixStr(cB?.answer_raw)),
+      escCsv(fixStr(cC?.answer_raw)),
+      escCsv(fixStr(cD?.answer_raw)),
+      escCsv(''), escCsv(''), escCsv(''), escCsv(''), escCsv('')
+    ];
+
+    csvContent += row.join(',') + '\n';
+  }
+
+  return new Response(csvContent, {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="Fixed_Questions_Export_${Date.now()}.csv"`
+    }
+  });
+}
+

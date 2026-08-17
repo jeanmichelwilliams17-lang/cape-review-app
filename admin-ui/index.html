@@ -42,6 +42,9 @@
     <button class="nav-btn" id="nav-reviews" data-view="reviews">
       <span class="nav-icon">👁</span> Review Log
     </button>
+    <button class="nav-btn" id="nav-fixed" data-view="fixed">
+      <span class="nav-icon">✨</span> Fixed Questions
+    </button>
     <button class="nav-btn" id="nav-stats" data-view="stats">
       <span class="nav-icon">📊</span> Stats
     </button>
@@ -368,6 +371,86 @@
         <button class="btn btn-ghost btn-sm" id="btn-rev-prev">← Prev</button>
         <span class="text-muted text-sm" id="rev-page-info">Showing 1–50</span>
         <button class="btn btn-ghost btn-sm" id="btn-rev-next">Next →</button>
+      </div>
+    </section>
+
+    <!-- === FIXED QUESTIONS VIEW === -->
+    <section id="view-fixed" class="view hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Fixed Questions</h1>
+          <p class="page-subtitle">Review proposed LaTeX fixes, export formatted CSVs, or soft-apply fixes to active questions</p>
+        </div>
+        <div class="page-actions" style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" id="btn-refresh-fixed">↺ Refresh</button>
+          <button class="btn btn-primary" id="btn-export-fixed-csv">⬇ Export CSV</button>
+          <button class="btn" style="background:var(--green,#10b981);color:#fff;" id="btn-apply-fixed-soft">✓ Apply Selected (Soft Overwrite)</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="flex gap-3" style="flex-wrap: wrap; align-items: flex-end;">
+          <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
+            <label for="fixed-filter-subject">Subject</label>
+            <div class="searchable-dropdown" id="fixed-subject-dropdown">
+              <input id="fixed-filter-subject" class="input" placeholder="Search subject…" autocomplete="off" />
+              <div class="dropdown-list hidden" id="fixed-subject-dropdown-list"></div>
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="fixed-filter-paper">Paper</label>
+            <select id="fixed-filter-paper" class="input select-input">
+              <option value="">All</option>
+              <option value="1">Paper 1</option>
+              <option value="2">Paper 2</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="fixed-filter-status">Status</label>
+            <select id="fixed-filter-status" class="input select-input">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="applied">Applied (Active in DB)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btn-fixed-filter-apply">Search</button>
+          <button class="btn btn-ghost" id="btn-fixed-filter-clear">Clear</button>
+        </div>
+      </div>
+
+      <div id="fixed-loading" class="empty-state hidden">
+        <div class="spinner"></div>
+        <p class="empty-state-text mt-4">Loading fixed questions…</p>
+      </div>
+
+      <div id="fixed-empty" class="empty-state hidden">
+        <div class="empty-state-icon">✨</div>
+        <p class="empty-state-text">No fixed questions found matching your filters.</p>
+      </div>
+
+      <div id="fixed-table-wrap" class="table-wrap hidden">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px;"><input type="checkbox" id="chk-select-all-fixed" /></th>
+              <th>Sitting</th>
+              <th>Q #</th>
+              <th>Original Active LaTeX</th>
+              <th>Proposed Fixed LaTeX</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fixed-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="flex gap-3 mt-4 hidden" id="fixed-pagination" style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <button class="btn btn-ghost btn-sm" id="btn-fixed-prev">← Prev</button>
+        <span class="text-muted text-sm" id="fixed-page-info">Showing 1–50</span>
+        <button class="btn btn-ghost btn-sm" id="btn-fixed-next">Next →</button>
       </div>
     </section>
 

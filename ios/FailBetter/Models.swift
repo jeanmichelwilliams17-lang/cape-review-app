@@ -174,6 +174,38 @@ struct Question: Codable, Identifiable {
     }
 }
 
+// MARK: - FixedQuestion Model
+
+struct FixedQuestion: Identifiable, Codable {
+    let id: Int
+    let originalQuestionId: Int?
+    let subjectName: String
+    let paper: Int
+    let year: Int?
+    let month: String?
+    let number: Int
+    let part: String?
+    let subpart: String?
+    let originalQuestionRaw: String
+    let fixedQuestionRaw: String
+    let originalQuestionCode: String?
+    let fixedQuestionCode: String?
+    let fixType: String
+    let status: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, paper, year, month, number, part, subpart, status
+        case originalQuestionId   = "original_question_id"
+        case subjectName          = "subject_name"
+        case originalQuestionRaw  = "original_question_raw"
+        case fixedQuestionRaw     = "fixed_question_raw"
+        case originalQuestionCode = "original_question_code"
+        case fixedQuestionCode    = "fixed_question_code"
+        case fixType              = "fix_type"
+    }
+}
+
+
 // MARK: - Stats
 
 struct SubjectStats: Codable, Identifiable {

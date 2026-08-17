@@ -16,6 +16,9 @@ import {
   handleDebugImageKit,
   handleAuditAndFixDiagrams,
   runFullDiagramAudit,
+  handleAdminGetFixedQuestions,
+  handleApplyFixedQuestions,
+  handleExportFixedQuestionsCSV,
 } from './admin';
 
 export default {
@@ -100,6 +103,43 @@ export default {
           `SELECT id, name FROM reviewers ORDER BY name`
         ).all();
         return withCors(Response.json(results));
+      }
+
+      // -----------------------------------------------------------------------
+      // GET /fixed-questions — Mobile endpoint for reviewing fixed questions
+      // -----------------------------------------------------------------------
+      if (pathname === '/fixed-questions' && method === 'GET') {
+        return withCors(await handleAdminGetFixedQuestions(url, env));
+      }
+
+      // -----------------------------------------------------------------------
+      // POST /fixed-questions/review — Submit review for a fixed question
+      // -----------------------------------------------------------------------
+      if (pathname === '/fixed-questions/review' && method === 'POST') {
+        let body: { fixed_question_id: number; reviewer: string; status: string; note?: string };
+        try {
+          body = await request.json();
+        } catch {
+          return withCors(new Response('Invalid JSON body', { status: 400 }));
+        }
+
+        const { fixed_question_id, reviewer, status, note } = body;
+        if (!fixed_question_id || !reviewer || !['approved', 'needs_fix'].includes(status)) {
+          return withCors(new Response('Missing required fields', { status: 400 }));
+        }
+
+        await env.DB.prepare(`
+          INSERT INTO fixed_question_reviews (fixed_question_id, reviewer_id, status, note)
+          VALUES (?, ?, ?, ?)
+        `).bind(fixed_question_id, reviewer, status, note ?? null).run();
+
+        // Update status on fixed_questions table
+        const newStatus = status === 'approved' ? 'approved' : 'pending';
+        await env.DB.prepare(`
+          UPDATE fixed_questions SET status = ? WHERE id = ?
+        `).bind(newStatus, fixed_question_id).run();
+
+        return withCors(Response.json({ ok: true }));
       }
 
       // -----------------------------------------------------------------------
@@ -420,6 +460,15 @@ export default {
         }
         if (pathname === '/admin/papers' && method === 'DELETE') {
           return withCors(await handleDeletePaper(request, env));
+        }
+        if (pathname === '/admin/fixed-questions' && method === 'GET') {
+          return withCors(await handleAdminGetFixedQuestions(url, env));
+        }
+        if (pathname === '/admin/fixed-questions/apply' && method === 'POST') {
+          return withCors(await handleApplyFixedQuestions(request, env));
+        }
+        if (pathname === '/admin/fixed-questions/export' && method === 'GET') {
+          return withCors(await handleExportFixedQuestionsCSV(url, env));
         }
 
         const adminQMatch = pathname.match(/^\/admin\/questions\/(\d+)$/);
