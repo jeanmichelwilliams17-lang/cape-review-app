@@ -280,7 +280,7 @@ struct FixedQuestionsReviewView: View {
                     }
                     .padding()
                 }
-                .id(currentItem.id)
+                .id(currentIndex)
                 .onChange(of: currentIndex) { _ in
                     reviewNote = ""
                 }
