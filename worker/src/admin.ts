@@ -519,29 +519,7 @@ export async function handleAdminGetQuestions(
     .map(q => Number(q.id));
 
   if (p1QuestionIds.length > 0) {
-    const placeholders = p1QuestionIds.map(() => '?').join(',');
-    const { results: choicesRows } = await env.DB.prepare(`
-      SELECT id, question_id, label, answer_raw, answer_code, diagram_key
-      FROM choices
-      WHERE question_id IN (${placeholders})
-      ORDER BY question_id, label
-    `).bind(...p1QuestionIds).all<{
-      id: number;
-      question_id: number;
-      label: string;
-      answer_raw: string;
-      answer_code: string;
-      diagram_key: string | null;
-    }>();
-
-    const choicesMap = new Map<number, typeof choicesRows>();
-    for (const c of choicesRows) {
-      if (!choicesMap.has(c.question_id)) {
-        choicesMap.set(c.question_id, []);
-      }
-      choicesMap.get(c.question_id)!.push(c);
-    }
-
+    const choicesMap = await fetchChoicesForQuestionIds(env, p1QuestionIds);
     for (const q of questionsList) {
       if (Number(q.paper) === 1) {
         q.choices = choicesMap.get(Number(q.id)) ?? [];
@@ -550,6 +528,37 @@ export async function handleAdminGetQuestions(
   }
 
   return Response.json(questionsList);
+}
+
+async function fetchChoicesForQuestionIds(env: Env, questionIds: number[]) {
+  const choicesMap = new Map<number, any[]>();
+  const BATCH_SIZE = 50;
+
+  for (let i = 0; i < questionIds.length; i += BATCH_SIZE) {
+    const batch = questionIds.slice(i, i + BATCH_SIZE);
+    const placeholders = batch.map(() => '?').join(',');
+    const { results: choicesRows } = await env.DB.prepare(`
+      SELECT id, question_id, label, answer_raw, answer_code, diagram_key
+      FROM choices
+      WHERE question_id IN (${placeholders})
+      ORDER BY question_id, label
+    `).bind(...batch).all<{
+      id: number;
+      question_id: number;
+      label: string;
+      answer_raw: string;
+      answer_code: string;
+      diagram_key: string | null;
+    }>();
+
+    for (const c of (choicesRows ?? [])) {
+      if (!choicesMap.has(c.question_id)) {
+        choicesMap.set(c.question_id, []);
+      }
+      choicesMap.get(c.question_id)!.push(c);
+    }
+  }
+  return choicesMap;
 }
 
 // ---------------------------------------------------------------------------
@@ -676,29 +685,7 @@ export async function handleAdminGetReviews(
   const p1QuestionIds = items.filter(q => Number(q.paper) === 1).map(q => Number(q.question_id));
 
   if (p1QuestionIds.length > 0) {
-    const placeholders = p1QuestionIds.map(() => '?').join(',');
-    const { results: choicesRows } = await env.DB.prepare(`
-      SELECT id, question_id, label, answer_raw, answer_code, diagram_key
-      FROM choices
-      WHERE question_id IN (${placeholders})
-      ORDER BY question_id, label
-    `).bind(...p1QuestionIds).all<{
-      id: number;
-      question_id: number;
-      label: string;
-      answer_raw: string;
-      answer_code: string;
-      diagram_key: string | null;
-    }>();
-
-    const choicesMap = new Map<number, typeof choicesRows>();
-    for (const c of choicesRows) {
-      if (!choicesMap.has(c.question_id)) {
-        choicesMap.set(c.question_id, []);
-      }
-      choicesMap.get(c.question_id)!.push(c);
-    }
-
+    const choicesMap = await fetchChoicesForQuestionIds(env, p1QuestionIds);
     for (const q of items) {
       if (Number(q.paper) === 1) {
         q.choices = choicesMap.get(Number(q.question_id)) ?? [];
