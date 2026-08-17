@@ -22,10 +22,14 @@ final class ImagePrefetcher {
         guard startIndex < end else { return }
 
         for q in questions[startIndex..<end] {
-            prefetchKey(q.questionDiagramKey)
+            if q.diagramPresent {
+                prefetchKey(q.questionDiagramKey)
+            }
             if let choices = q.choices {
                 for choice in choices {
-                    prefetchKey(choice.diagramKey)
+                    if let key = choice.diagramKey, DiagramPathCache.shared.directURL(for: key) != nil {
+                        prefetchKey(key)
+                    }
                 }
             }
         }
@@ -162,8 +166,8 @@ struct ReviewView: View {
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Optional diagram
-                    if (q.diagramPresent || !(q.questionDiagramKey?.isEmpty ?? true)), let key = q.questionDiagramKey, !key.isEmpty {
+                    // Optional diagram — only render if the question actually has a diagram
+                    if q.diagramPresent, let key = q.questionDiagramKey, !key.isEmpty {
                         DiagramView(diagramKey: key)
                     }
 
@@ -365,7 +369,7 @@ struct ChoiceRow: View {
                 .multilineTextAlignment(.leading)
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if let key = choice.diagramKey {
+            if let key = choice.diagramKey, DiagramPathCache.shared.hasDiagram(for: key) {
                 DiagramView(diagramKey: key)
                     .frame(maxWidth: 120)
             }

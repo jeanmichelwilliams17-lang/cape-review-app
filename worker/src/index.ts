@@ -111,16 +111,18 @@ export default {
         const { results } = await env.DB.prepare(`
           SELECT diagram_key, imagekit_path
           FROM diagrams
-          WHERE imagekit_path IS NOT NULL AND imagekit_path != ''
-        `).all<{ diagram_key: string; imagekit_path: string }>();
+        `).all<{ diagram_key: string; imagekit_path: string | null }>();
 
         const base = env.IMAGEKIT_BASE_URL.replace(/\/$/, '');
         const map: Record<string, string> = {};
         for (const row of results ?? []) {
-          // Provide the full URL so iOS can fetch directly with no knowledge of
-          // the ImageKit base URL (it's a worker-side config, not stored on device).
-          const cleanPath = row.imagekit_path.replace(/^\/+/, '');
-          map[row.diagram_key] = `${base}/${cleanPath}`;
+          if (row.imagekit_path) {
+            const cleanPath = row.imagekit_path.replace(/^\/+/, '');
+            map[row.diagram_key] = `${base}/${cleanPath}`;
+          } else {
+            // Key exists in diagrams table, but path not resolved yet
+            map[row.diagram_key] = '';
+          }
         }
 
         return new Response(JSON.stringify(map), {

@@ -28,10 +28,15 @@ final class DiagramPathCache {
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// Returns a direct ImageKit CDN URL for the given diagram key, if known.
-    /// Returns nil if the key is not yet in the local cache (caller should fall back to the worker proxy).
+    /// Returns true if the key is known to be a valid diagram key in the database.
+    func hasDiagram(for key: String) -> Bool {
+        return paths.keys.contains(key)
+    }
+
+    /// Returns a direct ImageKit CDN URL for the given diagram key, if known and resolved.
+    /// Returns nil if the key is not yet in the local cache or has no resolved URL.
     func directURL(for key: String) -> URL? {
-        guard let urlString = paths[key] else { return nil }
+        guard let urlString = paths[key], !urlString.isEmpty else { return nil }
         return URL(string: urlString)
     }
 

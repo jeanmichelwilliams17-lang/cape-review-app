@@ -232,8 +232,16 @@ export async function handleImageProxy(
     } catch {}
   }
 
-  // If no path succeeded
-  return new Response('Image not found', { status: 404 });
+  // If no path succeeded, cache 404 in Edge Cache for 24h so repeat misses return in 1ms
+  const missResponse = new Response('Image not found', {
+    status: 404,
+    headers: {
+      'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+  cache.put(cacheKey, missResponse.clone()).catch(() => {/* best-effort */});
+  return missResponse;
 }
 
 // ── Fetch helper — tries signed URL then unsigned URL ────────────────────────
