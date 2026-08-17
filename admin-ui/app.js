@@ -678,20 +678,44 @@ async function loadEditorQuestions() {
 }
 
 // ── KaTeX formatting helper ───────────────────────────────────
-function formatLatex(text) {
+function cleanAndRenderLatex(text) {
   if (text === null || text === undefined || text === '') return '';
-  const str = String(text);
-  if (typeof katex === 'undefined') return escHtml(str);
+  let s = String(text).trim();
+
+  // Strip Swift/LaTeX wrapper e.g. LaTeX("...").parsingMode(.onlyEquations)
+  if (s.startsWith('LaTeX("')) {
+    s = s.substring(7);
+  }
+  if (s.endsWith('").parsingMode(.onlyEquations)')) {
+    s = s.substring(0, s.length - 31);
+  } else if (s.endsWith('")')) {
+    s = s.substring(0, s.length - 2);
+  }
+
+  // Un-escape double backslashes and escaped newlines
+  s = s.replace(/\\\\/g, '\\').replace(/\\n/g, '\n').trim();
+
+  if (typeof katex === 'undefined') return escHtml(s);
+
   try {
-    return str
-      .replace(/\$\$(.+?)\$\$/gs, (_, tex) =>
-        katex.renderToString(tex, { displayMode: true, throwOnError: false })
-      )
-      .replace(/\$(.+?)\$/g, (_, tex) =>
-        katex.renderToString(tex, { displayMode: false, throwOnError: false })
-      );
+    // If string has explicit math delimiters: $...$, $$...$$, \(...\), \[...\]
+    if (s.includes('$') || s.includes('\\(') || s.includes('\\[')) {
+      return s
+        .replace(/\$\$(.+?)\$\$/gs, (_, tex) => katex.renderToString(tex, { displayMode: true, throwOnError: false }))
+        .replace(/\$(.+?)\$/g, (_, tex) => katex.renderToString(tex, { displayMode: false, throwOnError: false }))
+        .replace(/\\\((.+?)\\\)/g, (_, tex) => katex.renderToString(tex, { displayMode: false, throwOnError: false }))
+        .replace(/\\\[(.+?)\\\]/g, (_, tex) => katex.renderToString(tex, { displayMode: true, throwOnError: false }));
+    }
+
+    // If string is raw TeX command (starts with \text, \frac, \int, \sum, \begin, etc., or contains ^, _, \)
+    if (/^\s*\\text|\\[a-zA-Z]+|\^|_|\{/.test(s)) {
+      return katex.renderToString(s, { displayMode: false, throwOnError: false });
+    }
+
+    // Plain text or plain number
+    return escHtml(s);
   } catch {
-    return escHtml(str);
+    return escHtml(s);
   }
 }
 
@@ -707,7 +731,7 @@ function renderChoicesBlock(choices, correctChoice) {
   choices.forEach(c => {
     const isCorrect = (c.label && correctChoice && c.label.toUpperCase() === correctChoice.toUpperCase());
     const val = c.answer_code || c.answer_raw || '';
-    const latexVal = formatLatex(val);
+    const latexVal = cleanAndRenderLatex(val);
     html += `
       <div class="choice-item ${isCorrect ? 'correct' : ''}">
         <strong style="color:var(--accent);margin-right:4px;">${escHtml(c.label)}:</strong>
@@ -726,7 +750,7 @@ function renderLatex(text, elementId) {
   if (typeof katex === 'undefined') { el.textContent = text; return; }
 
   try {
-    const html = formatLatex(text);
+    const html = cleanAndRenderLatex(text);
     el.innerHTML = html;
   } catch {
     el.textContent = text;
@@ -734,11 +758,126 @@ function renderLatex(text, elementId) {
 }
 
 // ── Review Log view ───────────────────────────────────────────────
+const REV_PAGE_SIZE = 50;
+let reviewsCache = [];       // all fetched items
+let reviewsCursor = 0;       // current page offset
+
+function renderReviewsPage() {
+  const tbody     = document.getElementById('reviews-tbody');
+  const tableWrap = document.getElementById('reviews-table-wrap');
+  const pager     = document.getElementById('reviews-pagination');
+
+  const page = reviewsCache.slice(reviewsCursor, reviewsCursor + REV_PAGE_SIZE);
+
+  tbody.innerHTML = '';
+
+  // Use a DocumentFragment to batch DOM insertions
+  const frag = document.createDocumentFragment();
+
+  page.forEach(q => {
+    const qLabel   = `Q${q.number}${q.part ? ' (' + q.part + (q.subpart ? ' ' + q.subpart : '') + ')' : ''}`;
+    const sitLabel = `${q.subject} P${q.paper} ${q.year || ''}`;
+
+    let statusBadge = '<span class="badge">Unreviewed</span>';
+    if (q.latest_review_status === 'correct') {
+      statusBadge = '<span class="badge badge-green">✓ Correct</span>';
+    } else if (q.latest_review_status === 'needs_fix') {
+      statusBadge = '<span class="badge badge-red">⚠ Needs Fix</span>';
+    }
+    if (q.has_conflicting_reviews) {
+      statusBadge += ' <span class="badge badge-yellow" style="margin-left:4px;">⚡ Conflict</span>';
+    }
+
+    let logHtml = '';
+    if (q.reviews && q.reviews.length > 0) {
+      logHtml = '<div style="display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto;">';
+      q.reviews.forEach(r => {
+        const stBadge = r.status === 'correct'
+          ? '<span class="badge badge-green" style="font-size:10px;padding:1px 5px;">Correct</span>'
+          : '<span class="badge badge-red" style="font-size:10px;padding:1px 5px;">Needs Fix</span>';
+        const dtStr   = r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString() : '';
+        const noteText = r.note ? `<span class="text-muted text-xs"> — "${escHtml(r.note)}"</span>` : '';
+        logHtml += `<div style="font-size:12px;line-height:1.4;">
+          <strong>${escHtml(r.reviewer_id || 'Anonymous')}</strong> ${stBadge}
+          <span class="text-muted text-xs">${dtStr}</span>${noteText}
+        </div>`;
+      });
+      logHtml += '</div>';
+    } else {
+      logHtml = '<span class="text-muted text-xs">No reviews yet</span>';
+    }
+
+    // Render question text: only plain text for the list, show choices collapsed
+    const qTextHtml  = cleanAndRenderLatex(q.question_raw);
+    const choicesHtml = renderChoicesBlock(q.choices, q.correct_choice);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${escHtml(sitLabel)}</strong></td>
+      <td><span class="badge badge-accent">${escHtml(qLabel)}</span></td>
+      <td style="max-width:320px;">
+        <div class="text-sm" style="margin-bottom:4px;">${qTextHtml}</div>
+        ${choicesHtml}
+      </td>
+      <td><strong>${q.review_count || 0}</strong> review${q.review_count === 1 ? '' : 's'}</td>
+      <td>${statusBadge}</td>
+      <td>${logHtml}</td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm btn-jump-editor"
+            data-subject="${escAttr(q.subject)}"
+            data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
+            Edit
+          </button>
+          <button class="btn btn-ghost btn-sm btn-unreview-paper"
+            data-subject="${escAttr(q.subject)}"
+            data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
+            ↺ Unreview
+          </button>
+        </div>
+      </td>
+    `;
+    frag.appendChild(tr);
+  });
+
+  tbody.appendChild(frag);
+  tableWrap.classList.remove('hidden');
+
+  // Pagination bar
+  const from = reviewsCursor + 1;
+  const to   = Math.min(reviewsCursor + REV_PAGE_SIZE, reviewsCache.length);
+  document.getElementById('rev-page-info').textContent = `${from}–${to} of ${reviewsCache.length}`;
+  document.getElementById('btn-rev-prev').disabled = reviewsCursor === 0;
+  document.getElementById('btn-rev-next').disabled = reviewsCursor + REV_PAGE_SIZE >= reviewsCache.length;
+  pager.classList.remove('hidden');
+
+  // Button listeners
+  tbody.querySelectorAll('.btn-jump-editor').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('filter-subject').value = btn.dataset.subject;
+      document.getElementById('filter-paper').value   = btn.dataset.paper;
+      document.getElementById('filter-year').value    = btn.dataset.year;
+      document.getElementById('filter-month').value   = btn.dataset.month;
+      showView('editor');
+      loadEditorQuestions();
+    });
+  });
+
+  tbody.querySelectorAll('.btn-unreview-paper').forEach(btn => {
+    btn.addEventListener('click', () => openUnreviewModal({
+      subject: btn.dataset.subject,
+      paper:   Number(btn.dataset.paper),
+      year:    btn.dataset.year ? Number(btn.dataset.year) : undefined,
+      month:   btn.dataset.month,
+    }));
+  });
+}
+
 async function loadReviews() {
   const loadingEl = document.getElementById('reviews-loading');
   const emptyEl   = document.getElementById('reviews-empty');
   const tableWrap = document.getElementById('reviews-table-wrap');
-  const tbody     = document.getElementById('reviews-tbody');
+  const pager     = document.getElementById('reviews-pagination');
 
   const subject  = document.getElementById('rev-filter-subject').value.trim();
   const paper    = document.getElementById('rev-filter-paper').value.trim();
@@ -754,11 +893,12 @@ async function loadReviews() {
   if (month)    params.set('month', month);
   if (reviewer) params.set('reviewer', reviewer);
   if (status)   params.set('status', status);
-  params.set('limit', '500');
+  params.set('limit', '1000');
 
   loadingEl.classList.remove('hidden');
   emptyEl.classList.add('hidden');
   tableWrap.classList.add('hidden');
+  pager.classList.add('hidden');
 
   try {
     const items = await api(`/admin/reviews?${params.toString()}`);
@@ -766,112 +906,32 @@ async function loadReviews() {
 
     if (!items || !items.length) {
       emptyEl.classList.remove('hidden');
-      document.getElementById('stat-rev-total').textContent = '0';
-      document.getElementById('stat-rev-reviewed').textContent = '0';
-      document.getElementById('stat-rev-count').textContent = '0';
-      document.getElementById('stat-rev-users').textContent = '0';
+      document.getElementById('stat-rev-total').textContent     = '0';
+      document.getElementById('stat-rev-reviewed').textContent  = '0';
+      document.getElementById('stat-rev-count').textContent     = '0';
+      document.getElementById('stat-rev-users').textContent     = '0';
       return;
     }
 
+    // Compute summary stats from full data before paginating
     let totalReviewedCount = 0;
     let totalReviewActions = 0;
     const reviewersSet = new Set();
-
-    tbody.innerHTML = '';
     items.forEach(q => {
       if (q.review_count > 0) totalReviewedCount++;
       totalReviewActions += (q.review_count || 0);
-
-      const qLabel = `Q${q.number}${q.part ? ' (' + q.part + (q.subpart ? ' ' + q.subpart : '') + ')' : ''}`;
-      const sitLabel = `${q.subject} P${q.paper} ${q.year || ''}`;
-
-      let statusBadge = '<span class="badge">Unreviewed</span>';
-      if (q.latest_review_status === 'correct') {
-        statusBadge = '<span class="badge badge-green">✓ Correct</span>';
-      } else if (q.latest_review_status === 'needs_fix') {
-        statusBadge = '<span class="badge badge-red">⚠ Needs Fix</span>';
-      }
-      if (q.has_conflicting_reviews) {
-        statusBadge += ' <span class="badge badge-yellow" style="margin-left:4px;">⚡ Conflict</span>';
-      }
-
-      let logHtml = '';
-      if (q.reviews && q.reviews.length > 0) {
-        logHtml = '<div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;">';
-        q.reviews.forEach(r => {
-          if (r.reviewer_id) reviewersSet.add(r.reviewer_id);
-          const stBadge = r.status === 'correct'
-            ? '<span class="badge badge-green" style="font-size:10px;padding:1px 5px;">Correct</span>'
-            : '<span class="badge badge-red" style="font-size:10px;padding:1px 5px;">Needs Fix</span>';
-          const dtStr = r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString() : '';
-          const noteText = r.note ? `<span class="text-muted text-xs"> — "${escHtml(r.note)}"</span>` : '';
-          logHtml += `<div style="font-size:12px;line-height:1.4;">
-            <strong>${escHtml(r.reviewer_id || 'Anonymous')}</strong> ${stBadge} <span class="text-muted text-xs">${dtStr}</span>${noteText}
-          </div>`;
-        });
-        logHtml += '</div>';
-      } else {
-        logHtml = '<span class="text-muted text-xs">No reviews recorded yet</span>';
-      }
-
-      const qTextHtml = formatLatex(q.question_raw);
-      const choicesHtml = renderChoicesBlock(q.choices, q.correct_choice);
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${escHtml(sitLabel)}</strong></td>
-        <td><span class="badge badge-accent">${escHtml(qLabel)}</span></td>
-        <td style="max-width:320px;">
-          <div class="text-sm font-medium" style="margin-bottom:4px;">${qTextHtml}</div>
-          ${choicesHtml}
-        </td>
-        <td><strong>${q.review_count || 0}</strong> review${q.review_count === 1 ? '' : 's'}</td>
-        <td>${statusBadge}</td>
-        <td>${logHtml}</td>
-        <td>
-          <div class="flex gap-2">
-            <button class="btn btn-ghost btn-sm btn-jump-editor"
-              data-subject="${escAttr(q.subject)}"
-              data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
-              Edit
-            </button>
-            <button class="btn btn-ghost btn-sm btn-unreview-paper"
-              data-subject="${escAttr(q.subject)}"
-              data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
-              ↺ Unreview
-            </button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
+      (q.reviews || []).forEach(r => { if (r.reviewer_id) reviewersSet.add(r.reviewer_id); });
     });
 
-    document.getElementById('stat-rev-total').textContent = items.length;
-    document.getElementById('stat-rev-reviewed').textContent = totalReviewedCount;
-    document.getElementById('stat-rev-count').textContent = totalReviewActions;
-    document.getElementById('stat-rev-users').textContent = reviewersSet.size;
+    document.getElementById('stat-rev-total').textContent     = items.length;
+    document.getElementById('stat-rev-reviewed').textContent  = totalReviewedCount;
+    document.getElementById('stat-rev-count').textContent     = totalReviewActions;
+    document.getElementById('stat-rev-users').textContent     = reviewersSet.size;
 
-    tableWrap.classList.remove('hidden');
-
-    tbody.querySelectorAll('.btn-jump-editor').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('filter-subject').value = btn.dataset.subject;
-        document.getElementById('filter-paper').value   = btn.dataset.paper;
-        document.getElementById('filter-year').value    = btn.dataset.year;
-        document.getElementById('filter-month').value   = btn.dataset.month;
-        showView('editor');
-        loadEditorQuestions();
-      });
-    });
-
-    tbody.querySelectorAll('.btn-unreview-paper').forEach(btn => {
-      btn.addEventListener('click', () => openUnreviewModal({
-        subject: btn.dataset.subject,
-        paper:   Number(btn.dataset.paper),
-        year:    btn.dataset.year ? Number(btn.dataset.year) : undefined,
-        month:   btn.dataset.month,
-      }));
-    });
+    // Store & render first page
+    reviewsCache  = items;
+    reviewsCursor = 0;
+    renderReviewsPage();
 
   } catch (err) {
     loadingEl.classList.add('hidden');
@@ -879,13 +939,25 @@ async function loadReviews() {
   }
 }
 
+document.getElementById('btn-rev-prev').addEventListener('click', () => {
+  reviewsCursor = Math.max(0, reviewsCursor - REV_PAGE_SIZE);
+  renderReviewsPage();
+  document.getElementById('reviews-table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+document.getElementById('btn-rev-next').addEventListener('click', () => {
+  reviewsCursor = Math.min(reviewsCache.length - 1, reviewsCursor + REV_PAGE_SIZE);
+  renderReviewsPage();
+  document.getElementById('reviews-table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
 document.getElementById('btn-reviews-apply').addEventListener('click', loadReviews);
 document.getElementById('btn-refresh-reviews').addEventListener('click', loadReviews);
 document.getElementById('btn-reviews-clear').addEventListener('click', () => {
-  document.getElementById('rev-filter-subject').value = '';
-  document.getElementById('rev-filter-paper').value   = '';
-  document.getElementById('rev-filter-year').value    = '';
-  document.getElementById('rev-filter-month').value   = '';
+  document.getElementById('rev-filter-subject').value  = '';
+  document.getElementById('rev-filter-paper').value    = '';
+  document.getElementById('rev-filter-year').value     = '';
+  document.getElementById('rev-filter-month').value    = '';
   document.getElementById('rev-filter-reviewer').value = '';
   document.getElementById('rev-filter-status').value   = '';
   loadReviews();
