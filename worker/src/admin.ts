@@ -957,17 +957,17 @@ export async function handleAdminGetFixedQuestions(
     }
 
     // Fetch choices for P1 questions
-    const origQIds = list.map(fq => Number(fq.original_question_id)).filter(id => id > 0);
+    const origQIds = Array.from(new Set(list.map(fq => Number(fq.original_question_id)).filter(id => id > 0)));
     const choiceMap = new Map<number, any[]>();
     if (origQIds.length > 0) {
       for (let i = 0; i < origQIds.length; i += BATCH_SIZE) {
         const batch = origQIds.slice(i, i + BATCH_SIZE);
         const placeholders = batch.map(() => '?').join(',');
         const { results: choiceRows } = await env.DB.prepare(`
-          SELECT id, question_id, choice_label as label, answer_raw, answer_code, diagram_key
+          SELECT id, question_id, label, answer_raw, answer_code, diagram_key
           FROM choices
           WHERE question_id IN (${placeholders})
-          ORDER BY choice_label ASC
+          ORDER BY label ASC
         `).bind(...batch).all<any>();
 
         for (const c of (choiceRows ?? [])) {
