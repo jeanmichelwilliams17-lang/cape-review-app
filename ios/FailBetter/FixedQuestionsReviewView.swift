@@ -233,6 +233,7 @@ struct FixedQuestionsReviewView: View {
         }
         s = s.replacingOccurrences(of: "\\\\", with: "\\")
         s = s.replacingOccurrences(of: "\\n", with: "\n")
+        s = s.replacingOccurrences(of: #"\\(lim|min|max|sup|inf|sum|prod|int)_\{(?!\()([^()}]*\\(?:to|rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
         guard !s.isEmpty else { return s }
 
         let sNoEscDollar = s.replacingOccurrences(of: "\\$", with: "")

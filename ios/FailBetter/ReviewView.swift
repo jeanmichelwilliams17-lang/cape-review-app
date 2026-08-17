@@ -332,6 +332,9 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     // Convert literal \n to real newlines
     s = s.replacingOccurrences(of: "\\n", with: "\n")
 
+    // Auto-fix unbracketed limit subscript arrows e.g. \lim_{x \to 3} -> \lim_{(x \to 3)}
+    s = s.replacingOccurrences(of: #"\\(lim|min|max|sup|inf|sum|prod|int)_\{(?!\()([^()}]*\\(?:to|rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
+
     guard !s.isEmpty else { return s }
 
     // Detect REAL (unescaped) math delimiters: $...$, \(...\), \[...\]
