@@ -18,15 +18,23 @@ struct DiagramView: View {
                         .scaledToFit()
                         .cornerRadius(8)
                         .frame(maxWidth: .infinity)
+                        .transition(.opacity.animation(.easeIn(duration: 0.2)))
 
                 case .failure:
                     // Fail silently — many questions simply have no diagram.
                     EmptyView()
 
                 case .empty:
-                    ProgressView()
-                        .controlSize(.small)
+                    // Stable grey placeholder — prevents the ambiguous floating
+                    // spinner from being mistaken for the next question's image.
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.secondary.opacity(0.12))
+                        .aspectRatio(4 / 3, contentMode: .fit)
                         .frame(maxWidth: .infinity)
+                        .overlay(
+                            ProgressView()
+                                .controlSize(.small)
+                        )
 
                 @unknown default:
                     EmptyView()

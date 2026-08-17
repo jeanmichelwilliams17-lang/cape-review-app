@@ -4,6 +4,48 @@
 import SwiftUI
 import LaTeXSwiftUI
 
+// MARK: - ImagePrefetcher
+
+/// Silently warms URLCache with diagram images for upcoming questions.
+/// AsyncImage will serve the already-cached data instantly when the user reaches those questions.
+@MainActor
+final class ImagePrefetcher: ObservableObject {
+    private var inFlight = Set<URL>()
+
+    /// Pre-fetch diagram images for questions starting at `startIndex`.
+    /// - Parameters:
+    ///   - questions:  The full question list.
+    ///   - startIndex: The first question index to pre-fetch from.
+    ///   - depth:      How many questions ahead to pre-fetch (default 3).
+    func prefetch(questions: [Question], from startIndex: Int, depth: Int = 3) {
+        let end = min(startIndex + depth, questions.count)
+        guard startIndex < end else { return }
+
+        for q in questions[startIndex..<end] {
+            prefetchKey(q.questionDiagramKey)
+            if let choices = q.choices {
+                for choice in choices {
+                    prefetchKey(choice.diagramKey)
+                }
+            }
+        }
+    }
+
+    private func prefetchKey(_ key: String?) {
+        guard let key, !key.isEmpty,
+              let url = APIClient.shared.imageURL(forDiagramKey: key),
+              !inFlight.contains(url) else { return }
+
+        inFlight.insert(url)
+        URLSession.shared.dataTask(with: url) { [weak self] _, _, _ in
+            // URLCache handles storage automatically; we only need to track in-flight.
+            Task { @MainActor [weak self] in
+                self?.inFlight.remove(url)
+            }
+        }.resume()
+    }
+}
+
 // MARK: - ReviewView
 
 struct ReviewView: View {
@@ -23,6 +65,8 @@ struct ReviewView: View {
     @State private var errorMessage:  String?    = nil
     @State private var cursor:        Int        = 0
     @State private var hasMore:       Bool       = true
+
+    @StateObject private var prefetcher = ImagePrefetcher()
 
     private let limit = 30
 
@@ -105,6 +149,9 @@ struct ReviewView: View {
 
             // ── Scrollable body ───────────────────────────────────
             ScrollView {
+                // .id resets the entire view tree (including AsyncImage) every
+                // time the question changes, preventing stale images from a
+                // previous question from remaining visible.
                 VStack(alignment: .leading, spacing: 20) {
 
                     // Question text — render the Validated Question Code (LaTeX)
@@ -141,6 +188,7 @@ struct ReviewView: View {
                 }
                 .padding()
             }
+            .id(q.id)
 
             Divider()
 
@@ -180,7 +228,9 @@ struct ReviewView: View {
         withAnimation {
             if currentIndex < questions.count - 1 {
                 currentIndex += 1
-                // Pre-fetch next batch when within 5 of the end
+                // Pre-warm image cache for the next 3 questions
+                prefetcher.prefetch(questions: questions, from: currentIndex + 1)
+                // Pre-fetch next batch of question metadata when within 5 of the end
                 if currentIndex >= questions.count - 5 && hasMore {
                     loadQuestions()
                 }
@@ -206,6 +256,8 @@ struct ReviewView: View {
                 questions.append(contentsOf: batch)
                 hasMore   = batch.count == limit
                 cursor   += batch.count
+                // Pre-warm image cache starting from the question after the current one
+                prefetcher.prefetch(questions: questions, from: currentIndex + 1)
             } catch {
                 errorMessage = error.localizedDescription
             }
