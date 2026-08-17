@@ -4,6 +4,8 @@ import SwiftUI
 struct DiagramView: View {
     let diagramKey: String
 
+    @State private var showPlaceholder = false
+
     private var imageURL: URL? {
         APIClient.shared.imageURL(forDiagramKey: diagramKey)
     }
@@ -21,24 +23,38 @@ struct DiagramView: View {
                         .transition(.opacity.animation(.easeIn(duration: 0.2)))
 
                 case .failure:
-                    // Fail silently — many questions simply have no diagram.
+                    // Image not found — collapse to nothing.
                     EmptyView()
 
                 case .empty:
-                    // Stable grey placeholder — prevents the ambiguous floating
-                    // spinner from being mistaken for the next question's image.
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.secondary.opacity(0.12))
-                        .aspectRatio(4 / 3, contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .overlay(
-                            ProgressView()
-                                .controlSize(.small)
-                        )
+                    // Only show the placeholder after a short delay so that
+                    // fast 404s (questions with no diagram) never flash a box.
+                    if showPlaceholder {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.secondary.opacity(0.12))
+                            .aspectRatio(4 / 3, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .overlay(
+                                ProgressView()
+                                    .controlSize(.small)
+                            )
+                    }
 
                 @unknown default:
                     EmptyView()
                 }
+            }
+            .onAppear {
+                showPlaceholder = false
+                Task {
+                    // 200 ms grace period — if the image resolves (success or 404)
+                    // before this fires the placeholder is never shown.
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                    showPlaceholder = true
+                }
+            }
+            .onDisappear {
+                showPlaceholder = false
             }
         }
     }
