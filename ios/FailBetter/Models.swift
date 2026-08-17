@@ -203,6 +203,40 @@ struct FixedQuestion: Identifiable, Codable {
         case fixedQuestionCode    = "fixed_question_code"
         case fixType              = "fix_type"
     }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(Int.self, forKey: .id)
+        originalQuestionId = try? c.decodeIfPresent(Int.self, forKey: .originalQuestionId)
+        subjectName = (try? c.decodeIfPresent(String.self, forKey: .subjectName)) ?? ""
+        paper = (try? c.decodeIfPresent(Int.self, forKey: .paper)) ?? 1
+        year = try? c.decodeIfPresent(Int.self, forKey: .year)
+        month = try? c.decodeIfPresent(String.self, forKey: .month)
+        number = (try? c.decodeIfPresent(Int.self, forKey: .number)) ?? 1
+
+        if let s = try? c.decodeIfPresent(String.self, forKey: .part) {
+            part = s
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .part) {
+            part = String(i)
+        } else {
+            part = nil
+        }
+
+        if let s = try? c.decodeIfPresent(String.self, forKey: .subpart) {
+            subpart = s
+        } else if let i = try? c.decodeIfPresent(Int.self, forKey: .subpart) {
+            subpart = String(i)
+        } else {
+            subpart = nil
+        }
+
+        originalQuestionRaw = (try? c.decodeIfPresent(String.self, forKey: .originalQuestionRaw)) ?? ""
+        fixedQuestionRaw = (try? c.decodeIfPresent(String.self, forKey: .fixedQuestionRaw)) ?? ""
+        originalQuestionCode = try? c.decodeIfPresent(String.self, forKey: .originalQuestionCode)
+        fixedQuestionCode = try? c.decodeIfPresent(String.self, forKey: .fixedQuestionCode)
+        fixType = (try? c.decodeIfPresent(String.self, forKey: .fixType)) ?? "fix"
+        status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? "pending"
+    }
 }
 
 
