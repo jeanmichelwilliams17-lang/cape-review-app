@@ -673,6 +673,39 @@ export async function handleAdminGetReviews(
   }
 
   const items = Array.from(questionsMap.values());
+  const p1QuestionIds = items.filter(q => Number(q.paper) === 1).map(q => Number(q.question_id));
+
+  if (p1QuestionIds.length > 0) {
+    const placeholders = p1QuestionIds.map(() => '?').join(',');
+    const { results: choicesRows } = await env.DB.prepare(`
+      SELECT id, question_id, label, answer_raw, answer_code, diagram_key
+      FROM choices
+      WHERE question_id IN (${placeholders})
+      ORDER BY question_id, label
+    `).bind(...p1QuestionIds).all<{
+      id: number;
+      question_id: number;
+      label: string;
+      answer_raw: string;
+      answer_code: string;
+      diagram_key: string | null;
+    }>();
+
+    const choicesMap = new Map<number, typeof choicesRows>();
+    for (const c of choicesRows) {
+      if (!choicesMap.has(c.question_id)) {
+        choicesMap.set(c.question_id, []);
+      }
+      choicesMap.get(c.question_id)!.push(c);
+    }
+
+    for (const q of items) {
+      if (Number(q.paper) === 1) {
+        q.choices = choicesMap.get(Number(q.question_id)) ?? [];
+      }
+    }
+  }
+
   return Response.json(items);
 }
 
@@ -762,4 +795,99 @@ export async function handleDeletePaper(
   `).bind(subjectId, paper, year, month).run();
 
   return Response.json({ ok: true, deleted: meta.changes });
+}
+
+// ---------------------------------------------------------------------------
+// POST /admin/unreview-paper or DELETE /admin/reviews
+// Body: { subject, paper, year?, month?, reviewer_id? }
+// Deletes reviews for a paper (from all reviewers or a specific reviewer),
+// then recomputes review counters on all affected questions.
+// ---------------------------------------------------------------------------
+export async function handleUnreviewPaper(
+  req: Request,
+  env: Env
+): Promise<Response> {
+  let body: { subject: string; paper: number; year?: number; month?: string; reviewer_id?: string | null };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response('Invalid JSON body', { status: 400 });
+  }
+
+  const { subject, paper, year, month, reviewer_id } = body;
+  if (!subject || !paper) {
+    return Response.json({ error: 'Missing required subject or paper' }, { status: 400 });
+  }
+
+  const whereClauses: string[] = ['s.name = ?', 'q.paper = ?'];
+  const params: unknown[] = [subject, paper];
+
+  if (year !== undefined && year !== null && !isNaN(year)) {
+    whereClauses.push('q.year = ?');
+    params.push(year);
+  }
+  if (month) {
+    whereClauses.push('q.month = ?');
+    params.push(month);
+  }
+
+  const { results: qRows } = await env.DB.prepare(`
+    SELECT q.id FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE ${whereClauses.join(' AND ')}
+  `).bind(...params).all<{ id: number }>();
+
+  const qIds = (qRows ?? []).map(r => r.id);
+  if (qIds.length === 0) {
+    return Response.json({ ok: true, deleted: 0, affectedQuestions: 0 });
+  }
+
+  // Delete from reviews
+  const qPlaceholders = qIds.map(() => '?').join(',');
+  let deleteRes;
+
+  if (reviewer_id && reviewer_id.trim() !== '') {
+    deleteRes = await env.DB.prepare(`
+      DELETE FROM reviews
+      WHERE question_id IN (${qPlaceholders})
+        AND reviewer_id = ?
+    `).bind(...qIds, reviewer_id.trim()).run();
+  } else {
+    deleteRes = await env.DB.prepare(`
+      DELETE FROM reviews
+      WHERE question_id IN (${qPlaceholders})
+    `).bind(...qIds).run();
+  }
+
+  // Recompute review_count, latest_review_status, has_conflicting_reviews for all affected questions
+  for (const qid of qIds) {
+    const { results: rRows } = await env.DB.prepare(`
+      SELECT status FROM reviews WHERE question_id = ? ORDER BY created_at DESC LIMIT 2
+    `).bind(qid).all<{ status: string }>();
+
+    const revCountRow = await env.DB.prepare(`
+      SELECT COUNT(*) as cnt FROM reviews WHERE question_id = ?
+    `).bind(qid).first<{ cnt: number }>();
+
+    const reviewCount = revCountRow?.cnt ?? 0;
+    let latestStatus: string | null = null;
+    let hasConflicts = 0;
+
+    if (rRows && rRows.length > 0) {
+      latestStatus = rRows[0].status;
+      if (rRows.length >= 2 && rRows[0].status !== rRows[1].status) {
+        hasConflicts = 1;
+      }
+    }
+
+    await env.DB.prepare(`
+      UPDATE questions
+      SET review_count = ?,
+          latest_review_status = ?,
+          has_conflicting_reviews = ?
+      WHERE id = ?
+    `).bind(reviewCount, latestStatus, hasConflicts, qid).run();
+  }
+
+  return Response.json({ ok: true, deleted: deleteRes.meta.changes, affectedQuestions: qIds.length });
 }

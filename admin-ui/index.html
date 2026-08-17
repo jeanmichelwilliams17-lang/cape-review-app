@@ -408,6 +408,31 @@
   </div>
 </div>
 
+<!-- ── Unreview Paper modal ─────────────────────────────────── -->
+<div class="modal-backdrop hidden" id="unreview-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="unreview-modal-title">
+    <h2 class="modal-title" id="unreview-modal-title">Unreview Paper</h2>
+    <div class="modal-body">
+      <p>Remove review records for:</p>
+      <p style="margin: 10px 0; font-weight: 600; color: var(--text);" id="unreview-paper-label">—</p>
+      
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="unreview-reviewer-select">Target Reviewer Option:</label>
+        <select id="unreview-reviewer-select" class="input select-input">
+          <option value="__ALL__">⚠️ ALL Reviewers (Reset paper to 0 reviews)</option>
+        </select>
+      </div>
+      <p class="text-muted text-xs" style="margin-top: 8px;">
+        This clears review logs and resets status counters for the selected paper. Questions and choices remain intact.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btn-unreview-cancel">Cancel</button>
+      <button class="btn btn-danger" id="btn-unreview-confirm">Unreview Paper</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Toast container ─────────────────────────────────────── -->
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 

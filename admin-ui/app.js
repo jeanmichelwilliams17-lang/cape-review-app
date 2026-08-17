@@ -120,6 +120,11 @@ async function loadPapers() {
               data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
               👁 Reviews
             </button>
+            <button class="btn btn-ghost btn-sm btn-unreview-paper"
+              data-subject="${escAttr(p.subject)}"
+              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
+              ↺ Unreview
+            </button>
             <button class="btn btn-ghost btn-sm btn-edit-paper"
               data-subject="${escAttr(p.subject)}"
               data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
@@ -146,6 +151,16 @@ async function loadPapers() {
         document.getElementById('rev-filter-month').value   = btn.dataset.month;
         showView('reviews');
       });
+    });
+
+    // Unreview Paper → open unreview modal
+    tbody.querySelectorAll('.btn-unreview-paper').forEach(btn => {
+      btn.addEventListener('click', () => openUnreviewModal({
+        subject: btn.dataset.subject,
+        paper:   Number(btn.dataset.paper),
+        year:    btn.dataset.year ? Number(btn.dataset.year) : undefined,
+        month:   btn.dataset.month,
+      }));
     });
 
     // Edit → jump to editor with filters pre-filled
@@ -547,6 +562,8 @@ async function loadEditorQuestions() {
         needs_fix:  '<span class="badge badge-red">Needs Fix</span>',
       }[q.latest_review_status] || '';
 
+      const choicesHtml = renderChoicesBlock(q.choices, q.correct_choice);
+
       const tr = document.createElement('tr');
       tr.dataset.id = q.id;
       tr.innerHTML = `
@@ -555,8 +572,9 @@ async function loadEditorQuestions() {
         <td>${q.paper}</td>
         <td>${q.year ?? '—'}</td>
         <td>${q.number}${q.part ? `(${q.part})` : ''}</td>
-        <td>
-          <div class="text-muted text-sm mono" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escAttr(q.question_raw)}">${escHtml(q.question_raw ?? '')}</div>
+        <td style="max-width:280px;">
+          <div class="text-muted text-sm mono" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escAttr(q.question_raw)}">${escHtml(q.question_raw ?? '')}</div>
+          ${choicesHtml}
         </td>
         <td>
           <textarea class="input mono q-code-input" style="min-height:60px;resize:vertical;"
@@ -626,7 +644,6 @@ async function loadEditorQuestions() {
         if (!confirm(`Remove all reviews for question #${btn.dataset.id}?`)) return;
         btn.disabled = true;
         try {
-          // Fetch question detail to get reviewer names
           const q = await api(`/questions/${btn.dataset.id}`);
           const reviewers = (q.reviews || []).map(r => r.reviewer);
           for (const reviewer of reviewers) {
@@ -660,18 +677,56 @@ async function loadEditorQuestions() {
   }
 }
 
+// ── KaTeX formatting helper ───────────────────────────────────
+function formatLatex(text) {
+  if (text === null || text === undefined || text === '') return '';
+  const str = String(text);
+  if (typeof katex === 'undefined') return escHtml(str);
+  try {
+    return str
+      .replace(/\$\$(.+?)\$\$/gs, (_, tex) =>
+        katex.renderToString(tex, { displayMode: true, throwOnError: false })
+      )
+      .replace(/\$(.+?)\$/g, (_, tex) =>
+        katex.renderToString(tex, { displayMode: false, throwOnError: false })
+      );
+  } catch {
+    return escHtml(str);
+  }
+}
+
+function renderChoicesBlock(choices, correctChoice) {
+  if (!choices || !choices.length) return '';
+  let html = `<div class="choices-box">
+    <div style="font-weight:600;font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
+      <span>Answer Choices</span>
+      ${correctChoice ? `<span class="badge badge-green" style="font-size:10px;">Key: Option ${escHtml(correctChoice)}</span>` : ''}
+    </div>
+    <div class="choices-grid">`;
+
+  choices.forEach(c => {
+    const isCorrect = (c.label && correctChoice && c.label.toUpperCase() === correctChoice.toUpperCase());
+    const val = c.answer_code || c.answer_raw || '';
+    const latexVal = formatLatex(val);
+    html += `
+      <div class="choice-item ${isCorrect ? 'correct' : ''}">
+        <strong style="color:var(--accent);margin-right:4px;">${escHtml(c.label)}:</strong>
+        ${latexVal}
+        ${isCorrect ? ' <span style="font-size:11px;font-weight:bold;margin-left:4px;color:var(--green);">✓</span>' : ''}
+      </div>`;
+  });
+
+  html += `</div></div>`;
+  return html;
+}
+
 function renderLatex(text, elementId) {
   const el = document.getElementById(elementId);
   if (!el) return;
   if (typeof katex === 'undefined') { el.textContent = text; return; }
 
-  // Extract LaTeX between $ ... $ and $$ ... $$ and render inline
   try {
-    const html = text.replace(/\$\$(.+?)\$\$/gs, (_, tex) =>
-      katex.renderToString(tex, { displayMode: true,  throwOnError: false })
-    ).replace(/\$(.+?)\$/g, (_, tex) =>
-      katex.renderToString(tex, { displayMode: false, throwOnError: false })
-    );
+    const html = formatLatex(text);
     el.innerHTML = html;
   } catch {
     el.textContent = text;
@@ -759,22 +814,33 @@ async function loadReviews() {
         logHtml = '<span class="text-muted text-xs">No reviews recorded yet</span>';
       }
 
+      const qTextHtml = formatLatex(q.question_raw);
+      const choicesHtml = renderChoicesBlock(q.choices, q.correct_choice);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${escHtml(sitLabel)}</strong></td>
         <td><span class="badge badge-accent">${escHtml(qLabel)}</span></td>
-        <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escAttr(q.question_raw)}">
-          ${escHtml(q.question_raw)}
+        <td style="max-width:320px;">
+          <div class="text-sm font-medium" style="margin-bottom:4px;">${qTextHtml}</div>
+          ${choicesHtml}
         </td>
         <td><strong>${q.review_count || 0}</strong> review${q.review_count === 1 ? '' : 's'}</td>
         <td>${statusBadge}</td>
         <td>${logHtml}</td>
         <td>
-          <button class="btn btn-ghost btn-sm btn-jump-editor"
-            data-subject="${escAttr(q.subject)}"
-            data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
-            Edit
-          </button>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost btn-sm btn-jump-editor"
+              data-subject="${escAttr(q.subject)}"
+              data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
+              Edit
+            </button>
+            <button class="btn btn-ghost btn-sm btn-unreview-paper"
+              data-subject="${escAttr(q.subject)}"
+              data-paper="${q.paper}" data-year="${q.year}" data-month="${escAttr(q.month || '')}">
+              ↺ Unreview
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
@@ -796,6 +862,15 @@ async function loadReviews() {
         showView('editor');
         loadEditorQuestions();
       });
+    });
+
+    tbody.querySelectorAll('.btn-unreview-paper').forEach(btn => {
+      btn.addEventListener('click', () => openUnreviewModal({
+        subject: btn.dataset.subject,
+        paper:   Number(btn.dataset.paper),
+        year:    btn.dataset.year ? Number(btn.dataset.year) : undefined,
+        month:   btn.dataset.month,
+      }));
     });
 
   } catch (err) {
@@ -851,11 +926,18 @@ async function loadStats() {
           </div>
         </td>
         <td>
-          <button class="btn btn-ghost btn-sm btn-stat-reviews"
-            data-subject="${escAttr(s.subject)}"
-            data-paper="${s.paper}">
-            👁 Reviews
-          </button>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost btn-sm btn-stat-reviews"
+              data-subject="${escAttr(s.subject)}"
+              data-paper="${s.paper}">
+              👁 Reviews
+            </button>
+            <button class="btn btn-ghost btn-sm btn-unreview-stat"
+              data-subject="${escAttr(s.subject)}"
+              data-paper="${s.paper}">
+              ↺ Unreview
+            </button>
+          </div>
         </td>`;
       tbody.appendChild(tr);
     });
@@ -872,6 +954,13 @@ async function loadStats() {
       });
     });
 
+    tbody.querySelectorAll('.btn-unreview-stat').forEach(btn => {
+      btn.addEventListener('click', () => openUnreviewModal({
+        subject: btn.dataset.subject,
+        paper:   Number(btn.dataset.paper),
+      }));
+    });
+
     wrap.classList.remove('hidden');
   } catch (err) {
     loadEl.classList.add('hidden');
@@ -880,6 +969,89 @@ async function loadStats() {
 }
 
 document.getElementById('btn-refresh-stats').addEventListener('click', loadStats);
+
+// ── Unreview Paper Modal ──────────────────────────────────────
+let unreviewData = null;
+
+async function openUnreviewModal(data) {
+  unreviewData = data;
+  const label = `${data.subject} Paper ${data.paper} ${data.month || ''} ${data.year || ''}`.trim();
+  document.getElementById('unreview-paper-label').textContent = label;
+
+  const selectEl = document.getElementById('unreview-reviewer-select');
+  selectEl.innerHTML = '<option value="__ALL__">⚠️ ALL Reviewers (Reset paper to 0 reviews)</option>';
+
+  try {
+    const params = new URLSearchParams({
+      subject: data.subject,
+      paper: String(data.paper),
+      limit: '500'
+    });
+    if (data.year) params.set('year', String(data.year));
+    if (data.month) params.set('month', data.month);
+
+    const questions = await api(`/admin/reviews?${params.toString()}`);
+    const reviewerCounts = new Map();
+
+    (questions || []).forEach(q => {
+      (q.reviews || []).forEach(r => {
+        if (r.reviewer_id) {
+          const cnt = reviewerCounts.get(r.reviewer_id) || 0;
+          reviewerCounts.set(r.reviewer_id, cnt + 1);
+        }
+      });
+    });
+
+    reviewerCounts.forEach((cnt, reviewerId) => {
+      const opt = document.createElement('option');
+      opt.value = reviewerId;
+      opt.textContent = `👤 Reviewer "${reviewerId}" (${cnt} review${cnt === 1 ? '' : 's'})`;
+      selectEl.appendChild(opt);
+    });
+  } catch {}
+
+  document.getElementById('unreview-modal').classList.remove('hidden');
+}
+
+document.getElementById('btn-unreview-cancel').addEventListener('click', () => {
+  document.getElementById('unreview-modal').classList.add('hidden');
+  unreviewData = null;
+});
+
+document.getElementById('btn-unreview-confirm').addEventListener('click', async () => {
+  if (!unreviewData) return;
+  const btn = document.getElementById('btn-unreview-confirm');
+  btn.disabled = true;
+
+  const selectedTarget = document.getElementById('unreview-reviewer-select').value;
+  const reviewerId = selectedTarget === '__ALL__' ? null : selectedTarget;
+
+  try {
+    const res = await api('/admin/unreview-paper', {
+      method: 'POST',
+      body: JSON.stringify({
+        subject: unreviewData.subject,
+        paper: unreviewData.paper,
+        year: unreviewData.year,
+        month: unreviewData.month,
+        reviewer_id: reviewerId,
+      }),
+    });
+
+    document.getElementById('unreview-modal').classList.add('hidden');
+    unreviewData = null;
+    toast(`Successfully unreviewed paper (${res.deleted || 0} review records removed)`, 'success');
+    
+    // Refresh current view
+    if (!document.getElementById('view-papers').classList.contains('hidden')) loadPapers();
+    if (!document.getElementById('view-reviews').classList.contains('hidden')) loadReviews();
+    if (!document.getElementById('view-stats').classList.contains('hidden')) loadStats();
+  } catch (err) {
+    toast(`Unreview failed: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+});
 
 // ── Utility ───────────────────────────────────────────────────
 function escHtml(str) {

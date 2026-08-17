@@ -368,6 +368,35 @@ label { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
 .row-error  td { background: var(--red-dim);    }
 .row-warn   td { background: var(--yellow-dim); }
 
+/* ── Choices preview ─────────────────────────────────────── */
+.choices-box {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.choices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+.choice-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.choice-item.correct {
+  background: var(--green-dim);
+  border-color: rgba(52, 211, 153, 0.4);
+  color: #ecfdf5;
+}
+
 /* ── Utility ──────────────────────────────────────────────── */
 .hidden { display: none !important; }
 .flex    { display: flex; }

@@ -12,6 +12,7 @@ import {
   handleUpdateQuestion,
   handleDeleteQuestion,
   handleDeletePaper,
+  handleUnreviewPaper,
   handleDebugImageKit,
   handleAuditAndFixDiagrams,
   runFullDiagramAudit,
@@ -410,6 +411,12 @@ export default {
         }
         if (pathname === '/admin/reviews' && method === 'GET') {
           return withCors(await handleAdminGetReviews(url, env));
+        }
+        if (pathname === '/admin/unreview-paper' && method === 'POST') {
+          return withCors(await handleUnreviewPaper(request, env));
+        }
+        if (pathname === '/admin/reviews' && method === 'DELETE') {
+          return withCors(await handleUnreviewPaper(request, env));
         }
         if (pathname === '/admin/papers' && method === 'DELETE') {
           return withCors(await handleDeletePaper(request, env));
