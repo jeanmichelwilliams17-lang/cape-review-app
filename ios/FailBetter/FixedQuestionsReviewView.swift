@@ -52,7 +52,7 @@ struct FixedQuestionsReviewView: View {
             } else {
                 let currentItem = items[currentIndex]
 
-                // ── Top header bar ──────────────────────────────────────────
+                // ── Top Header & Jump Menu Bar ──────────────────────────────
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("\(currentItem.subjectName) · Paper \(currentItem.paper)")
@@ -63,14 +63,98 @@ struct FixedQuestionsReviewView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text("\(currentIndex + 1) of \(items.count)")
-                        .font(.caption)
+
+                    // Dropdown menu to jump to any question
+                    Menu {
+                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            Button {
+                                currentIndex = index
+                            } label: {
+                                HStack {
+                                    Text("#\(index + 1): \(item.subjectName) P\(item.paper) \(item.year != nil ? "(\(item.year!))" : "") Q\(item.number)")
+                                    if index == currentIndex {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("\(currentIndex + 1) of \(items.count)")
+                                .font(.caption)
+                                .bold()
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Capsule().fill(Color.secondary.opacity(0.15)))
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(Color.purple.opacity(0.12)))
+                        .foregroundStyle(.purple)
+                    }
                 }
                 .padding()
                 .background(Color(uiColor: .systemGroupedBackground))
+
+                // ── Skip Navigation Bar (Prev / Next & Direct Jump) ────────
+                HStack {
+                    Button {
+                        if currentIndex > 0 { currentIndex -= 1 }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Prev")
+                        }
+                        .font(.subheadline)
+                    }
+                    .disabled(currentIndex == 0)
+
+                    Spacer()
+
+                    Menu {
+                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            Button {
+                                currentIndex = index
+                            } label: {
+                                HStack {
+                                    Text("#\(index + 1): \(item.subjectName) P\(item.paper) \(item.year != nil ? "(\(item.year!))" : "") Q\(item.number)")
+                                    if index == currentIndex {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "list.bullet")
+                                .font(.caption)
+                            Text("Skip to Question")
+                                .font(.caption)
+                                .bold()
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.secondary.opacity(0.12)))
+                        .foregroundStyle(.primary)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        if currentIndex < items.count - 1 { currentIndex += 1 }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Next")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.subheadline)
+                    }
+                    .disabled(currentIndex >= items.count - 1)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 6)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
 
                 // ── Version Toggle Picker ─────────────────────────────────
                 Picker("Version", selection: $showOriginalText) {
