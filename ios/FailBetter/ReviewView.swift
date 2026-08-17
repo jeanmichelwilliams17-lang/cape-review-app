@@ -9,7 +9,7 @@ import LaTeXSwiftUI
 /// Silently warms URLCache with diagram images for upcoming questions.
 /// AsyncImage will serve the already-cached data instantly when the user reaches those questions.
 @MainActor
-final class ImagePrefetcher: ObservableObject {
+final class ImagePrefetcher {
     private var inFlight = Set<URL>()
 
     /// Pre-fetch diagram images for questions starting at `startIndex`.
@@ -66,7 +66,7 @@ struct ReviewView: View {
     @State private var cursor:        Int        = 0
     @State private var hasMore:       Bool       = true
 
-    @StateObject private var prefetcher = ImagePrefetcher()
+    @State private var prefetcher = ImagePrefetcher()
 
     private let limit = 30
 
