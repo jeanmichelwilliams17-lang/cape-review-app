@@ -931,24 +931,29 @@ export async function handleAdminGetFixedQuestions(
 
   const fqIds = list.map(fq => Number(fq.id));
   if (fqIds.length > 0) {
-    const placeholders = fqIds.map(() => '?').join(',');
-    const { results: revRows } = await env.DB.prepare(`
-      SELECT fixed_question_id, reviewer_id, status, note, reviewed_at
-      FROM fixed_question_reviews
-      WHERE fixed_question_id IN (${placeholders})
-      ORDER BY reviewed_at DESC
-    `).bind(...fqIds).all<{
-      fixed_question_id: number;
-      reviewer_id: string;
-      status: string;
-      note: string | null;
-      reviewed_at: string;
-    }>();
-
     const revMap = new Map<number, any[]>();
-    for (const r of (revRows ?? [])) {
-      if (!revMap.has(r.fixed_question_id)) revMap.set(r.fixed_question_id, []);
-      revMap.get(r.fixed_question_id)!.push(r);
+    const BATCH_SIZE = 50;
+
+    for (let i = 0; i < fqIds.length; i += BATCH_SIZE) {
+      const batch = fqIds.slice(i, i + BATCH_SIZE);
+      const placeholders = batch.map(() => '?').join(',');
+      const { results: revRows } = await env.DB.prepare(`
+        SELECT fixed_question_id, reviewer_id, status, note, reviewed_at
+        FROM fixed_question_reviews
+        WHERE fixed_question_id IN (${placeholders})
+        ORDER BY reviewed_at DESC
+      `).bind(...batch).all<{
+        fixed_question_id: number;
+        reviewer_id: string;
+        status: string;
+        note: string | null;
+        reviewed_at: string;
+      }>();
+
+      for (const r of (revRows ?? [])) {
+        if (!revMap.has(r.fixed_question_id)) revMap.set(r.fixed_question_id, []);
+        revMap.get(r.fixed_question_id)!.push(r);
+      }
     }
 
     for (const fq of list) {
@@ -981,14 +986,20 @@ export async function handleApplyFixedQuestions(
     return new Response('No fixed question IDs provided', { status: 400 });
   }
 
-  const placeholders = ids.map(() => '?').join(',');
-  const { results: fqRows } = await env.DB.prepare(`
-    SELECT * FROM fixed_questions WHERE id IN (${placeholders})
-  `).bind(...ids).all<any>();
+  const fqRows: any[] = [];
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+    const batch = ids.slice(i, i + BATCH_SIZE);
+    const placeholders = batch.map(() => '?').join(',');
+    const { results } = await env.DB.prepare(`
+      SELECT * FROM fixed_questions WHERE id IN (${placeholders})
+    `).bind(...batch).all<any>();
+    if (results) fqRows.push(...results);
+  }
 
   let appliedCount = 0;
 
-  for (const fq of (fqRows ?? [])) {
+  for (const fq of fqRows) {
     if (!fq.original_question_id) continue;
 
     const activeQ = await env.DB.prepare(`
@@ -1054,28 +1065,37 @@ export async function handleExportFixedQuestionsCSV(
   const idsParam = url.searchParams.get('ids');
   const subject  = url.searchParams.get('subject');
 
-  let whereSql = '';
-  const params: any[] = [];
+  let fqList: any[] = [];
+  const BATCH_SIZE = 50;
 
   if (idsParam) {
     const ids = idsParam.split(',').map(Number).filter(n => !isNaN(n));
-    if (ids.length) {
-      whereSql = `WHERE fq.id IN (${ids.map(() => '?').join(',')})`;
-      params.push(...ids);
+    for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+      const batch = ids.slice(i, i + BATCH_SIZE);
+      const placeholders = batch.map(() => '?').join(',');
+      const { results } = await env.DB.prepare(`
+        SELECT fq.*, q.number as q_num, q.part as q_part, q.subpart as q_subpart,
+               q.unit_title, q.module_title, q.marks, q.correct_choice
+        FROM fixed_questions fq
+        LEFT JOIN questions q ON q.id = fq.original_question_id
+        WHERE fq.id IN (${placeholders})
+        ORDER BY fq.paper, fq.subject_name, fq.year, fq.number
+      `).bind(...batch).all<any>();
+      if (results) fqList.push(...results);
     }
-  } else if (subject) {
-    whereSql = 'WHERE fq.subject_name = ?';
-    params.push(subject);
+  } else {
+    let whereSql = subject ? 'WHERE fq.subject_name = ?' : '';
+    const params = subject ? [subject] : [];
+    const { results } = await env.DB.prepare(`
+      SELECT fq.*, q.number as q_num, q.part as q_part, q.subpart as q_subpart,
+             q.unit_title, q.module_title, q.marks, q.correct_choice
+      FROM fixed_questions fq
+      LEFT JOIN questions q ON q.id = fq.original_question_id
+      ${whereSql}
+      ORDER BY fq.paper, fq.subject_name, fq.year, fq.number
+    `).bind(...params).all<any>();
+    if (results) fqList = results;
   }
-
-  const { results: fqList } = await env.DB.prepare(`
-    SELECT fq.*, q.number as q_num, q.part as q_part, q.subpart as q_subpart,
-           q.unit_title, q.module_title, q.marks, q.correct_choice
-    FROM fixed_questions fq
-    LEFT JOIN questions q ON q.id = fq.original_question_id
-    ${whereSql}
-    ORDER BY fq.paper, fq.subject_name, fq.year, fq.number
-  `).bind(...params).all<any>();
 
   const escCsv = (val: any) => {
     if (val === null || val === undefined) return '""';
