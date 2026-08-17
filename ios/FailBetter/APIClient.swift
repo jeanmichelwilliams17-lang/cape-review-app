@@ -88,7 +88,7 @@ final class APIClient {
         }
     }
 
-    // ── Image URL (for AsyncImage / DiagramView) ─────────────────────────
+    // ── Image URL (for AsyncImage / DiagramView fallback) ────────────────
     func imageURL(forDiagramKey key: String) -> URL? {
         guard let workerURL else { return nil }
         let safeKey = key.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? key
@@ -100,6 +100,13 @@ final class APIClient {
     /// Fetch all subjects with P1/P2 question counts.
     func fetchSubjects() async throws -> [Subject] {
         let req = try request(path: "subjects")
+        return try await execute(req)
+    }
+
+    /// Download the full `diagram_key → direct ImageKit URL` mapping from the worker.
+    /// Used by DiagramPathCache to populate its on-device lookup table.
+    func fetchDiagramPaths() async throws -> [String: String] {
+        let req = try request(path: "diagram-paths")
         return try await execute(req)
     }
 

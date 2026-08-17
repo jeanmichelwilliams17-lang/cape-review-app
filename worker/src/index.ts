@@ -101,6 +101,38 @@ export default {
       }
 
       // -----------------------------------------------------------------------
+      // GET /diagram-paths
+      // Returns a compact { diagram_key: imagekit_path } map for every row in
+      // the diagrams table that has a resolved imagekit_path.
+      // The iOS app downloads this once per session and uses it to construct
+      // direct ImageKit CDN URLs, bypassing the worker proxy entirely.
+      // -----------------------------------------------------------------------
+      if (pathname === '/diagram-paths' && method === 'GET') {
+        const { results } = await env.DB.prepare(`
+          SELECT diagram_key, imagekit_path
+          FROM diagrams
+          WHERE imagekit_path IS NOT NULL AND imagekit_path != ''
+        `).all<{ diagram_key: string; imagekit_path: string }>();
+
+        const base = env.IMAGEKIT_BASE_URL.replace(/\/$/, '');
+        const map: Record<string, string> = {};
+        for (const row of results ?? []) {
+          // Provide the full URL so iOS can fetch directly with no knowledge of
+          // the ImageKit base URL (it's a worker-side config, not stored on device).
+          const cleanPath = row.imagekit_path.replace(/^\/+/, '');
+          map[row.diagram_key] = `${base}/${cleanPath}`;
+        }
+
+        return new Response(JSON.stringify(map), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      }
+
+      // -----------------------------------------------------------------------
       // GET /questions
       // Supports: paper, subject, review_status, reviewer, cursor, limit
       // -----------------------------------------------------------------------

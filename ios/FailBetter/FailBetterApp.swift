@@ -13,6 +13,9 @@ struct FailBetterApp: App {
             diskCapacity:    500 * 1024 * 1024,  // 500 MB
             diskPath:        "DiagramImageCache"
         )
+
+        // Refresh on-device diagram key -> ImageKit URL cache in background
+        DiagramPathCache.shared.refresh()
     }
 
     var body: some Scene {

@@ -6,8 +6,12 @@ struct DiagramView: View {
 
     @State private var showPlaceholder = false
 
+    /// Resolve the best URL for this diagram key:
+    /// 1. Direct ImageKit CDN URL (from on-device DiagramPathCache) — fastest, no worker hop
+    /// 2. Worker proxy URL — fallback when the key isn't in the local cache yet
     private var imageURL: URL? {
-        APIClient.shared.imageURL(forDiagramKey: diagramKey)
+        DiagramPathCache.shared.directURL(for: diagramKey)
+            ?? APIClient.shared.imageURL(forDiagramKey: diagramKey)
     }
 
     var body: some View {
