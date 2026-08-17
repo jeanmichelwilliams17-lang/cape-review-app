@@ -55,10 +55,15 @@ struct FixedQuestionsReviewView: View {
                 // ── Top Header & Jump Menu Bar ──────────────────────────────
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(currentItem.subjectName) · Paper \(currentItem.paper)")
+                        let sitStr = "\(currentItem.subjectName) · Paper \(currentItem.paper)\(currentItem.year != nil ? " · " + (currentItem.month ?? "") + " " + String(currentItem.year!) : "")"
+                        let partStr = (currentItem.part != nil && !currentItem.part!.isEmpty) ? " (\(currentItem.part!))" : ""
+                        let subpartStr = (currentItem.subpart != nil && !currentItem.subpart!.isEmpty) ? " (\(currentItem.subpart!))" : ""
+                        let qTitle = "Question \(currentItem.number)\(partStr)\(subpartStr)"
+
+                        Text(sitStr)
                             .font(.subheadline)
                             .bold()
-                        Text("Question \(currentItem.number) \(currentItem.year != nil ? "(\(currentItem.year!))" : "")")
+                        Text("\(qTitle) · Fix #\(currentItem.id)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -67,11 +72,14 @@ struct FixedQuestionsReviewView: View {
                     // Dropdown menu to jump to any question
                     Menu {
                         ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            let itemPart = (item.part != nil && !item.part!.isEmpty) ? " (\(item.part!))" : ""
+                            let itemSubpart = (item.subpart != nil && !item.subpart!.isEmpty) ? " (\(item.subpart!))" : ""
+                            let itemTitle = "Q\(item.number)\(itemPart)\(itemSubpart)"
                             Button {
                                 currentIndex = index
                             } label: {
                                 HStack {
-                                    Text("#\(index + 1): \(item.subjectName) P\(item.paper) \(item.year != nil ? "(\(item.year!))" : "") Q\(item.number)")
+                                    Text("#\(index + 1): \(item.subjectName) P\(item.paper) \(item.year != nil ? "(\(item.year!))" : "") \(itemTitle) [#\(item.id)]")
                                     if index == currentIndex {
                                         Image(systemName: "checkmark")
                                     }
@@ -112,11 +120,14 @@ struct FixedQuestionsReviewView: View {
 
                     Menu {
                         ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            let itemPart = (item.part != nil && !item.part!.isEmpty) ? " (\(item.part!))" : ""
+                            let itemSubpart = (item.subpart != nil && !item.subpart!.isEmpty) ? " (\(item.subpart!))" : ""
+                            let itemTitle = "Q\(item.number)\(itemPart)\(itemSubpart)"
                             Button {
                                 currentIndex = index
                             } label: {
                                 HStack {
-                                    Text("#\(index + 1): \(item.subjectName) P\(item.paper) \(item.year != nil ? "(\(item.year!))" : "") Q\(item.number)")
+                                    Text("#\(index + 1): \(item.subjectName) P\(item.paper) \(item.year != nil ? "(\(item.year!))" : "") \(itemTitle) [#\(item.id)]")
                                     if index == currentIndex {
                                         Image(systemName: "checkmark")
                                     }
