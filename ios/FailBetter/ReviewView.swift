@@ -334,22 +334,28 @@ private func stripLaTeXWrapper(_ text: String) -> String {
 
     guard !s.isEmpty else { return s }
 
-    // If the string already has LaTeX delimiters ($, \(, \[) leave it as-is
-    // — LaTeXSwiftUI .onlyEquations will parse those math regions correctly
-    // and render surrounding plain text with proper spacing.
-    if s.contains("$") || s.contains("\\(") || s.contains("\\[") {
+    // Detect REAL (unescaped) math delimiters: $...$, \(...\), \[...\]
+    // \$ in LaTeX is an escaped dollar sign (prints as "$"), NOT a math delimiter.
+    // Strip all \$ occurrences before checking for actual delimiter $ signs.
+    let sNoEscDollar = s.replacingOccurrences(of: "\\$", with: "")
+    let hasRealDollarDelimiter = sNoEscDollar.contains("$")
+    let hasOtherDelimiters = s.contains("\\(") || s.contains("\\[")
+
+    if hasRealDollarDelimiter || hasOtherDelimiters {
+        // The string has proper LaTeX math delimiters.
+        // LaTeXSwiftUI .onlyEquations renders the math segments correctly.
         return s
     }
 
-    // If it's a raw LaTeX command (starts with \cmd or contains ^, _, {)
-    // wrap it as inline math so KaTeX/LaTeXSwiftUI renders it correctly.
+    // If it's a raw LaTeX command (starts with \cmd or contains ^, _, {…})
+    // wrap it as inline math so LaTeXSwiftUI renders it correctly.
     let isBareLatexCommand = s.hasPrefix("\\") || s.contains("^") || s.contains("_") || (s.contains("{") && s.contains("}"))
     if isBareLatexCommand {
         return "$\(s)$"
     }
 
-    // Otherwise it is plain text — return it verbatim.
-    // LaTeXSwiftUI .onlyEquations mode will render plain text as-is with correct spacing.
+    // Otherwise it is plain prose — return verbatim.
+    // LaTeXSwiftUI .onlyEquations mode renders plain text with correct spacing.
     return s
 }
 

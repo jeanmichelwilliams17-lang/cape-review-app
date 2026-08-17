@@ -698,21 +698,29 @@ function cleanAndRenderLatex(text) {
   if (typeof katex === 'undefined') return escHtml(s);
 
   try {
-    // If string has explicit math delimiters: $...$, $$...$$, \(...\), \[...\]
-    if (s.includes('$') || s.includes('\\(') || s.includes('\\[')) {
+    // Detect real (unescaped) math delimiters.
+    // \$ in LaTeX is an escaped dollar sign (renders as "$"), NOT a math delimiter.
+    // Remove all \$ before checking for delimiter $ signs.
+    const sNoEscDollar = s.replace(/\\\$/g, '');
+    const hasRealDelimiters = sNoEscDollar.includes('$') || s.includes('\\(') || s.includes('\\[');
+
+    if (hasRealDelimiters) {
+      // Render mixed text+math using KaTeX's auto-render style:
+      // split on $...$, $$...$$, \(...\), \[...\] delimiters and render each math span.
       return s
-        .replace(/\$\$(.+?)\$\$/gs, (_, tex) => katex.renderToString(tex, { displayMode: true, throwOnError: false }))
-        .replace(/\$(.+?)\$/g, (_, tex) => katex.renderToString(tex, { displayMode: false, throwOnError: false }))
-        .replace(/\\\((.+?)\\\)/g, (_, tex) => katex.renderToString(tex, { displayMode: false, throwOnError: false }))
-        .replace(/\\\[(.+?)\\\]/g, (_, tex) => katex.renderToString(tex, { displayMode: true, throwOnError: false }));
+        .replace(/\$\$(.+?)\$\$/gs,  (_, tex) => katex.renderToString(tex, { displayMode: true,  throwOnError: false }))
+        .replace(/(?<!\\)\$(.+?)(?<!\\)\$/g, (_, tex) => katex.renderToString(tex, { displayMode: false, throwOnError: false }))
+        .replace(/\\\((.+?)\\\)/g,   (_, tex) => katex.renderToString(tex, { displayMode: false, throwOnError: false }))
+        .replace(/\\\[(.+?)\\\]/g,   (_, tex) => katex.renderToString(tex, { displayMode: true,  throwOnError: false }));
     }
 
-    // If string is raw TeX command (starts with \text, \frac, \int, \sum, \begin, etc., or contains ^, _, \)
-    if (/^\s*\\text|\\[a-zA-Z]+|\^|_|\{/.test(s)) {
+    // Raw LaTeX: starts with a command (\text, \frac, \sum…) or contains {, ^, _
+    // Render the entire string as a single KaTeX expression.
+    if (/(?:^|\s)\\[a-zA-Z]+|\^|_|\{/.test(s)) {
       return katex.renderToString(s, { displayMode: false, throwOnError: false });
     }
 
-    // Plain text or plain number
+    // Plain prose — return as safe HTML, no KaTeX needed.
     return escHtml(s);
   } catch {
     return escHtml(s);
