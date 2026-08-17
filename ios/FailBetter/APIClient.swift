@@ -165,15 +165,21 @@ final class APIClient {
     }
 
     /// Delete a review submitted by a specific reviewer for a question.
-    func deleteReview(questionId: Int, reviewer: String) async throws {
+    func deleteReview(questionID: Int, reviewer: String) async throws {
         struct DeleteBody: Encodable { let reviewer: String }
         let body = try JSONEncoder().encode(DeleteBody(reviewer: reviewer))
-        let req = try request(path: "questions/\(questionId)/review", method: "DELETE", body: body)
+        let req = try request(path: "questions/\(questionID)/review", method: "DELETE", body: body)
         let (data, response) = try await URLSession.shared.data(for: req)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             let bodyText = String(data: data, encoding: .utf8) ?? ""
             throw APIError.httpError(http.statusCode, bodyText)
         }
+    }
+
+    /// Fetch per-subject/paper review statistics.
+    func fetchStats() async throws -> [SubjectStats] {
+        let req = try request(path: "stats")
+        return try await execute(req)
     }
 
     // MARK: - Fixed Questions API
