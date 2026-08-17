@@ -329,14 +329,27 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     }
     // Un-escape double backslashes from JSON/SQL storage (\\ → \)
     s = s.replacingOccurrences(of: "\\\\", with: "\\")
-    // Convert literal \n to real newlines (after un-escaping, so \n is now single backslash + n)
+    // Convert literal \n to real newlines
     s = s.replacingOccurrences(of: "\\n", with: "\n")
 
-    // Ensure plain text / numbers like "0" or "( 0 )" are wrapped in math delimiters so
-    // LaTeXSwiftUI in .onlyEquations mode doesn't filter them out as non-equation text.
-    if !s.contains("$") && !s.contains("\\(") && !s.contains("\\[") && !s.isEmpty {
+    guard !s.isEmpty else { return s }
+
+    // If the string already has LaTeX delimiters ($, \(, \[) leave it as-is
+    // — LaTeXSwiftUI .onlyEquations will parse those math regions correctly
+    // and render surrounding plain text with proper spacing.
+    if s.contains("$") || s.contains("\\(") || s.contains("\\[") {
+        return s
+    }
+
+    // If it's a raw LaTeX command (starts with \cmd or contains ^, _, {)
+    // wrap it as inline math so KaTeX/LaTeXSwiftUI renders it correctly.
+    let isBareLatexCommand = s.hasPrefix("\\") || s.contains("^") || s.contains("_") || (s.contains("{") && s.contains("}"))
+    if isBareLatexCommand {
         return "$\(s)$"
     }
+
+    // Otherwise it is plain text — return it verbatim.
+    // LaTeXSwiftUI .onlyEquations mode will render plain text as-is with correct spacing.
     return s
 }
 
