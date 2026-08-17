@@ -16,6 +16,7 @@ final class DiagramPathCache {
 
     // ── In-memory lookup table ────────────────────────────────────────────────
     private var paths: [String: String] = [:]
+    private(set) var isLoaded: Bool = false
 
     // ── Disk persistence ──────────────────────────────────────────────────────
     private var cacheFileURL: URL {
@@ -28,16 +29,28 @@ final class DiagramPathCache {
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// Returns true if the key is known to be a valid diagram key in the database.
+    /// Returns true if the key is known to have a resolved diagram image in the database.
     func hasDiagram(for key: String) -> Bool {
-        return paths.keys.contains(key)
+        guard let path = paths[key] else { return false }
+        return !path.isEmpty
     }
 
-    /// Returns a direct ImageKit CDN URL for the given diagram key, if known and resolved.
-    /// Returns nil if the key is not yet in the local cache or has no resolved URL.
-    func directURL(for key: String) -> URL? {
-        guard let urlString = paths[key], !urlString.isEmpty else { return nil }
-        return URL(string: urlString)
+    /// Resolves the URL for a diagram key:
+    /// - If resolved in local cache → returns direct ImageKit CDN URL.
+    /// - If explicitly unresolved ("") or key missing after DB map loaded → returns nil (no image exists, avoid network call).
+    /// - If cache hasn't loaded yet → falls back to worker proxy URL.
+    func resolvedURL(for key: String) -> URL? {
+        if let urlString = paths[key] {
+            if urlString.isEmpty {
+                return nil // Explicitly unresolved on ImageKit → skip network fetch
+            }
+            return URL(string: urlString)
+        }
+        if isLoaded {
+            return nil // Key is not in database → skip network fetch
+        }
+        // Fallback while cache is still loading for the first time
+        return APIClient.shared.imageURL(forDiagramKey: key)
     }
 
     /// Refresh the on-device cache from the worker.
@@ -52,11 +65,11 @@ final class DiagramPathCache {
             do {
                 let fresh = try await APIClient.shared.fetchDiagramPaths()
                 paths = fresh
+                isLoaded = true
                 saveToDisk(fresh)
                 UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastFetchKey)
             } catch {
                 // Non-fatal: stale on-disk cache will continue serving existing hits.
-                // The worker proxy fallback covers any misses.
                 print("[DiagramPathCache] refresh failed: \(error.localizedDescription)")
             }
         }
@@ -69,6 +82,7 @@ final class DiagramPathCache {
               let decoded = try? JSONDecoder().decode([String: String].self, from: data)
         else { return }
         paths = decoded
+        isLoaded = true
     }
 
     private func saveToDisk(_ map: [String: String]) {

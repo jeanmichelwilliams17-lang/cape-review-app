@@ -8,10 +8,10 @@ struct DiagramView: View {
 
     /// Resolve the best URL for this diagram key:
     /// 1. Direct ImageKit CDN URL (from on-device DiagramPathCache) — fastest, no worker hop
-    /// 2. Worker proxy URL — fallback when the key isn't in the local cache yet
+    /// 2. Returns nil immediately if key is known to have no image (skips 404 network call)
+    /// 3. Worker proxy URL — fallback while cache is initially loading
     private var imageURL: URL? {
-        DiagramPathCache.shared.directURL(for: diagramKey)
-            ?? APIClient.shared.imageURL(forDiagramKey: diagramKey)
+        DiagramPathCache.shared.resolvedURL(for: diagramKey)
     }
 
     var body: some View {
@@ -32,7 +32,7 @@ struct DiagramView: View {
 
                 case .empty:
                     // Only show the placeholder after a short delay so that
-                    // fast 404s (questions with no diagram) never flash a box.
+                    // fast responses never flash a box.
                     if showPlaceholder {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.secondary.opacity(0.12))

@@ -10,6 +10,7 @@ struct ReviewControls: View {
     let onUnreview:   () -> Void
 
     @State private var warnMissingNote = false
+    @FocusState private var isNoteFocused: Bool
 
     var body: some View {
         VStack(spacing: 10) {
@@ -17,15 +18,25 @@ struct ReviewControls: View {
             TextField("Note (optional — required for Needs Fix)", text: $note, axis: .vertical)
                 .lineLimit(1...3)
                 .textFieldStyle(.roundedBorder)
+                .focused($isNoteFocused)
                 .overlay(
                     warnMissingNote
                         ? RoundedRectangle(cornerRadius: 6).stroke(Color.orange, lineWidth: 1.5)
                         : nil
                 )
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            isNoteFocused = false
+                        }
+                    }
+                }
 
             HStack(spacing: 12) {
                 // ✅ Correct
                 Button {
+                    isNoteFocused = false
                     warnMissingNote = false
                     onSubmit("correct")
                 } label: {
@@ -38,6 +49,7 @@ struct ReviewControls: View {
 
                 // ⚠ Needs Fix
                 Button {
+                    isNoteFocused = false
                     if note.trimmingCharacters(in: .whitespaces).isEmpty {
                         withAnimation { warnMissingNote = true }
                         // Warn but don't block — still allow submission without a note
@@ -56,6 +68,7 @@ struct ReviewControls: View {
 
             if question.reviewCount > 0 {
                 Button {
+                    isNoteFocused = false
                     onUnreview()
                 } label: {
                     Label("Unreview", systemImage: "arrow.uturn.backward")

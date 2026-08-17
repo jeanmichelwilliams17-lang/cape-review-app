@@ -193,6 +193,9 @@ struct ReviewView: View {
                 .padding()
             }
             .id(q.id)
+            #if os(iOS)
+            .scrollDismissesKeyboard(.immediately)
+            #endif
 
             Divider()
 
