@@ -151,7 +151,7 @@ function renderPapersTable(papers) {
     btn.addEventListener('click', () => {
       document.getElementById('rev-filter-subject').value = btn.dataset.subject;
       document.getElementById('rev-filter-paper').value   = btn.dataset.paper;
-      document.getElementById('rev-filter-year').value    = btn.dataset.year;
+      updateYearDropdownOptions('rev-filter-year', btn.dataset.subject, btn.dataset.year);
       document.getElementById('rev-filter-month').value   = btn.dataset.month;
       showView('reviews');
     });
@@ -170,7 +170,7 @@ function renderPapersTable(papers) {
     btn.addEventListener('click', () => {
       document.getElementById('filter-subject').value = btn.dataset.subject;
       document.getElementById('filter-paper').value   = btn.dataset.paper;
-      document.getElementById('filter-year').value    = btn.dataset.year;
+      updateYearDropdownOptions('filter-year', btn.dataset.subject, btn.dataset.year);
       document.getElementById('filter-month').value   = btn.dataset.month;
       showView('editor');
       loadEditorQuestions();
@@ -459,7 +459,29 @@ document.getElementById('btn-confirm-import').addEventListener('click', async ()
 // ── Question Editor ───────────────────────────────────────────
 let editorCursor = 0;
 const EDITOR_LIMIT = 50;
-let allSubjects = [];
+let allSubjectData = [];     // Array of { name: string, years: number[] }
+let allAvailableYears = [];  // Sorted list of all distinct years in system
+
+function updateYearDropdownOptions(selectId, subjectName, selectedYear) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  const currentVal = selectedYear !== undefined ? String(selectedYear) : select.value;
+
+  let availableYears = allAvailableYears;
+  if (subjectName) {
+    const found = allSubjectData.find(s => s.name === subjectName);
+    if (found && found.years.length > 0) {
+      availableYears = found.years;
+    }
+  }
+
+  let html = `<option value="">All</option>`;
+  availableYears.forEach(y => {
+    html += `<option value="${y}"${String(y) === String(currentVal) ? ' selected' : ''}>${y}</option>`;
+  });
+  select.innerHTML = html;
+}
 
 document.getElementById('btn-filter-apply').addEventListener('click', () => {
   editorCursor = 0;
@@ -476,8 +498,8 @@ document.getElementById('btn-filter-clear').addEventListener('click', () => {
   document.getElementById('filter-subject').value = '';
   document.getElementById('filter-paper').value = '';
   document.getElementById('filter-status').value = '';
-  document.getElementById('filter-year').value = '';
   document.getElementById('filter-month').value = '';
+  updateYearDropdownOptions('filter-year', '');
   editorCursor = 0;
   loadEditorQuestions();
 });
@@ -486,26 +508,72 @@ document.getElementById('btn-filter-clear').addEventListener('click', () => {
 async function loadSubjectList() {
   try {
     const subjects = await api('/subjects');
-    allSubjects = subjects.map(s => s.name);
+
+    // Group available years by subject name
+    const subjectMap = new Map();
+    const yearsSet = new Set();
+
+    (subjects || []).forEach(item => {
+      if (!item.name) return;
+      if (!subjectMap.has(item.name)) {
+        subjectMap.set(item.name, new Set());
+      }
+      if (item.year) {
+        const y = Number(item.year);
+        subjectMap.get(item.name).add(y);
+        yearsSet.add(y);
+      }
+    });
+
+    allAvailableYears = Array.from(yearsSet).sort((a, b) => b - a);
+
+    allSubjectData = Array.from(subjectMap.entries()).map(([name, set]) => ({
+      name,
+      years: Array.from(set).sort((a, b) => b - a)
+    })).sort((a, b) => a.name.localeCompare(b.name));
+
     renderSubjectDropdown('');
     renderRevSubjectDropdown('');
-  } catch {}
+
+    updateYearDropdownOptions('filter-year', document.getElementById('filter-subject').value.trim());
+    updateYearDropdownOptions('rev-filter-year', document.getElementById('rev-filter-subject').value.trim());
+  } catch (err) {
+    console.error('Failed to load subject list:', err);
+  }
 }
 
 function renderSubjectDropdown(query) {
   const list = document.getElementById('subject-dropdown-list');
-  const current = document.getElementById('filter-subject').value;
-  const filtered = allSubjects.filter(s =>
-    s.toLowerCase().includes(query.toLowerCase())
-  );
-  list.innerHTML = filtered.map(s =>
-    `<div class="dropdown-item${s === current ? ' active' : ''}">${escHtml(s)}</div>`
-  ).join('');
+  const current = document.getElementById('filter-subject').value.trim();
+  const qLower = (query || '').toLowerCase().trim();
 
-  list.querySelectorAll('.dropdown-item').forEach(el => {
+  const filtered = allSubjectData.filter(item => {
+    if (!qLower) return true;
+    if (item.name.toLowerCase().includes(qLower)) return true;
+    if (item.years.some(y => String(y).includes(qLower))) return true;
+    return false;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="dropdown-item text-muted text-xs" style="padding:8px 12px;">No matching subjects</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(item => {
+    const isActive = item.name === current;
+    const yearsText = item.years.length > 0 ? item.years.join(', ') : 'No years';
+    return `<div class="dropdown-item${isActive ? ' active' : ''}" data-subject="${escAttr(item.name)}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;">
+      <span style="font-weight:500;">${escHtml(item.name)}</span>
+      <span class="text-muted text-xs" style="font-size:11px;opacity:0.85;white-space:nowrap;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">${yearsText}</span>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.dropdown-item[data-subject]').forEach(el => {
     el.addEventListener('click', () => {
-      document.getElementById('filter-subject').value = el.textContent;
+      const selectedSubject = el.dataset.subject;
+      document.getElementById('filter-subject').value = selectedSubject;
       list.classList.add('hidden');
+      updateYearDropdownOptions('filter-year', selectedSubject);
       editorCursor = 0;
       loadEditorQuestions();
     });
@@ -514,18 +582,36 @@ function renderSubjectDropdown(query) {
 
 function renderRevSubjectDropdown(query) {
   const list = document.getElementById('rev-subject-dropdown-list');
-  const current = document.getElementById('rev-filter-subject').value;
-  const filtered = allSubjects.filter(s =>
-    s.toLowerCase().includes(query.toLowerCase())
-  );
-  list.innerHTML = filtered.map(s =>
-    `<div class="dropdown-item${s === current ? ' active' : ''}">${escHtml(s)}</div>`
-  ).join('');
+  const current = document.getElementById('rev-filter-subject').value.trim();
+  const qLower = (query || '').toLowerCase().trim();
 
-  list.querySelectorAll('.dropdown-item').forEach(el => {
+  const filtered = allSubjectData.filter(item => {
+    if (!qLower) return true;
+    if (item.name.toLowerCase().includes(qLower)) return true;
+    if (item.years.some(y => String(y).includes(qLower))) return true;
+    return false;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="dropdown-item text-muted text-xs" style="padding:8px 12px;">No matching subjects</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(item => {
+    const isActive = item.name === current;
+    const yearsText = item.years.length > 0 ? item.years.join(', ') : 'No years';
+    return `<div class="dropdown-item${isActive ? ' active' : ''}" data-subject="${escAttr(item.name)}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;">
+      <span style="font-weight:500;">${escHtml(item.name)}</span>
+      <span class="text-muted text-xs" style="font-size:11px;opacity:0.85;white-space:nowrap;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">${yearsText}</span>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.dropdown-item[data-subject]').forEach(el => {
     el.addEventListener('click', () => {
-      document.getElementById('rev-filter-subject').value = el.textContent;
+      const selectedSubject = el.dataset.subject;
+      document.getElementById('rev-filter-subject').value = selectedSubject;
       list.classList.add('hidden');
+      updateYearDropdownOptions('rev-filter-year', selectedSubject);
       loadReviews();
     });
   });
@@ -537,6 +623,7 @@ const subjectList  = document.getElementById('subject-dropdown-list');
 subjectInput.addEventListener('input', () => {
   renderSubjectDropdown(subjectInput.value);
   subjectList.classList.remove('hidden');
+  updateYearDropdownOptions('filter-year', subjectInput.value.trim());
 });
 
 subjectInput.addEventListener('focus', () => {
@@ -550,6 +637,7 @@ const revSubjectList  = document.getElementById('rev-subject-dropdown-list');
 revSubjectInput.addEventListener('input', () => {
   renderRevSubjectDropdown(revSubjectInput.value);
   revSubjectList.classList.remove('hidden');
+  updateYearDropdownOptions('rev-filter-year', revSubjectInput.value.trim());
 });
 
 revSubjectInput.addEventListener('focus', () => {
@@ -908,7 +996,7 @@ function renderReviewsPage() {
     btn.addEventListener('click', () => {
       document.getElementById('filter-subject').value = btn.dataset.subject;
       document.getElementById('filter-paper').value   = btn.dataset.paper;
-      document.getElementById('filter-year').value    = btn.dataset.year;
+      updateYearDropdownOptions('filter-year', btn.dataset.subject, btn.dataset.year);
       document.getElementById('filter-month').value   = btn.dataset.month;
       showView('editor');
       loadEditorQuestions();
@@ -1008,10 +1096,10 @@ document.getElementById('btn-refresh-reviews').addEventListener('click', loadRev
 document.getElementById('btn-reviews-clear').addEventListener('click', () => {
   document.getElementById('rev-filter-subject').value  = '';
   document.getElementById('rev-filter-paper').value    = '';
-  document.getElementById('rev-filter-year').value     = '';
   document.getElementById('rev-filter-month').value    = '';
   document.getElementById('rev-filter-reviewer').value = '';
   document.getElementById('rev-filter-status').value   = '';
+  updateYearDropdownOptions('rev-filter-year', '');
   loadReviews();
 });
 
