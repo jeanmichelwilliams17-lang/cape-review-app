@@ -110,7 +110,12 @@ export async function handleImageProxy(
     const unitFolders = [`U${unitStr}`, unitStr === '1' ? 'U2' : 'U1'];
     const paperFolders = [`P${paperStr}`, paperStr === '1' ? 'P2' : 'P1'];
     const unitPrefixes = ['cape_1_', 'cape_2_'];
-    const subpartSuffixes = ['', '_e_i', '_a', '_b', '_c', '_d', '_e', '_f', '_a_i', '_b_i', '_c_i', '_d_i', '_1', '_2', '_3', '_1_a'];
+    const isChoiceKey = /_[abcd]$/i.test(diagramKey);
+    // Question keys must NEVER try choice suffixes (_a, _b, _c, _d) to prevent
+    // question diagrams from stealing choice A/B/C/D images.
+    const subpartSuffixes = isChoiceKey
+      ? ['', '_i']
+      : ['', '_e_i', '_e', '_f', '_a_i', '_b_i', '_c_i', '_d_i', '_1', '_2', '_3', '_1_a'];
 
     // Base key without prefix (e.g. "appliedmathematics_may_2022_2_1")
     const rawKeyWithoutPrefix = parts.slice(2).join('_');

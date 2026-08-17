@@ -68,14 +68,6 @@ async function auditPage(
             AND label = ?3
         `).bind(diagramKey, baseKey + '_' + label.toLowerCase(), label)
       );
-      // Also ensure the parent question has diagram_present = 1
-      qStmts.push(
-        env.DB.prepare(`
-          UPDATE questions
-          SET diagram_present = 1
-          WHERE question_diagram_key = ?1 OR question_diagram_key LIKE ?2
-        `).bind(baseKey, baseKey + '%')
-      );
     } else {
       // ── Question diagram ──
       const m = diagramKey.match(/^(cape_[12]_[^_]+_[^_]+_\d+_[12]_\d+)/i);
