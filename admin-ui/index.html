@@ -58,7 +58,31 @@
           <p class="page-subtitle">All exam sittings loaded in the database</p>
         </div>
         <div class="page-actions">
+          <button class="btn btn-ghost" id="btn-refresh-papers">↺ Refresh</button>
           <button class="btn btn-primary" id="btn-go-upload">⬆ Upload Paper</button>
+        </div>
+      </div>
+
+      <!-- Papers filters -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="flex gap-3" style="flex-wrap: wrap; align-items: flex-end;">
+          <div class="form-group" style="margin: 0; flex: 1; min-width: 180px;">
+            <label for="papers-filter-subject">Subject</label>
+            <input id="papers-filter-subject" class="input" placeholder="Filter by subject…" autocomplete="off" />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="papers-filter-paper">Paper</label>
+            <select id="papers-filter-paper" class="input select-input">
+              <option value="">All</option>
+              <option value="1">Paper 1</option>
+              <option value="2">Paper 2</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="papers-filter-year">Year</label>
+            <input id="papers-filter-year" class="input" type="number" placeholder="e.g. 2021" style="width: 110px;" />
+          </div>
+          <button class="btn btn-ghost" id="btn-papers-filter-clear">Clear</button>
         </div>
       </div>
 
@@ -87,8 +111,10 @@
           </thead>
           <tbody id="papers-tbody"></tbody>
         </table>
+        <p class="text-muted text-sm" id="papers-filter-count" style="margin-top:10px;"></p>
       </div>
     </section>
+
 
     <!-- === UPLOAD VIEW === -->
     <section id="view-upload" class="view hidden">

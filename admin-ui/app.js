@@ -75,121 +75,165 @@ document.getElementById('cfg-api-token').value  = cfg.apiToken;
 
 // ── Papers view ───────────────────────────────────────────────
 let deletePaperData = null;
+let papersCache = [];   // full list from API
+
+function renderPapersTable(papers) {
+  const tbody     = document.getElementById('papers-tbody');
+  const tableWrap = document.getElementById('papers-table-wrap');
+  const emptyEl   = document.getElementById('papers-empty');
+  const countEl   = document.getElementById('papers-filter-count');
+
+  tbody.innerHTML = '';
+
+  if (!papers.length) {
+    tableWrap.classList.add('hidden');
+    emptyEl.classList.remove('hidden');
+    countEl.textContent = '';
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  papers.forEach(p => {
+    const pct = p.review_pct ?? 0;
+    const tr  = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escHtml(p.subject)}</td>
+      <td><span class="badge badge-accent">Paper ${p.paper}</span></td>
+      <td>${p.year ?? '—'}</td>
+      <td>${escHtml(p.month ?? '—')}</td>
+      <td>${p.question_count}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar" style="flex:1;">
+            <div class="progress-fill" style="width:${pct}%;"></div>
+          </div>
+          <span class="text-muted text-sm">${pct}%</span>
+        </div>
+      </td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm btn-reviews-paper"
+            data-subject="${escAttr(p.subject)}"
+            data-paper="${p.paper}" data-year="${p.year ?? ''}" data-month="${escAttr(p.month || '')}">
+            👁 Reviews
+          </button>
+          <button class="btn btn-ghost btn-sm btn-unreview-paper"
+            data-subject="${escAttr(p.subject)}"
+            data-paper="${p.paper}" data-year="${p.year ?? ''}" data-month="${escAttr(p.month || '')}">
+            ↺ Unreview
+          </button>
+          <button class="btn btn-ghost btn-sm btn-edit-paper"
+            data-subject="${escAttr(p.subject)}"
+            data-paper="${p.paper}" data-year="${p.year ?? ''}" data-month="${escAttr(p.month || '')}">
+            Edit
+          </button>
+          <button class="btn btn-danger btn-sm btn-delete-paper"
+            data-subject="${escAttr(p.subject)}"
+            data-paper="${p.paper}" data-year="${p.year ?? ''}" data-month="${escAttr(p.month || '')}">
+            Delete
+          </button>
+        </div>
+      </td>`;
+    frag.appendChild(tr);
+  });
+
+  tbody.appendChild(frag);
+  emptyEl.classList.add('hidden');
+  tableWrap.classList.remove('hidden');
+
+  const total = papersCache.length;
+  countEl.textContent = papers.length < total
+    ? `Showing ${papers.length} of ${total} papers`
+    : `${total} paper${total === 1 ? '' : 's'}`;
+
+  // Wire action buttons
+  tbody.querySelectorAll('.btn-reviews-paper').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('rev-filter-subject').value = btn.dataset.subject;
+      document.getElementById('rev-filter-paper').value   = btn.dataset.paper;
+      document.getElementById('rev-filter-year').value    = btn.dataset.year;
+      document.getElementById('rev-filter-month').value   = btn.dataset.month;
+      showView('reviews');
+    });
+  });
+
+  tbody.querySelectorAll('.btn-unreview-paper').forEach(btn => {
+    btn.addEventListener('click', () => openUnreviewModal({
+      subject: btn.dataset.subject,
+      paper:   Number(btn.dataset.paper),
+      year:    btn.dataset.year ? Number(btn.dataset.year) : undefined,
+      month:   btn.dataset.month,
+    }));
+  });
+
+  tbody.querySelectorAll('.btn-edit-paper').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('filter-subject').value = btn.dataset.subject;
+      document.getElementById('filter-paper').value   = btn.dataset.paper;
+      document.getElementById('filter-year').value    = btn.dataset.year;
+      document.getElementById('filter-month').value   = btn.dataset.month;
+      showView('editor');
+      loadEditorQuestions();
+    });
+  });
+
+  tbody.querySelectorAll('.btn-delete-paper').forEach(btn => {
+    btn.addEventListener('click', () => openDeleteModal({
+      subject: btn.dataset.subject,
+      paper:   Number(btn.dataset.paper),
+      year:    Number(btn.dataset.year),
+      month:   btn.dataset.month,
+    }));
+  });
+}
+
+function applyPapersFilter() {
+  const subj  = document.getElementById('papers-filter-subject').value.trim().toLowerCase();
+  const paper = document.getElementById('papers-filter-paper').value.trim();
+  const year  = document.getElementById('papers-filter-year').value.trim();
+
+  const filtered = papersCache.filter(p => {
+    if (subj  && !String(p.subject).toLowerCase().includes(subj)) return false;
+    if (paper && String(p.paper) !== paper) return false;
+    if (year  && String(p.year)  !== year)  return false;
+    return true;
+  });
+
+  renderPapersTable(filtered);
+}
 
 async function loadPapers() {
   const loadingEl = document.getElementById('papers-loading');
   const emptyEl   = document.getElementById('papers-empty');
   const tableWrap = document.getElementById('papers-table-wrap');
-  const tbody     = document.getElementById('papers-tbody');
 
   loadingEl.classList.remove('hidden');
   emptyEl.classList.add('hidden');
   tableWrap.classList.add('hidden');
 
   try {
-    const papers = await api('/admin/papers');
+    papersCache = await api('/admin/papers');
     loadingEl.classList.add('hidden');
-
-    if (!papers.length) {
-      emptyEl.classList.remove('hidden');
-      return;
-    }
-
-    tbody.innerHTML = '';
-    papers.forEach(p => {
-      const pct = p.review_pct ?? 0;
-      const tr  = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${escHtml(p.subject)}</td>
-        <td><span class="badge badge-accent">Paper ${p.paper}</span></td>
-        <td>${p.year ?? '—'}</td>
-        <td>${escHtml(p.month ?? '—')}</td>
-        <td>${p.question_count}</td>
-        <td>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div class="progress-bar" style="flex:1;">
-              <div class="progress-fill" style="width:${pct}%;"></div>
-            </div>
-            <span class="text-muted text-sm">${pct}%</span>
-          </div>
-        </td>
-        <td>
-          <div class="flex gap-2">
-            <button class="btn btn-ghost btn-sm btn-reviews-paper"
-              data-subject="${escAttr(p.subject)}"
-              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
-              👁 Reviews
-            </button>
-            <button class="btn btn-ghost btn-sm btn-unreview-paper"
-              data-subject="${escAttr(p.subject)}"
-              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
-              ↺ Unreview
-            </button>
-            <button class="btn btn-ghost btn-sm btn-edit-paper"
-              data-subject="${escAttr(p.subject)}"
-              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
-              Edit
-            </button>
-            <button class="btn btn-danger btn-sm btn-delete-paper"
-              data-subject="${escAttr(p.subject)}"
-              data-paper="${p.paper}" data-year="${p.year}" data-month="${escAttr(p.month || '')}">
-              Delete
-            </button>
-          </div>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-
-    tableWrap.classList.remove('hidden');
-
-    // Review Log → jump to reviews view with filters pre-filled
-    tbody.querySelectorAll('.btn-reviews-paper').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('rev-filter-subject').value = btn.dataset.subject;
-        document.getElementById('rev-filter-paper').value   = btn.dataset.paper;
-        document.getElementById('rev-filter-year').value    = btn.dataset.year;
-        document.getElementById('rev-filter-month').value   = btn.dataset.month;
-        showView('reviews');
-      });
-    });
-
-    // Unreview Paper → open unreview modal
-    tbody.querySelectorAll('.btn-unreview-paper').forEach(btn => {
-      btn.addEventListener('click', () => openUnreviewModal({
-        subject: btn.dataset.subject,
-        paper:   Number(btn.dataset.paper),
-        year:    btn.dataset.year ? Number(btn.dataset.year) : undefined,
-        month:   btn.dataset.month,
-      }));
-    });
-
-    // Edit → jump to editor with filters pre-filled
-    tbody.querySelectorAll('.btn-edit-paper').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('filter-subject').value = btn.dataset.subject;
-        document.getElementById('filter-paper').value   = btn.dataset.paper;
-        document.getElementById('filter-year').value    = btn.dataset.year;
-        document.getElementById('filter-month').value   = btn.dataset.month;
-        showView('editor');
-        loadEditorQuestions();
-      });
-    });
-
-    // Delete → open confirmation modal
-    tbody.querySelectorAll('.btn-delete-paper').forEach(btn => {
-      btn.addEventListener('click', () => openDeleteModal({
-        subject: btn.dataset.subject,
-        paper:   Number(btn.dataset.paper),
-        year:    Number(btn.dataset.year),
-        month:   btn.dataset.month,
-      }));
-    });
-
+    applyPapersFilter();
   } catch (err) {
     loadingEl.classList.add('hidden');
     toast(`Failed to load papers: ${err.message}`, 'error');
   }
 }
+
+// Live filter as user types / changes selects
+document.getElementById('papers-filter-subject').addEventListener('input',  applyPapersFilter);
+document.getElementById('papers-filter-paper').addEventListener('change',   applyPapersFilter);
+document.getElementById('papers-filter-year').addEventListener('input',     applyPapersFilter);
+document.getElementById('btn-refresh-papers').addEventListener('click',     loadPapers);
+document.getElementById('btn-papers-filter-clear').addEventListener('click', () => {
+  document.getElementById('papers-filter-subject').value = '';
+  document.getElementById('papers-filter-paper').value   = '';
+  document.getElementById('papers-filter-year').value    = '';
+  applyPapersFilter();
+});
+
+
 
 // ── Delete Paper modal ────────────────────────────────────────
 function openDeleteModal(data) {
