@@ -334,8 +334,8 @@ private func stripLaTeXWrapper(_ text: String) -> String {
 
     // Auto-fix digit attached to LaTeX command e.g. 4\sqrt -> 4 \sqrt
     s = s.replacingOccurrences(of: #"(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])"#, with: "$1 $2", options: .regularExpression)
-    // Auto-fix unbracketed limit subscript arrows e.g. \lim_{x \to 3} -> \lim_{(x \to 3)}
-    s = s.replacingOccurrences(of: #"\\(lim|min|max|sup|inf|sum|prod|int)_\{(?!\()([^()}]*\\(?:to|rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
+    // Auto-fix operator subscripts e.g. \sum_{l=1} -> \sum_{(l=1)}, \lim_{x \to 3} -> \lim_{(x \to 3)}
+    s = s.replacingOccurrences(of: #"\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
     // Auto-fix trig/log inverse powers e.g. \cos^{-1} -> \cos^{(-1)}
     s = s.replacingOccurrences(of: #"\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}"#, with: #"\\$1^{(-$2)}"#, options: .regularExpression)
 

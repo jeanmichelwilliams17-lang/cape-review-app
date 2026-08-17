@@ -5,6 +5,10 @@ UPDATE choices SET answer_raw = '\frac{1}{9} \tan^{(-$2)} x + c', answer_code = 
 UPDATE choices SET answer_raw = '\frac{1}{3} \tan^{(-$2)} 3x + c', answer_code = '\frac{1}{3} \tan^{(-$2)} 3x + c' WHERE answer_raw = '\frac{1}{3} \tan^{-1} 3x + c' OR answer_code = '\frac{1}{3} \tan^{-1} 3x + c';
 UPDATE choices SET answer_raw = '\frac{1}{3} \tan^{(-$2)} \frac{x}{3} + c', answer_code = '\frac{1}{3} \tan^{(-$2)} \frac{x}{3} + c' WHERE answer_raw = '\frac{1}{3} \tan^{-1} \frac{x}{3} + c' OR answer_code = '\frac{1}{3} \tan^{-1} \frac{x}{3} + c';
 UPDATE choices SET answer_raw = '\frac{1}{9} \tan^{(-$2)} 3x + c', answer_code = '\frac{1}{9} \tan^{(-$2)} 3x + c' WHERE answer_raw = '\frac{1}{9} \tan^{-1} 3x + c' OR answer_code = '\frac{1}{9} \tan^{-1} 3x + c';
+UPDATE choices SET answer_raw = '\sum_{(n=1)}^{\infty} \frac{3^n}{n^3}', answer_code = '\sum_{(n=1)}^{\infty} \frac{3^n}{n^3}' WHERE answer_raw = '\sum_{n=1}^{\infty} \frac{3^n}{n^3}' OR answer_code = '\sum_{n=1}^{\infty} \frac{3^n}{n^3}';
+UPDATE choices SET answer_raw = '\sum_{(n=1)}^{\infty} \frac{\sin (n)}{n^3}', answer_code = '\sum_{(n=1)}^{\infty} \frac{\sin (n)}{n^3}' WHERE answer_raw = '\sum_{n=1}^{\infty} \frac{\sin (n)}{n^3}' OR answer_code = '\sum_{n=1}^{\infty} \frac{\sin (n)}{n^3}';
+UPDATE choices SET answer_raw = '\sum_{(n=1)}^{\infty} \frac{5n + 1}{2^n}', answer_code = '\sum_{(n=1)}^{\infty} \frac{5n + 1}{2^n}' WHERE answer_raw = '\sum_{n=1}^{\infty} \frac{5n + 1}{2^n}' OR answer_code = '\sum_{n=1}^{\infty} \frac{5n + 1}{2^n}';
+UPDATE choices SET answer_raw = '\sum_{(n=1)}^{\infty} (-1)^n \frac{\sin (n)}{n^3}', answer_code = '\sum_{(n=1)}^{\infty} (-1)^n \frac{\sin (n)}{n^3}' WHERE answer_raw = '\sum_{n=1}^{\infty} (-1)^n \frac{\sin (n)}{n^3}' OR answer_code = '\sum_{n=1}^{\infty} (-1)^n \frac{\sin (n)}{n^3}';
 UPDATE choices SET answer_raw = '\frac{1}{2 \sqrt{2}}', answer_code = '\frac{1}{2 \sqrt{2}}' WHERE answer_raw = '\frac{1}{2\sqrt{2}}' OR answer_code = '\frac{1}{2\sqrt{2}}';
 UPDATE choices SET answer_raw = '2 \sqrt{2}', answer_code = '2 \sqrt{2}' WHERE answer_raw = '2\sqrt{2}' OR answer_code = '2\sqrt{2}';
 UPDATE choices SET answer_raw = '-\frac{3 \pi}{4}', answer_code = '-\frac{3 \pi}{4}' WHERE answer_raw = '-\frac{3\pi}{4}' OR answer_code = '-\frac{3\pi}{4}';
@@ -12,6 +16,10 @@ UPDATE choices SET answer_raw = '\frac{3 \pi}{4}', answer_code = '\frac{3 \pi}{4
 UPDATE choices SET answer_raw = '2e^{i\frac{2 \pi}{3}}', answer_code = '2e^{i\frac{2 \pi}{3}}' WHERE answer_raw = '2e^{i\frac{2\pi}{3}}' OR answer_code = '2e^{i\frac{2\pi}{3}}';
 UPDATE choices SET answer_raw = '2e^{i\frac{5 \pi}{6}}', answer_code = '2e^{i\frac{5 \pi}{6}}' WHERE answer_raw = '2e^{i\frac{5\pi}{6}}' OR answer_code = '2e^{i\frac{5\pi}{6}}';
 UPDATE choices SET answer_raw = '-2 \sqrt{4-x^2}', answer_code = '-2 \sqrt{4-x^2}' WHERE answer_raw = '-2\sqrt{4-x^2}' OR answer_code = '-2\sqrt{4-x^2}';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^n r^2 = 2 \sum_{(r=1)}^n r', answer_code = '\sum_{(r=1)}^n r^2 = 2 \sum_{(r=1)}^n r' WHERE answer_raw = '\sum_{r=1}^n r^2 = 2 \sum_{r=1}^n r' OR answer_code = '\sum_{r=1}^n r^2 = 2 \sum_{r=1}^n r';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^n r^2 = \sum_{(r=1)}^n r', answer_code = '\sum_{(r=1)}^n r^2 = \sum_{(r=1)}^n r' WHERE answer_raw = '\sum_{r=1}^n r^2 = \sum_{r=1}^n r' OR answer_code = '\sum_{r=1}^n r^2 = \sum_{r=1}^n r';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^n (2+r^2) = 2 + \sum_{(r=1)}^n r^2', answer_code = '\sum_{(r=1)}^n (2+r^2) = 2 + \sum_{(r=1)}^n r^2' WHERE answer_raw = '\sum_{r=1}^n (2+r^2) = 2 + \sum_{r=1}^n r^2' OR answer_code = '\sum_{r=1}^n (2+r^2) = 2 + \sum_{r=1}^n r^2';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^n r^2 = \sum_{(r=0)}^n r^2', answer_code = '\sum_{(r=1)}^n r^2 = \sum_{(r=0)}^n r^2' WHERE answer_raw = '\sum_{r=1}^n r^2 = \sum_{r=0}^n r^2' OR answer_code = '\sum_{r=1}^n r^2 = \sum_{r=0}^n r^2';
 UPDATE choices SET answer_raw = '4 \frac{1}{2}\%', answer_code = '4 \frac{1}{2}\%' WHERE answer_raw = '4\frac{1}{2}\%' OR answer_code = '4\frac{1}{2}\%';
 UPDATE choices SET answer_raw = '6 \frac{1}{4}\%', answer_code = '6 \frac{1}{4}\%' WHERE answer_raw = '6\frac{1}{4}\%' OR answer_code = '6\frac{1}{4}\%';
 UPDATE choices SET answer_raw = '2 \Phi(2) - 1', answer_code = '2 \Phi(2) - 1' WHERE answer_raw = '2\Phi(2) - 1' OR answer_code = '2\Phi(2) - 1';
@@ -29,6 +37,10 @@ UPDATE choices SET answer_raw = '2 \sigma', answer_code = '2 \sigma' WHERE answe
 UPDATE choices SET answer_raw = '4 \sigma', answer_code = '4 \sigma' WHERE answer_raw = '4\sigma' OR answer_code = '4\sigma';
 UPDATE choices SET answer_raw = '7 \sqrt{5}', answer_code = '7 \sqrt{5}' WHERE answer_raw = '7\sqrt{5}' OR answer_code = '7\sqrt{5}';
 UPDATE choices SET answer_raw = '13 \sqrt{5}', answer_code = '13 \sqrt{5}' WHERE answer_raw = '13\sqrt{5}' OR answer_code = '13\sqrt{5}';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^{6} (-1)^r 3^r', answer_code = '\sum_{(r=1)}^{6} (-1)^r 3^r' WHERE answer_raw = '\sum_{r=1}^{6} (-1)^r 3^r' OR answer_code = '\sum_{r=1}^{6} (-1)^r 3^r';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^{6} (-1)^{r+1} 3^r', answer_code = '\sum_{(r=1)}^{6} (-1)^{r+1} 3^r' WHERE answer_raw = '\sum_{r=1}^{6} (-1)^{r+1} 3^r' OR answer_code = '\sum_{r=1}^{6} (-1)^{r+1} 3^r';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^{6} (-1)^r 3^{r+1}', answer_code = '\sum_{(r=1)}^{6} (-1)^r 3^{r+1}' WHERE answer_raw = '\sum_{r=1}^{6} (-1)^r 3^{r+1}' OR answer_code = '\sum_{r=1}^{6} (-1)^r 3^{r+1}';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^{6} (-1)^{r+1} 3^{r+1}', answer_code = '\sum_{(r=1)}^{6} (-1)^{r+1} 3^{r+1}' WHERE answer_raw = '\sum_{r=1}^{6} (-1)^{r+1} 3^{r+1}' OR answer_code = '\sum_{r=1}^{6} (-1)^{r+1} 3^{r+1}';
 UPDATE choices SET answer_raw = '\frac{1 - 2 \sin^2 x}{\sec^2 x}', answer_code = '\frac{1 - 2 \sin^2 x}{\sec^2 x}' WHERE answer_raw = '\frac{1 - 2\sin^2 x}{\sec^2 x}' OR answer_code = '\frac{1 - 2\sin^2 x}{\sec^2 x}';
 UPDATE choices SET answer_raw = '\theta = \begin{cases} 2n\pi + \frac{\pi}{6} \ (2n + 1)\frac{5 \pi}{16} \end{cases}', answer_code = '\theta = \begin{cases} 2n\pi + \frac{\pi}{6} \ (2n + 1)\frac{5 \pi}{16} \end{cases}' WHERE answer_raw = '\theta = \begin{cases} 2n\pi + \frac{\pi}{6} \ (2n + 1)\frac{5\pi}{16} \end{cases}' OR answer_code = '\theta = \begin{cases} 2n\pi + \frac{\pi}{6} \ (2n + 1)\frac{5\pi}{16} \end{cases}';
 UPDATE choices SET answer_raw = '\theta = \begin{cases} n\pi + \frac{\pi}{12} \ n\pi + \frac{5 \pi}{12} \end{cases}', answer_code = '\theta = \begin{cases} n\pi + \frac{\pi}{12} \ n\pi + \frac{5 \pi}{12} \end{cases}' WHERE answer_raw = '\theta = \begin{cases} n\pi + \frac{\pi}{12} \ n\pi + \frac{5\pi}{12} \end{cases}' OR answer_code = '\theta = \begin{cases} n\pi + \frac{\pi}{12} \ n\pi + \frac{5\pi}{12} \end{cases}';
@@ -47,6 +59,7 @@ UPDATE choices SET answer_raw = '32 \pi', answer_code = '32 \pi' WHERE answer_ra
 UPDATE choices SET answer_raw = '64 \pi', answer_code = '64 \pi' WHERE answer_raw = '64\pi' OR answer_code = '64\pi';
 UPDATE choices SET answer_raw = '\frac{x+y-2 \sqrt{xy}}{x-y}', answer_code = '\frac{x+y-2 \sqrt{xy}}{x-y}' WHERE answer_raw = '\frac{x+y-2\sqrt{xy}}{x-y}' OR answer_code = '\frac{x+y-2\sqrt{xy}}{x-y}';
 UPDATE choices SET answer_raw = '\frac{x-y+2 \sqrt{xy}}{x+y}', answer_code = '\frac{x-y+2 \sqrt{xy}}{x+y}' WHERE answer_raw = '\frac{x-y+2\sqrt{xy}}{x+y}' OR answer_code = '\frac{x-y+2\sqrt{xy}}{x+y}';
+UPDATE choices SET answer_raw = '\sum_{(r=1)}^{6} (-1)^r 3^{r-1}', answer_code = '\sum_{(r=1)}^{6} (-1)^r 3^{r-1}' WHERE answer_raw = '\sum_{r=1}^{6} (-1)^r 3^{r-1}' OR answer_code = '\sum_{r=1}^{6} (-1)^r 3^{r-1}';
 UPDATE choices SET answer_raw = 'n\pi \pm \frac{2 \pi}{3}', answer_code = 'n\pi \pm \frac{2 \pi}{3}' WHERE answer_raw = 'n\pi \pm \frac{2\pi}{3}' OR answer_code = 'n\pi \pm \frac{2\pi}{3}';
 UPDATE choices SET answer_raw = '200 + \frac{5 \pi}{2}', answer_code = '200 + \frac{5 \pi}{2}' WHERE answer_raw = '200 + \frac{5\pi}{2}' OR answer_code = '200 + \frac{5\pi}{2}';
 UPDATE choices SET answer_raw = '200 + 5 \pi', answer_code = '200 + 5 \pi' WHERE answer_raw = '200 + 5\pi' OR answer_code = '200 + 5\pi';
