@@ -228,7 +228,7 @@ struct FixedQuestionsReviewView: View {
                                     }
                                 }
 
-                                ForEach(choices) { choice in
+                                ForEach(choices, id: \.label) { choice in
                                     let isCorrect = (choice.label == currentItem.correctChoice)
                                     HStack(alignment: .top, spacing: 10) {
                                         Text("\(choice.label).")
@@ -279,6 +279,10 @@ struct FixedQuestionsReviewView: View {
                         }
                     }
                     .padding()
+                }
+                .id(currentItem.id)
+                .onChange(of: currentIndex) { _ in
+                    reviewNote = ""
                 }
 
                 Divider()
