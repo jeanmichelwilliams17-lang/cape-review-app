@@ -1139,8 +1139,16 @@ export async function handleExportFixedQuestionsCSV(
 
   let csvContent = header.join(',') + '\n';
 
-  const pattern = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
-  const fixStr = (s: string | null | undefined) => s ? s.replace(pattern, '$1 $2') : '';
+  const pattern1 = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
+  const pattern2 = /\\(lim|min|max|sup|inf|sum|prod|int)_\{(?!\()([^()}]*\\(?:to|rightarrow)[^()}]*)\}/g;
+  const pattern3 = /\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g;
+
+  const fixStr = (s: string | null | undefined) => {
+    if (!s) return '';
+    return s.replace(pattern1, '$1 $2')
+            .replace(pattern2, '\\$1_{($2)}')
+            .replace(pattern3, '\\$1^{(-$2)}');
+  };
 
   for (const fq of (fqList ?? [])) {
     let choices: any[] = [];
