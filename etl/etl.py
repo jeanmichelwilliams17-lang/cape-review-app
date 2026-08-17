@@ -147,7 +147,7 @@ def rows_from_p1(ws, sheet_name: str):
             diag_key_col = f'{label} Diagram Path Prefix'
 
             ans_text = norm(row[idx[ans_key]]) if ans_key in idx else None
-            if not ans_text:
+            if ans_text is None or ans_text == '':
                 continue
 
             # Prefer validated code column, then single-letter shorthand column
@@ -158,7 +158,7 @@ def rows_from_p1(ws, sheet_name: str):
                 print(f"    [WARN] No validated answer column found for '{label}' in '{sheet_name}' "
                       f"— using answer_raw as fallback. Check column names.")
                 validated_warned = True
-            ans_code = ans_code or ans_text  # fallback
+            ans_code = ans_code if ans_code is not None else ans_text  # fallback
 
             ans_diag = norm(row[idx[diag_key_col]]) if diag_key_col in idx else None
             choices.append({

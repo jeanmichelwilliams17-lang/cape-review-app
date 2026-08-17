@@ -331,6 +331,12 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     s = s.replacingOccurrences(of: "\\\\", with: "\\")
     // Convert literal \n to real newlines (after un-escaping, so \n is now single backslash + n)
     s = s.replacingOccurrences(of: "\\n", with: "\n")
+
+    // Ensure plain text / numbers like "0" or "( 0 )" are wrapped in math delimiters so
+    // LaTeXSwiftUI in .onlyEquations mode doesn't filter them out as non-equation text.
+    if !s.contains("$") && !s.contains("\\(") && !s.contains("\\[") && !s.isEmpty {
+        return "$\(s)$"
+    }
     return s
 }
 

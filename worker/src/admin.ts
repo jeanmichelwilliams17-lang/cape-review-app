@@ -411,8 +411,9 @@ export async function handleImport(req: Request, env: Env): Promise<{ response: 
         const diagPrefixKey = `${label} Diagram Path Prefix` as keyof ImportRow;
         const shorthandKey  = label as keyof ImportRow; // single-letter A/B/C/D column
 
-        const answerText = row[answerRawKey] ? String(row[answerRawKey]) : '';
-        if (!answerText) continue;
+        const rawAns = row[answerRawKey];
+        const answerText = (rawAns !== undefined && rawAns !== null && rawAns !== '') ? String(rawAns) : '';
+        if (answerText === '') continue;
 
         // Prefer 'Validated Answer X Code', then single-letter shorthand, then raw
         const answerCode = String(row[answerCodeKey] ?? row[shorthandKey] ?? answerText);
