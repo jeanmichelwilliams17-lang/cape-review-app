@@ -17,6 +17,19 @@ INSERT INTO fixed_questions (
         original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
         fix_type, status
     ) SELECT
+        q.id, s.name, 1, 2024, 'May', 1, '9',
+        '( \int \frac{1}{1+9x^2} dx ) \text{ is}', '( \int \frac{1}{1+9x^2} dx ) \text{ is}', 'LaTeX("$( \\int \\frac{1}{1+9x^2} dx )$ is").parsingMode(.onlyEquations)', 'LaTeX("$( \\int \\frac{1}{1+9x^2} dx )$ is").parsingMode(.onlyEquations)',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 1 AND q.number = 1
+      AND (2024 IS NULL OR q.year = 2024)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
         q.id, s.name, 1, 2024, 'May', 1, '11',
         '\text{Given that } ( \cos 2x = 1 - 2\sin^2 x ), ( \int_0^\pi \sin^2 (\frac{x}{4}) dx ) \text{ is}', '\text{Given that } ( \cos 2x = 1 - 2 \sin^2 x ), ( \int_0^\pi \sin^2 (\frac{x}{4}) dx ) \text{ is}', 'LaTeX("Given that $( \\cos 2x = 1 - 2\\sin^2 x ), ( \\int_0^\\pi \\sin^2 (\\frac{x}{4}) dx )$ is").parsingMode(.onlyEquations)', 'LaTeX("Given that $( \\cos 2x = 1 - 2 \\sin^2 x ), ( \\int_0^\\pi \\sin^2 (\\frac{x}{4}) dx )$ is").parsingMode(.onlyEquations)',
         'latex_syntax_fix', 'pending'
@@ -96,7 +109,7 @@ INSERT INTO fixed_questions (
         fix_type, status
     ) SELECT
         q.id, s.name, 1, 2025, 'May', 1, '10',
-        '( \frac{d}{dx} \cos^{-1} [ \frac{x}{2} ] ) \text{ is equal to}', '( \frac{d}{dx} \cos^{-1} [ \frac{x}{2} ] ) \text{ is equal to}', 'LaTeX("$( \\frac{d}{dx} \\cos^{-1} [ \\frac{x}{2} ] )$ is equal to").parsingMode(.onlyEquations)', 'LaTeX("$( \\frac{d}{dx} \\cos^{-1} [ \\frac{x}{2} ] )$ is equal to").parsingMode(.onlyEquations)',
+        '( \frac{d}{dx} \cos^{-1} [ \frac{x}{2} ] ) \text{ is equal to}', '( \frac{d}{dx} \cos^{(-1)} [ \frac{x}{2} ] ) \text{ is equal to}', 'LaTeX("$( \\frac{d}{dx} \\cos^{-1} [ \\frac{x}{2} ] )$ is equal to").parsingMode(.onlyEquations)', 'LaTeX("$( \\frac{d}{dx} \\cos^{(-1)} [ \\frac{x}{2} ] )$ is equal to").parsingMode(.onlyEquations)',
         'latex_syntax_fix', 'pending'
     FROM questions q
     JOIN subjects s ON s.id = q.subject_id
@@ -136,6 +149,19 @@ INSERT INTO fixed_questions (
     ) SELECT
         q.id, s.name, 1, 2026, 'May', 1, '4',
         '\text{The modulus of the complex number } ( 6 + 3i ) \text{ is}', '\text{The modulus of the complex number } ( 6 + 3i ) \text{ is}', 'LaTeX("The modulus of the complex number $( 6 + 3i )$ is").parsingMode(.onlyEquations)', 'LaTeX("The modulus of the complex number $( 6 + 3i )$ is").parsingMode(.onlyEquations)',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 1 AND q.number = 1
+      AND (2026 IS NULL OR q.year = 2026)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 1, 2026, 'May', 1, '9',
+        '( \int \frac{1}{1+9x^2} dx ) \text{ is}', '( \int \frac{1}{1+9x^2} dx ) \text{ is}', 'LaTeX("$( \\int \\frac{1}{1+9x^2} dx )$ is").parsingMode(.onlyEquations)', 'LaTeX("$( \\int \\frac{1}{1+9x^2} dx )$ is").parsingMode(.onlyEquations)',
         'latex_syntax_fix', 'pending'
     FROM questions q
     JOIN subjects s ON s.id = q.subject_id
@@ -3495,12 +3521,38 @@ INSERT INTO fixed_questions (
         fix_type, status
     ) SELECT
         q.id, s.name, 2, 2026, 'May', 2, '2',
-        '4', '4', 'Use the substitution  $u = \cos^{-1} \frac{1}{2}x$  to show that  $\int_0^1 \frac{\cos^{-1} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5\pi^2}{72}$.', 'Use the substitution  $u = \cos^{-1} \frac{1}{2}x$  to show that  $\int_0^1 \frac{\cos^{-1} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5 \pi^2}{72}$.',
+        '4', '4', 'Use the substitution  $u = \cos^{-1} \frac{1}{2}x$  to show that  $\int_0^1 \frac{\cos^{-1} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5\pi^2}{72}$.', 'Use the substitution  $u = \cos^{(-1)} \frac{1}{2}x$  to show that  $\int_0^1 \frac{\cos^{(-1)} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5 \pi^2}{72}$.',
         'latex_syntax_fix', 'pending'
     FROM questions q
     JOIN subjects s ON s.id = q.subject_id
     WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 2 AND q.number = 2
       AND (2026 IS NULL OR q.year = 2026)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 2, 2024, 'May', 2, '1',
+        '2', '2', 'Differentiate  $\cos^{-1} (3x - 2)$, expressing your answer in its simplest form.', 'Differentiate  $\cos^{(-1)} (3x - 2)$, expressing your answer in its simplest form.',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2024 IS NULL OR q.year = 2024)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 2, 2023, 'May', 2, '4',
+        '3', '3', 'Show that  $\theta_{n+1} = \sin^{-1} \left( \frac{2}{8 - \theta_n^2} \right)$  is a suitable iteration for the approximation of the roots of the equation  $\csc \theta = 4 - \frac{1}{2} \theta^2$.', 'Show that  $\theta_{n+1} = \sin^{(-1)} \left( \frac{2}{8 - \theta_n^2} \right)$  is a suitable iteration for the approximation of the roots of the equation  $\csc \theta = 4 - \frac{1}{2} \theta^2$.',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2023 IS NULL OR q.year = 2023)
     LIMIT 1;
 INSERT INTO fixed_questions (
         original_question_id, subject_name, paper, year, month, number, part,
@@ -3628,6 +3680,27 @@ INSERT INTO fixed_questions (
         original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
         fix_type, status
     ) SELECT
+        q.id, s.name, 2, 2025, 'May', 2, '5',
+        '4', '4', 'Water is flowing into an empty right circular cone at a constant rate of  $8\,$cm$^3$  per minute. The depth of the liquid in the cone at time,  $t,$  in minutes, is  $x\,$cm$.$
+The angle,  $\alpha,$  between the perpendicular height,  $h,$  of the cone and the slant height is
+$\tan^{-1} \frac{\sqrt{3}}{3}$  and the volume of the cone can be calculated as  $V = \frac{1}{3} \pi r^2 h.$
+(i) Show that the volume,  $V\,$cm$^3,$  of water in the cone when the depth is  $x\,$cm  can be
+expressed as  $V = \frac{1}{9} \pi x^3.$', 'Water is flowing into an empty right circular cone at a constant rate of  $8\,$cm$^3$  per minute. The depth of the liquid in the cone at time,  $t,$  in minutes, is  $x\,$cm$.$
+The angle,  $\alpha,$  between the perpendicular height,  $h,$  of the cone and the slant height is
+$\tan^{(-1)} \frac{\sqrt{3}}{3}$  and the volume of the cone can be calculated as  $V = \frac{1}{3} \pi r^2 h.$
+(i) Show that the volume,  $V\,$cm$^3,$  of water in the cone when the depth is  $x\,$cm  can be
+expressed as  $V = \frac{1}{9} \pi x^3.$',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2025 IS NULL OR q.year = 2025)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
         q.id, s.name, 2, 2023, 'May', 2, '3',
         '3', '3', 'Solve the equation  $2 \cos^2 x - 3 \sin x = 3$  for  $0 < x < 2\pi$.', 'Solve the equation  $2 \cos^2 x - 3 \sin x = 3$  for  $0 < x < 2 \pi$.',
         'latex_syntax_fix', 'pending'
@@ -3661,6 +3734,58 @@ INSERT INTO fixed_questions (
     JOIN subjects s ON s.id = q.subject_id
     WHERE (s.name LIKE '%PureMathematics%') AND q.paper = 2 AND q.number = 2
       AND (2023 IS NULL OR q.year = 2023)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 2, 2024, 'May', 2, '6',
+        '3', '3', 'A car which has a mass of 1500 kg travels along a straight horizontal road at a constant speed of  $27 \,$ms$^{-1}$. The car then travels at a constant speed up a hill inclined at an angle  $\theta = \sin^{-1}(0.2)$. Determine the power of the engine if the speed of the car is  $15 \,$ms$^{-1}$  and the resistance to motion is 600 N.', 'A car which has a mass of 1500 kg travels along a straight horizontal road at a constant speed of  $27 \,$ms$^{-1}$. The car then travels at a constant speed up a hill inclined at an angle  $\theta = \sin^{(-1)}(0.2)$. Determine the power of the engine if the speed of the car is  $15 \,$ms$^{-1}$  and the resistance to motion is 600 N.',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%AppliedMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2024 IS NULL OR q.year = 2024)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 2, 2025, 'May', 2, '6',
+        '2', '2', 'Every hour, a conveyor belt carries 50 000 packages 75 metres up a slope whose inclination is  $\sin^{-1}(\frac{1}{10})$. Each package weighs 45 N and the power absorbed by friction in driving the conveyor belt is 2000 W. Calculate the work done to lift the 50 000 packages.', 'Every hour, a conveyor belt carries 50 000 packages 75 metres up a slope whose inclination is  $\sin^{(-1)}(\frac{1}{10})$. Each package weighs 45 N and the power absorbed by friction in driving the conveyor belt is 2000 W. Calculate the work done to lift the 50 000 packages.',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%AppliedMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2025 IS NULL OR q.year = 2025)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 2, 2025, 'May', 2, '6',
+        '2', '2', 'Every hour, a conveyor belt carries 50 000 packages 75 metres up a slope whose inclination is  $\sin^{-1}(\frac{1}{10})$. Each package weighs 45 N and the power absorbed by friction in driving the conveyor belt is 2000 W. Calculate the power required to lift the packages.', 'Every hour, a conveyor belt carries 50 000 packages 75 metres up a slope whose inclination is  $\sin^{(-1)}(\frac{1}{10})$. Each package weighs 45 N and the power absorbed by friction in driving the conveyor belt is 2000 W. Calculate the power required to lift the packages.',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%AppliedMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2025 IS NULL OR q.year = 2025)
+    LIMIT 1;
+INSERT INTO fixed_questions (
+        original_question_id, subject_name, paper, year, month, number, part,
+        original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+        fix_type, status
+    ) SELECT
+        q.id, s.name, 2, 2025, 'May', 2, '6',
+        '3', '3', 'Every hour, a conveyor belt carries 50 000 packages 75 metres up a slope whose inclination is  $\sin^{-1}(\frac{1}{10})$. Each package weighs 45 N and the power absorbed by friction in driving the conveyor belt is 2000 W. Hence, show that the total power output of the motor is 6687.5 W.', 'Every hour, a conveyor belt carries 50 000 packages 75 metres up a slope whose inclination is  $\sin^{(-1)}(\frac{1}{10})$. Each package weighs 45 N and the power absorbed by friction in driving the conveyor belt is 2000 W. Hence, show that the total power output of the motor is 6687.5 W.',
+        'latex_syntax_fix', 'pending'
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    WHERE (s.name LIKE '%AppliedMathematics%') AND q.paper = 2 AND q.number = 2
+      AND (2025 IS NULL OR q.year = 2025)
     LIMIT 1;
 INSERT INTO fixed_questions (
         original_question_id, subject_name, paper, year, month, number, part,

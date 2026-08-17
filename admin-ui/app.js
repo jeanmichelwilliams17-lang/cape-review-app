@@ -828,9 +828,10 @@ function cleanAndRenderLatex(text) {
   // Un-escape double backslashes and escaped newlines
   s = s.replace(/\\\\/g, '\\').replace(/\\n/g, '\n').trim();
 
-  // Auto-clean digit command collisions (4\sqrt -> 4 \sqrt) and unbracketed limit subscripts (\lim_{x \to 3} -> \lim_{(x \to 3)})
+  // Auto-clean digit command collisions (4\sqrt -> 4 \sqrt), unbracketed limit subscripts (\lim_{x \to 3} -> \lim_{(x \to 3)}), and unbracketed trig inverse powers (\cos^{-1} -> \cos^{(-1)})
   s = s.replace(/(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g, '$1 $2');
   s = s.replace(/\\(lim|min|max|sup|inf|sum|prod|int)_\{(?!\()([^()}]*\\(?:to|rightarrow)[^()}]*)\}/g, '\\$1_{($2)}');
+  s = s.replace(/\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g, '\\$1^{(-$2)}');
 
   if (typeof katex === 'undefined') return escHtml(s);
 

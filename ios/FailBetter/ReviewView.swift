@@ -334,6 +334,8 @@ private func stripLaTeXWrapper(_ text: String) -> String {
 
     // Auto-fix unbracketed limit subscript arrows e.g. \lim_{x \to 3} -> \lim_{(x \to 3)}
     s = s.replacingOccurrences(of: #"\\(lim|min|max|sup|inf|sum|prod|int)_\{(?!\()([^()}]*\\(?:to|rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
+    // Auto-fix trig/log inverse powers e.g. \cos^{-1} -> \cos^{(-1)}
+    s = s.replacingOccurrences(of: #"\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}"#, with: #"\\$1^{(-$2)}"#, options: .regularExpression)
 
     guard !s.isEmpty else { return s }
 
