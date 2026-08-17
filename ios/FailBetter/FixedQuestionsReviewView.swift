@@ -200,6 +200,64 @@ struct FixedQuestionsReviewView: View {
                                 )
                         }
 
+                        // Paper 1 MCQ Choices (A, B, C, D)
+                        if currentItem.paper == 1, let choices = currentItem.choices, !choices.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack {
+                                    Text("Multiple Choice Options")
+                                        .font(.caption)
+                                        .bold()
+                                        .foregroundStyle(.secondary)
+                                    Spacer()
+                                    if let key = currentItem.correctChoice, !key.isEmpty {
+                                        Text("Answer Key: Option \(key)")
+                                            .font(.caption2)
+                                            .bold()
+                                            .foregroundStyle(.green)
+                                    }
+                                }
+
+                                ForEach(choices) { choice in
+                                    let isCorrect = (choice.label == currentItem.correctChoice)
+                                    HStack(alignment: .top, spacing: 10) {
+                                        Text("\(choice.label).")
+                                            .font(.subheadline)
+                                            .bold()
+                                            .foregroundStyle(isCorrect ? Color.green : Color.primary)
+                                            .frame(width: 24, alignment: .leading)
+
+                                        LaTeX(stripLaTeXWrapper(choice.answerCode.isEmpty ? choice.answerRaw : choice.answerCode))
+                                            .parsingMode(.onlyEquations)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                            .multilineTextAlignment(.leading)
+
+                                        Spacer()
+
+                                        if isCorrect {
+                                            Text("✓ Key")
+                                                .font(.caption2)
+                                                .bold()
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Capsule().fill(Color.green.opacity(0.15)))
+                                                .foregroundStyle(.green)
+                                        }
+                                    }
+                                    .padding(10)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(isCorrect ? Color.green.opacity(0.06) : Color.secondary.opacity(0.05))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(isCorrect ? Color.green.opacity(0.3) : Color.clear)
+                                            )
+                                    )
+                                }
+                            }
+                            .padding(.top, 4)
+                        }
+
                         // Optional Note Input
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Reviewer Note (optional)")

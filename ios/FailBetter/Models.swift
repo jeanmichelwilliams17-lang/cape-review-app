@@ -192,9 +192,11 @@ struct FixedQuestion: Identifiable, Codable {
     let fixedQuestionCode: String?
     let fixType: String
     let status: String
+    let correctChoice: String?
+    let choices: [Choice]?
 
     enum CodingKeys: String, CodingKey {
-        case id, paper, year, month, number, part, subpart, status
+        case id, paper, year, month, number, part, subpart, status, choices
         case originalQuestionId   = "original_question_id"
         case subjectName          = "subject_name"
         case originalQuestionRaw  = "original_question_raw"
@@ -202,6 +204,7 @@ struct FixedQuestion: Identifiable, Codable {
         case originalQuestionCode = "original_question_code"
         case fixedQuestionCode    = "fixed_question_code"
         case fixType              = "fix_type"
+        case correctChoice        = "correct_choice"
     }
 
     init(from decoder: Decoder) throws {
@@ -236,6 +239,8 @@ struct FixedQuestion: Identifiable, Codable {
         fixedQuestionCode = try? c.decodeIfPresent(String.self, forKey: .fixedQuestionCode)
         fixType = (try? c.decodeIfPresent(String.self, forKey: .fixType)) ?? "fix"
         status = (try? c.decodeIfPresent(String.self, forKey: .status)) ?? "pending"
+        correctChoice = try? c.decodeIfPresent(String.self, forKey: .correctChoice)
+        choices = try? c.decodeIfPresent([Choice].self, forKey: .choices)
     }
 }
 

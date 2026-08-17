@@ -916,7 +916,7 @@ export async function handleAdminGetFixedQuestions(
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
   const sql = `
-    SELECT fq.*, q.question_code as active_question_code, q.question_raw as active_question_raw
+    SELECT fq.*, q.question_code as active_question_code, q.question_raw as active_question_raw, q.correct_choice
     FROM fixed_questions fq
     LEFT JOIN questions q ON q.id = fq.original_question_id
     ${whereSql}
@@ -956,8 +956,34 @@ export async function handleAdminGetFixedQuestions(
       }
     }
 
+    // Fetch choices for P1 questions
+    const origQIds = list.map(fq => Number(fq.original_question_id)).filter(id => id > 0);
+    const choiceMap = new Map<number, any[]>();
+    if (origQIds.length > 0) {
+      for (let i = 0; i < origQIds.length; i += BATCH_SIZE) {
+        const batch = origQIds.slice(i, i + BATCH_SIZE);
+        const placeholders = batch.map(() => '?').join(',');
+        const { results: choiceRows } = await env.DB.prepare(`
+          SELECT id, question_id, choice_label as label, answer_raw, answer_code, diagram_key
+          FROM choices
+          WHERE question_id IN (${placeholders})
+          ORDER BY choice_label ASC
+        `).bind(...batch).all<any>();
+
+        for (const c of (choiceRows ?? [])) {
+          if (!choiceMap.has(c.question_id)) choiceMap.set(c.question_id, []);
+          choiceMap.get(c.question_id)!.push(c);
+        }
+      }
+    }
+
     for (const fq of list) {
       fq.reviews = revMap.get(Number(fq.id)) ?? [];
+      if (fq.original_question_id) {
+        fq.choices = choiceMap.get(Number(fq.original_question_id)) ?? [];
+      } else {
+        fq.choices = [];
+      }
     }
   }
 
