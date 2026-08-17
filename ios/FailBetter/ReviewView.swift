@@ -166,8 +166,8 @@ struct ReviewView: View {
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Optional diagram — only render if the question actually has a diagram
-                    if q.diagramPresent, let key = q.questionDiagramKey, !key.isEmpty {
+                    // Optional diagram — render if key exists and isn't explicitly disabled
+                    if let key = q.questionDiagramKey, !key.isEmpty, DiagramPathCache.shared.hasDiagram(for: key) {
                         DiagramView(diagramKey: key)
                     }
 

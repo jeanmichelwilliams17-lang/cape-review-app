@@ -29,27 +29,20 @@ final class DiagramPathCache {
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// Returns true if the key is known to have a resolved diagram image in the database.
+    /// Returns true if the key is known to have a resolved diagram image or has not been checked yet.
     func hasDiagram(for key: String) -> Bool {
-        guard let path = paths[key] else { return false }
+        guard let path = paths[key] else { return true }
         return !path.isEmpty
     }
 
     /// Resolves the URL for a diagram key:
-    /// - If resolved in local cache → returns direct ImageKit CDN URL.
-    /// - If explicitly unresolved ("") or key missing after DB map loaded → returns nil (no image exists, avoid network call).
-    /// - If cache hasn't loaded yet → falls back to worker proxy URL.
+    /// - If direct ImageKit URL is cached locally → returns direct ImageKit CDN URL.
+    /// - Otherwise → falls back to the worker proxy URL (which handles lookup & edge caching).
     func resolvedURL(for key: String) -> URL? {
-        if let urlString = paths[key] {
-            if urlString.isEmpty {
-                return nil // Explicitly unresolved on ImageKit → skip network fetch
-            }
-            return URL(string: urlString)
+        if let urlString = paths[key], !urlString.isEmpty, let url = URL(string: urlString) {
+            return url
         }
-        if isLoaded {
-            return nil // Key is not in database → skip network fetch
-        }
-        // Fallback while cache is still loading for the first time
+        // Fallback to Worker proxy URL whenever local direct URL isn't resolved yet
         return APIClient.shared.imageURL(forDiagramKey: key)
     }
 
