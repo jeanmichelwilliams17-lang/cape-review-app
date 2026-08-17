@@ -228,8 +228,8 @@ struct ReviewView: View {
         withAnimation {
             if currentIndex < questions.count - 1 {
                 currentIndex += 1
-                // Pre-warm image cache for the next 3 questions
-                prefetcher.prefetch(questions: questions, from: currentIndex + 1)
+                // Pre-warm image cache for the next 5 questions
+                prefetcher.prefetch(questions: questions, from: currentIndex + 1, depth: 5)
                 // Pre-fetch next batch of question metadata when within 5 of the end
                 if currentIndex >= questions.count - 5 && hasMore {
                     loadQuestions()
@@ -257,7 +257,7 @@ struct ReviewView: View {
                 hasMore   = batch.count == limit
                 cursor   += batch.count
                 // Pre-warm image cache starting from the question after the current one
-                prefetcher.prefetch(questions: questions, from: currentIndex + 1)
+                prefetcher.prefetch(questions: questions, from: currentIndex + 1, depth: 5)
             } catch {
                 errorMessage = error.localizedDescription
             }
