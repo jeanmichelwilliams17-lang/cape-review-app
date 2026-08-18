@@ -839,6 +839,7 @@ function cleanAndRenderLatex(text) {
   s = s.replace(/(\d+)\s*\$\s*\$\s*(\d+)/g, '$1$2');
   s = s.replace(/(\d+)\s*\\text\{\s*\}\s*(\d+)/g, '$1$2');
   s = s.replace(/\(\\+(?:frac)\{([^}]+)\}\{([^}]+)\}\)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9+\-]+))/g, '(\\frac{$1}{$2}^{($3$4)})');
+  s = s.replace(/\\+(?:log)_\{([a-zA-Z0-9]+)\}/g, '\\log_$1');
 
   if (typeof katex === 'undefined') return escHtml(s);
 

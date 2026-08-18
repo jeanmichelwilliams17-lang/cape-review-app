@@ -400,6 +400,7 @@ struct FixedQuestionsReviewView: View {
         s = s.replacingOccurrences(of: #"(\d+)\s*\$\s*\$\s*(\d+)"#, with: "$1$2", options: .regularExpression)
         s = s.replacingOccurrences(of: #"(\d+)\s*\\text\{\s*\}\s*(\d+)"#, with: "$1$2", options: .regularExpression)
         s = s.replacingOccurrences(of: #"\(\\+(?:frac)\{([^}]+)\}\{([^}]+)\}\)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9+\-]+))"#, with: "(\\frac{$1}{$2}^{($3$4)})", options: .regularExpression)
+        s = s.replacingOccurrences(of: #"\\+(?:log)_\{([a-zA-Z0-9]+)\}"#, with: "\\log_$1", options: .regularExpression)
         guard !s.isEmpty else { return s }
 
         let sNoEscDollar = s.replacingOccurrences(of: "\\$", with: "")

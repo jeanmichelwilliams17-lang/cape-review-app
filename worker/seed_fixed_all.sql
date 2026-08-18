@@ -257,8 +257,8 @@ I. ( \sum_{r=1}^n (7+3r) )
 II. ( \sum_{r=1}^n \log_{10} 3^{(r+1)} )
 III. ( \sum_{r=1}^n \log_{10} (r+1) )', '\text{Which of the following series are arithmetic series?}
 I. ( \sum_{(r=1)}^n (7+3r) )
-II. ( \sum_{(r=1)}^n \log_{10} 3 {^(r+1)} )
-III. ( \sum_{(r=1)}^n \log_{10} (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{r=1}^n (7+3r) )$\n$II. ( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\n$III. ( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{(r=1)}^n (7+3r) )$\n$II. ( \\sum_{(r=1)}^n \\log_{10} 3 {^(r+1)} )$\n$III. ( \\sum_{(r=1)}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)',
+II. ( \sum_{(r=1)}^n \log_10 3 {^(r+1)} )
+III. ( \sum_{(r=1)}^n \log_10 (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{r=1}^n (7+3r) )$\n$II. ( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\n$III. ( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{(r=1)}^n (7+3r) )$\n$II. ( \\sum_{(r=1)}^n \\log_10 3 {^(r+1)} )$\n$III. ( \\sum_{(r=1)}^n \\log_10 (r+1) )$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -367,8 +367,8 @@ INSERT INTO fixed_questions (
 \text{II. } ( \sum_{r=1}^n \log_{10} 3^{(r+1)} )
 \text{III. } ( \sum_{r=1}^n \log_{10} (r+1) )', '\text{Which of the following series are arithmetic series?}
 \text{I. } ( \sum_{(r=1)}^n (7 + 3r) )
-\text{II. } ( \sum_{(r=1)}^n \log_{10} 3 {^(r+1)} )
-\text{III. } ( \sum_{(r=1)}^n \log_{10} (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{r=1}^n (7 + 3r) )$\nII. $( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\nIII. $( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{(r=1)}^n (7 + 3r) )$\nII. $( \\sum_{(r=1)}^n \\log_{10} 3 {^(r+1)} )$\nIII. $( \\sum_{(r=1)}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)',
+\text{II. } ( \sum_{(r=1)}^n \log_10 3 {^(r+1)} )
+\text{III. } ( \sum_{(r=1)}^n \log_10 (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{r=1}^n (7 + 3r) )$\nII. $( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\nIII. $( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{(r=1)}^n (7 + 3r) )$\nII. $( \\sum_{(r=1)}^n \\log_10 3 {^(r+1)} )$\nIII. $( \\sum_{(r=1)}^n \\log_10 (r+1) )$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
