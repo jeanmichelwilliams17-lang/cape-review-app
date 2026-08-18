@@ -17,6 +17,7 @@ This document details all the LaTeX formatting errors, rendering bugs, and comma
 | **7** | **Unspaced Chemical Formulas & Physical Units** | `\text{NH}_3\text{Cl}`, `27\,ms^{-1}` | `\text{NH}_3 \text{Cl}`, `27 \, \text{ms}^{(-1)}` | Chemistry & Physics Papers |
 | **8** | **Stray Dollar Signs Breaking Math Mode** | `\frac{n$ Cos$(n\pi)}{...}`, `V_{$supply$}` | `\frac{n \cos(n\pi)}{...}`, `V_{\text{supply}}` | Math Mode & Equation Parsers |
 | **9** | **Thousands Separator Digit Space Splits** | `\frac{25}{7$ $776}`, `7\text{ }776` | `\frac{25}{7776}`, `7776` | Fractions & Numerical Denominators |
+| **10** | **Fraction Power Grouping Wrapping** | `(\frac{1}{4})^{n-1}`, `(\frac{1}{4})^n` | `(\frac{1}{4}^{(n-1)})`, `(\frac{1}{4}^{(n)})` | LaTeXSwiftUI Fractions |
 
 ---
 

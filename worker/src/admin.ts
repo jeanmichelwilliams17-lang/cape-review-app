@@ -1148,6 +1148,7 @@ export async function handleExportFixedQuestionsCSV(
   const pattern7 = /\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
   const pattern8 = /(\d+)\s*\$\s*\$\s*(\d+)/g;
   const pattern9 = /(\d+)\s*\\text\{\s*\}\s*(\d+)/g;
+  const pattern10 = /\(\\+(?:frac)\{([^}]+)\}\{([^}]+)\}\)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9+\-]+))/g;
 
   const fixStr = (s: string | null | undefined) => {
     if (!s) return '';
@@ -1159,7 +1160,8 @@ export async function handleExportFixedQuestionsCSV(
             .replace(pattern6, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`)
             .replace(pattern7, (m, p1) => ` \\${p1.toLowerCase()} `)
             .replace(pattern8, '$1$2')
-            .replace(pattern9, '$1$2');
+            .replace(pattern9, '$1$2')
+            .replace(pattern10, '(\\frac{$1}{$2}^{($3$4)})');
   };
 
   for (const fq of (fqList ?? [])) {

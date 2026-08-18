@@ -69,6 +69,19 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2024, 'May', 20, NULL, NULL,
+            '\text{The sum of the first } ( n ) \text{ terms of a series is } [ 1 - (\frac{1}{4})^n ]. \text{ The value of the SECOND term is}', '\text{The sum of the first } ( n ) \text{ terms of a series is } [ 1 - (\frac{1}{4}^{(n)}) ]. \text{ The value of the SECOND term is}', 'LaTeX("The sum of the first $( n )$ terms of a series is $[ 1 - (\\frac{1}{4})^n ].$ The value of the SECOND term is").parsingMode(.onlyEquations)', 'LaTeX("The sum of the first $( n )$ terms of a series is $[ 1 - (\frac{1}{4}^{(n)}) ].$ The value of the SECOND term is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 20
+          AND (2024 IS NULL OR q.year = 2024)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2024, 'May', 21, NULL, NULL,
             '\text{The series } ( \sum_{n=0}^{\infty} \frac{5}{2^n} ) \text{ converges to the value}', '\text{The series } ( \sum_{(n=0)}^{\infty} \frac{5}{2 {^n}} ) \text{ converges to the value}', 'LaTeX("The series $( \\sum_{n=0}^{\\infty} \\frac{5}{2^n} )$ converges to the value").parsingMode(.onlyEquations)', 'LaTeX("The series $( \\sum_{(n=0)}^{\\infty} \\frac{5}{2 {^n}} )$ converges to the value").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -122,7 +135,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2024, 'May', 29, NULL, NULL,
-            '\text{The value of } ( \sum_{n=1}^{\infty} 2(\frac{1}{4})^{n-1} ) \text{ is}', '\text{The value of } ( \sum_{(n=1)}^{\infty} 2(\frac{1}{4})^{n-1} ) \text{ is}', 'LaTeX("The value of $( \\sum_{n=1}^{\\infty} 2(\\frac{1}{4})^{n-1} )$ is").parsingMode(.onlyEquations)', 'LaTeX("The value of $( \\sum_{(n=1)}^{\\infty} 2(\\frac{1}{4})^{n-1} )$ is").parsingMode(.onlyEquations)',
+            '\text{The value of } ( \sum_{n=1}^{\infty} 2(\frac{1}{4})^{n-1} ) \text{ is}', '\text{The value of } ( \sum_{(n=1)}^{\infty} 2(\frac{1}{4}^{(n-1)}) ) \text{ is}', 'LaTeX("The value of $( \\sum_{n=1}^{\\infty} 2(\\frac{1}{4})^{n-1} )$ is").parsingMode(.onlyEquations)', 'LaTeX("The value of $( \\sum_{(n=1)}^{\\infty} 2(\frac{1}{4}^{(n-1)}) )$ is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -406,6 +419,31 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2019, 'May', 19, NULL, NULL,
+            '\text{Item 19 refers to the following algorithm.}
+( j = 2 )
+\text{while } ( j < 10 )
+\text{print } ( j + 2 )
+( j = j + 2 )
+\text{endwhile}
+\text{What is the output of the algorithm above?}', '\text{Item 19 refers to the following algorithm.}
+( j = 2 )
+\text{while } ( j < 10 )
+\text{print } ( j + 2 )
+( j = j + 2 )
+\text{endwhile}
+\text{What is the output of the algorithm above?}', 'LaTeX("Item 19 refers to the following algorithm.\n$( j = 2 )$\nwhile $( j < 10 )$\nprint $( j + 2 )$\n$( j = j + 2 )$\nendwhile\nWhat is the output of the algorithm above?").parsingMode(.onlyEquations)', 'LaTeX("Item 19 refers to the following algorithm.\n$( j = 2 )$\nwhile $( j < 10 )$\nprint $( j + 2 )$\n$( j = j + 2 )$\nendwhile\nWhat is the output of the algorithm above?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 19
+          AND (2019 IS NULL OR q.year = 2019)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2019, 'May', 22, NULL, NULL,
             '\text{Item 22 refers to the following algorithm.}
 \text{1. } ( y = 5 )
@@ -435,6 +473,35 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2019, 'May', 25, NULL, NULL,
+            '\text{Item 25 refers to the following algorithm.}
+\text{num = 1}
+\text{n = 0}
+\text{WHILE n < 5 do}
+\text{num = num + n}
+\text{n = n + 2}
+\text{PRINT num}
+\text{ENDWHILE}
+\text{What is the output produced by the algorithm?}', '\text{Item 25 refers to the following algorithm.}
+\text{num = 1}
+\text{n = 0}
+\text{WHILE n < 5 do}
+\text{num = num + n}
+\text{n = n + 2}
+\text{PRINT num}
+\text{ENDWHILE}
+\text{What is the output produced by the algorithm?}', 'LaTeX("Item 25 refers to the following algorithm.\nnum = 1\nn = 0\nWHILE n < 5 do\nnum = num + n\nn = n + 2\nPRINT num\nENDWHILE\nWhat is the output produced by the algorithm?").parsingMode(.onlyEquations)', 'LaTeX("Item 25 refers to the following algorithm.\nnum = 1\nn = 0\nWHILE n < 5 do\nnum = num + n\nn = n + 2\nPRINT num\nENDWHILE\nWhat is the output produced by the algorithm?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 25
+          AND (2019 IS NULL OR q.year = 2019)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2020, 'May', 9, NULL, NULL,
             '\text{What is the name of the combinational circuit which converts binary information from } ( n ) \text{ coded inputs to a maximum of } ( 2^n ) \text{ unique outputs?}', '\text{What is the name of the combinational circuit which converts binary information from } ( n ) \text{ coded inputs to a maximum of } ( 2 {^n} ) \text{ unique outputs?}', 'LaTeX("What is the name of the combinational circuit which converts binary information from $( n )$ coded inputs to a maximum of $( 2^n )$ unique outputs?").parsingMode(.onlyEquations)', 'LaTeX("What is the name of the combinational circuit which converts binary information from $( n )$ coded inputs to a maximum of $( 2 {^n} )$ unique outputs?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -448,12 +515,131 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2020, 'May', 20, NULL, NULL,
+            '\text{Item 20 refers to the following algorithm.}
+\text{num = 5}
+\text{n = 1}
+\text{While n < 5 do}
+\text{num = num + n}
+\text{n = n + 2}
+\text{PRINT num}
+\text{End While}
+\text{What is the output produced by the algorithm?}', '\text{Item 20 refers to the following algorithm.}
+\text{num = 5}
+\text{n = 1}
+\text{While n < 5 do}
+\text{num = num + n}
+\text{n = n + 2}
+\text{PRINT num}
+\text{End While}
+\text{What is the output produced by the algorithm?}', 'LaTeX("Item 20 refers to the following algorithm.\nnum = 5\nn = 1\nWhile n < 5 do\nnum = num + n\nn = n + 2\nPRINT num\nEnd While\nWhat is the output produced by the algorithm?").parsingMode(.onlyEquations)', 'LaTeX("Item 20 refers to the following algorithm.\nnum = 5\nn = 1\nWhile n < 5 do\nnum = num + n\nn = n + 2\nPRINT num\nEnd While\nWhat is the output produced by the algorithm?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 20
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2020, 'May', 29, NULL, NULL,
+            '\text{Item 29 refers to the following algorithm written in pseudocode.}
+\text{set number to 1}
+\text{set counter to 20}
+\text{Do}
+\text{If number % 2 == 1}
+\text{Print number}
+\text{increment number by 2}
+\text{While number <= counter}
+\text{NB x % y is the remainder when x is divided by y.}
+\text{What output will be printed by the pseudocode above?}', '\text{Item 29 refers to the following algorithm written in pseudocode.}
+\text{set number to 1}
+\text{set counter to 20}
+\text{Do}
+\text{If number % 2 == 1}
+\text{Print number}
+\text{increment number by 2}
+\text{While number <= counter}
+\text{NB x % y is the remainder when x is divided by y.}
+\text{What output will be printed by the pseudocode above?}', 'LaTeX("Item 29 refers to the following algorithm written in pseudocode.\nset number to 1\nset counter to 20\nDo\nIf number % 2 == 1\nPrint number\nincrement number by 2\nWhile number <= counter\nNB x % y is the remainder when x is divided by y.\nWhat output will be printed by the pseudocode above?").parsingMode(.onlyEquations)', 'LaTeX("Item 29 refers to the following algorithm written in pseudocode.\nset number to 1\nset counter to 20\nDo\nIf number % 2 == 1\nPrint number\nincrement number by 2\nWhile number <= counter\nNB x % y is the remainder when x is divided by y.\nWhat output will be printed by the pseudocode above?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 29
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2020, 'May', 35, NULL, NULL,
+            '\text{Item 35 refers to the following array and code segment where ''%'' is the modulus operator.}
+\text{What output is printed by the code segment?}', '\text{Item 35 refers to the following array and code segment where ''%'' is the modulus operator.}
+\text{What output is printed by the code segment?}', 'LaTeX("Item 35 refers to the following array and code segment where ''%'' is the modulus operator.\nWhat output is printed by the code segment?").parsingMode(.onlyEquations)', 'LaTeX("Item 35 refers to the following array and code segment where ''%'' is the modulus operator.\nWhat output is printed by the code segment?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 35
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2021, 'May', 2, NULL, NULL,
             '\text{What is the name of the combinational circuit which converts binary information from }  n  \text{ coded inputs to a maximum of }  2^n  \text{ unique outputs?}', '\text{What is the name of the combinational circuit which converts binary information from }  n  \text{ coded inputs to a maximum of }  2 {^n}  \text{ unique outputs?}', 'LaTeX("What is the name of the combinational circuit which converts binary information from  $n$  coded inputs to a maximum of  $2^n$  unique outputs?").parsingMode(.onlyEquations)', 'LaTeX("What is the name of the combinational circuit which converts binary information from  $n$  coded inputs to a maximum of  $2 {^n}$  unique outputs?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 2
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 25, NULL, NULL,
+            '\text{Item 25 refers to the following algorithm.}
+\text{num = 1}
+\text{n = 0}
+\text{WHILE n < 5 do}
+\text{num = num + n}
+\text{n = n + 2}
+\text{PRINT num}
+\text{ENDWHILE}
+\text{What is the output produced by the algorithm?}', '\text{Item 25 refers to the following algorithm.}
+\text{num = 1}
+\text{n = 0}
+\text{WHILE n < 5 do}
+\text{num = num + n}
+\text{n = n + 2}
+\text{PRINT num}
+\text{ENDWHILE}
+\text{What is the output produced by the algorithm?}', 'LaTeX("Item 25 refers to the following algorithm.\nnum = 1\nn = 0\nWHILE n < 5 do\nnum = num + n\nn = n + 2\nPRINT num\nENDWHILE\nWhat is the output produced by the algorithm?").parsingMode(.onlyEquations)', 'LaTeX("Item 25 refers to the following algorithm.\nnum = 1\nn = 0\nWHILE n < 5 do\nnum = num + n\nn = n + 2\nPRINT num\nENDWHILE\nWhat is the output produced by the algorithm?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 25
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 39, NULL, NULL,
+            '\text{Item 39 refers to the following array and code segment where ''%'' is the modulus operator.}
+\text{What output is printed by the code segment?}', '\text{Item 39 refers to the following array and code segment where ''%'' is the modulus operator.}
+\text{What output is printed by the code segment?}', 'LaTeX("Item 39 refers to the following array and code segment where ''%'' is the modulus operator.\nWhat output is printed by the code segment?").parsingMode(.onlyEquations)', 'LaTeX("Item 39 refers to the following array and code segment where ''%'' is the modulus operator.\nWhat output is printed by the code segment?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 39
           AND (2021 IS NULL OR q.year = 2021)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -536,6 +722,25 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2019, 'May', 36, NULL, NULL,
+            '\text{The cholesterol levels of 8 women are}
+( 3.1 \text{ } 2.7 \text{ } 1.3 \text{ } 1.4 )
+( 1.7 \text{ } 3.3 \text{ } 2.4 \text{ } 1.9 )
+\text{In conducting a t-test on the mean, the number of degrees of freedom is}', '\text{The cholesterol levels of 8 women are}
+( 3.12.71.31.4 )
+( 1.73.32.41.9 )
+\text{In conducting a t-test on the mean, the number of degrees of freedom is}', 'LaTeX("The cholesterol levels of 8 women are\n$( 3.1$ $2.7$ $1.3$ $1.4 )$\n$( 1.7$ $3.3$ $2.4$ $1.9 )$\nIn conducting a t-test on the mean, the number of degrees of freedom is").parsingMode(.onlyEquations)', 'LaTeX("The cholesterol levels of 8 women are\n$( 3.12.71.31.4 )$\n$( 1.73.32.41.9 )$\nIn conducting a t-test on the mean, the number of degrees of freedom is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'AppliedMathematics U1' AND q.paper = 1 AND q.number = 36
+          AND (2019 IS NULL OR q.year = 2019)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2021, 'May', 18, NULL, NULL,
             '\text{For a standard normal distribution curve, what approximate percentage of the area under the curve is covered by } ( \mu \pm 2\sigma ) \text{?}', '\text{For a standard normal distribution curve, what approximate percentage of the area under the curve is covered by } ( \mu \pm 2 \sigma ) \text{?}', 'LaTeX("For a standard normal distribution curve, what approximate percentage of the area under the curve is covered by $( \\mu \\pm 2\\sigma )$?").parsingMode(.onlyEquations)', 'LaTeX("For a standard normal distribution curve, what approximate percentage of the area under the curve is covered by $( \\mu \\pm 2 \\sigma )$?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -543,6 +748,21 @@ INSERT INTO fixed_questions (
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'AppliedMathematics U1' AND q.paper = 1 AND q.number = 18
           AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2019, 'May', 5, NULL, NULL,
+            '\text{Item 5 refers to the following graph which is NOT drawn to scale.
+In addition to the inequalities } ( x \ge 0 ) \text{ and } ( y \ge 0 ) \text{, which of the following sets of inequalities would represent the shaded portion of the graph?}', '\text{Item 5 refers to the following graph which is NOT drawn to scale.
+In addition to the inequalities } ( x \ge 0 ) \text{ and } ( y \ge 0 ) \text{, which of the following sets of inequalities would represent the shaded portion of the graph?}', 'LaTeX("Item 5 refers to the following graph which is NOT drawn to scale.\nIn addition to the inequalities $( x \\ge 0 )$ and $( y \\ge 0 )$, which of the following sets of inequalities would represent the shaded portion of the graph?").parsingMode(.onlyEquations)', 'LaTeX("Item 5 refers to the following graph which is NOT drawn to scale.\nIn addition to the inequalities $( x \\ge 0 )$ and $( y \\ge 0 )$, which of the following sets of inequalities would represent the shaded portion of the graph?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'AppliedMathematics U2' AND q.paper = 1 AND q.number = 5
+          AND (2019 IS NULL OR q.year = 2019)
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -573,6 +793,31 @@ Assuming that variable } ( X ) \text{ may be modelled by a } ( N(40, 15 {^2}) ) 
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'AppliedMathematics U2' AND q.paper = 1 AND q.number = 17
           AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 1, NULL, NULL,
+            '\text{Item 1 refers to the following graph which is not drawn to scale.
+The region that is satisfied by the constraints
+} ( x + y \ge 6 
+ 2x + y \le 8 
+ x \ge 0 
+ y \ge 0 ) \text{
+is the region labelled}', '\text{Item 1 refers to the following graph which is not drawn to scale.
+The region that is satisfied by the constraints
+} ( x + y \ge 6 
+ 2x + y \le 8 
+ x \ge 0 
+ y \ge 0 ) \text{
+is the region labelled}', 'LaTeX("Item 1 refers to the following graph which is not drawn to scale.\nThe region that is satisfied by the constraints\n$( x + y \\ge 6$\n$2x + y \\le 8$\n$x \\ge 0$\n$y \\ge 0 )$\nis the region labelled").parsingMode(.onlyEquations)', 'LaTeX("Item 1 refers to the following graph which is not drawn to scale.\nThe region that is satisfied by the constraints\n$( x + y \\ge 6$\n$2x + y \\le 8$\n$x \\ge 0$\n$y \\ge 0 )$\nis the region labelled").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'AppliedMathematics U2' AND q.paper = 1 AND q.number = 1
+          AND (2021 IS NULL OR q.year = 2021)
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -4597,6 +4842,29 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 2, 2026, 'May', 5, 'e', 'i',
+            '\text{A system of linear equations is given as}
+ x + z = 1 
+ y + z = 2 
+ 2y + z = 1 
+\text{Determine whether the system is consistent.}', '\text{A system of linear equations is given as}
+ x + z = 1 
+ y + z = 2 
+ 2y + z = 1 
+\text{Determine whether the system is consistent.}', 'LaTeX("A system of linear equations is given as\n$x + z = 1$\n$y + z = 2$\n$2y + z = 1$\nDetermine whether the system is consistent.").parsingMode(.onlyEquations)', 'LaTeX("A system of linear equations is given as\n$x + z = 1$\n$y + z = 2$\n$2y + z = 1$\nDetermine whether the system is consistent.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 5
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'e'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 2, 2024, 'May', 1, 'b', 'i',
             '\text{Differentiate }  \cos^{-1} (3x - 2) \text{, expressing your answer in its simplest form.}', '\text{Differentiate }  \cos^{(-1)} (3x - 2) \text{, expressing your answer in its simplest form.}', 'LaTeX("Differentiate  $\\cos^{-1} (3x - 2)$, expressing your answer in its simplest form.").parsingMode(.onlyEquations)', 'LaTeX("Differentiate  $\\cos^{(-1)} (3x - 2)$, expressing your answer in its simplest form.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -4620,6 +4888,27 @@ INSERT INTO fixed_questions (
         WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 4
           AND (2024 IS NULL OR q.year = 2024)
           AND q.part = 'c'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2024, 'May', 5, 'b', 'i',
+            '\text{Use row reduction to solve the following system of equations.}
+ 3x - 4y + z = 16 
+ 2x + y - 2z = 5 
+ x + 2y - z = -2', '\text{Use row reduction to solve the following system of equations.}
+ 3x - 4y + z = 16 
+ 2x + y - 2z = 5 
+ x + 2y - z = -2', 'LaTeX("Use row reduction to solve the following system of equations.\n$3x - 4y + z = 16$\n$2x + y - 2z = 5$\n$x + 2y - z = -2$").parsingMode(.onlyEquations)', 'LaTeX("Use row reduction to solve the following system of equations.\n$3x - 4y + z = 16$\n$2x + y - 2z = 5$\n$x + 2y - z = -2$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 5
+          AND (2024 IS NULL OR q.year = 2024)
+          AND q.part = 'b'
           AND q.subpart = 'i'
         LIMIT 1;
 INSERT INTO fixed_questions (
