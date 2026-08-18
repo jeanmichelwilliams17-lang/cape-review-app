@@ -1081,6 +1081,328 @@ export async function handleApplyFixedQuestions(
 }
 
 // ---------------------------------------------------------------------------
+// Helper to parse subject and unit
+function parseSubjectAndUnit(fullName: string): { subject: string; unit: string } {
+  if (!fullName) return { subject: '', unit: '1' };
+  const m = fullName.match(/^(.*?)\s*U([12])$/i);
+  if (m) {
+    return { subject: m[1].trim(), unit: m[2] };
+  }
+  return { subject: fullName.trim(), unit: '1' };
+}
+
+// Helper to extract clean plain latex from LaTeX("...").parsingMode(...)
+function extractPlainLatex(code: string | null | undefined, raw: string | null | undefined): string {
+  if (code) {
+    const m = code.match(/^LaTeX\("(.*)"\)\.parsingMode\(.*?\)$/s);
+    if (m) {
+      let content = m[1];
+      content = content.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      return content;
+    }
+  }
+  return raw || '';
+}
+
+function escCsv(val: any): string {
+  if (val === null || val === undefined) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+const pattern1 = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
+const pattern2 = /\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}/g;
+const pattern3 = /\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g;
+const pattern4 = /(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))/g;
+const pattern5 = /_\{\$([a-zA-Z0-9_]+)\$\}/g;
+const pattern6 = /(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
+const pattern7 = /\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
+const pattern8 = /(\d+)\s*\$\s*\$\s*(\d+)/g;
+const pattern9 = /(\d+)\s*\\text\{\s*\}\s*(\d+)/g;
+const pattern10 = /\(\\+(?:frac)\{([^}]+)\}\{([^}]+)\}\)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9+\-]+))/g;
+const pattern11 = /\\+(?:log)_\{([a-zA-Z0-9]+)\}/g;
+
+export const fixLatexStr = (s: string | null | undefined) => {
+  if (!s) return '';
+  return s.replace(pattern1, '$1 $2')
+          .replace(pattern2, '\\$1_{($2)}')
+          .replace(pattern3, '\\$1^{(-$2)}')
+          .replace(pattern4, '$1 {^$2$3}')
+          .replace(pattern5, '_\\text{$1}')
+          .replace(pattern6, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`)
+          .replace(pattern7, (m, p1) => ` \\${p1.toLowerCase()} `)
+          .replace(pattern8, '$1$2')
+          .replace(pattern9, '$1$2')
+          .replace(pattern10, '(\\frac{$1}{$2}^{($3$4)})')
+          .replace(pattern11, '\\log_$1');
+};
+
+// ---------------------------------------------------------------------------
+// GET /admin/export-csv or /admin/export-questions
+// Generates and streams downloadable CSV in exact CAPEP1/CAPEP2 format.
+// Supports up to 6000+ rows efficiently.
+// ---------------------------------------------------------------------------
+export async function handleExportQuestionsCSV(
+  url: URL,
+  env: Env
+): Promise<Response> {
+  const paperParam   = url.searchParams.get('paper');
+  const subjectParam = url.searchParams.get('subject');
+  const yearParam    = url.searchParams.get('year');
+  const monthParam   = url.searchParams.get('month');
+  const papersParam  = url.searchParams.get('papers'); // comma-separated subject_paper_year_month or JSON
+  const qIdsParam    = url.searchParams.get('question_ids');
+  const statusParam  = url.searchParams.get('status');
+  const formatParam  = url.searchParams.get('format') || 'capep1'; // 'capep1' | 'capep2' | 'auto'
+  const limitParam   = parseInt(url.searchParams.get('limit') || '10000', 10);
+  const offsetParam  = parseInt(url.searchParams.get('offset') || '0', 10);
+
+  const whereClauses: string[] = [];
+  const queryParams: any[] = [];
+
+  if (paperParam) {
+    whereClauses.push('q.paper = ?');
+    queryParams.push(Number(paperParam));
+  }
+  if (subjectParam) {
+    whereClauses.push('(s.name = ? OR s.name LIKE ?)');
+    queryParams.push(subjectParam, `${subjectParam}%`);
+  }
+  if (yearParam) {
+    whereClauses.push('q.year = ?');
+    queryParams.push(Number(yearParam));
+  }
+  if (monthParam) {
+    whereClauses.push('q.month = ?');
+    queryParams.push(monthParam);
+  }
+  if (statusParam) {
+    whereClauses.push('q.latest_review_status = ?');
+    queryParams.push(statusParam);
+  }
+
+  // Handle selected papers e.g. "PureMathematics U2_1_2024_May,Physics U1_1_2023_May"
+  if (papersParam) {
+    try {
+      const parsedPapers = papersParam.startsWith('[') ? JSON.parse(papersParam) : papersParam.split(',');
+      const paperClauses: string[] = [];
+      for (const item of parsedPapers) {
+        if (typeof item === 'string') {
+          const parts = item.split('___');
+          if (parts.length >= 2) {
+            const [subj, pNum, yr, mon] = parts;
+            let c = '(s.name = ? AND q.paper = ?';
+            const subParams: any[] = [subj, Number(pNum)];
+            if (yr && yr !== 'null' && yr !== 'undefined') {
+              c += ' AND q.year = ?';
+              subParams.push(Number(yr));
+            }
+            if (mon && mon !== 'null' && mon !== 'undefined') {
+              c += ' AND q.month = ?';
+              subParams.push(mon);
+            }
+            c += ')';
+            paperClauses.push(c);
+            queryParams.push(...subParams);
+          }
+        } else if (typeof item === 'object' && item.subject) {
+          let c = '(s.name = ? AND q.paper = ?';
+          const subParams: any[] = [item.subject, Number(item.paper)];
+          if (item.year) {
+            c += ' AND q.year = ?';
+            subParams.push(Number(item.year));
+          }
+          if (item.month) {
+            c += ' AND q.month = ?';
+            subParams.push(item.month);
+          }
+          c += ')';
+          paperClauses.push(c);
+          queryParams.push(...subParams);
+        }
+      }
+      if (paperClauses.length > 0) {
+        whereClauses.push(`(${paperClauses.join(' OR ')})`);
+      }
+    } catch {
+      // Fallback ignore malformed papersParam
+    }
+  }
+
+  if (qIdsParam) {
+    const ids = qIdsParam.split(',').map(Number).filter(n => !isNaN(n));
+    if (ids.length > 0) {
+      const placeholders = ids.map(() => '?').join(',');
+      whereClauses.push(`q.id IN (${placeholders})`);
+      queryParams.push(...ids);
+    }
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+  const sql = `
+    SELECT 
+      q.id as question_id,
+      q.exam,
+      s.name as subject_name,
+      q.month,
+      q.year,
+      q.paper,
+      q.number,
+      q.part,
+      q.subpart,
+      q.section,
+      q.topic,
+      q.difficulty,
+      q.marks,
+      q.correct_choice,
+      q.question_raw,
+      q.question_code,
+      q.question_diagram_key,
+      cA.answer_raw as a_raw, cA.answer_code as a_code, cA.diagram_key as a_diag,
+      cB.answer_raw as b_raw, cB.answer_code as b_code, cB.diagram_key as b_diag,
+      cC.answer_raw as c_raw, cC.answer_code as c_code, cC.diagram_key as c_diag,
+      cD.answer_raw as d_raw, cD.answer_code as d_code, cD.diagram_key as d_diag
+    FROM questions q
+    JOIN subjects s ON s.id = q.subject_id
+    LEFT JOIN choices cA ON cA.question_id = q.id AND (cA.label = 'A' OR cA.label = 'a')
+    LEFT JOIN choices cB ON cB.question_id = q.id AND (cB.label = 'B' OR cB.label = 'b')
+    LEFT JOIN choices cC ON cC.question_id = q.id AND (cC.label = 'C' OR cC.label = 'c')
+    LEFT JOIN choices cD ON cD.question_id = q.id AND (cD.label = 'D' OR cD.label = 'd')
+    ${whereSql}
+    ORDER BY s.name, q.paper, q.year, q.number, q.part, q.subpart
+    LIMIT ? OFFSET ?
+  `;
+
+  queryParams.push(limitParam, offsetParam);
+
+  const { results } = await env.DB.prepare(sql).bind(...queryParams).all<any>();
+  const rows = results || [];
+
+  const isPaper2Only = (paperParam === '2') || (formatParam === 'capep2');
+
+  let csvContent = '';
+
+  if (isPaper2Only) {
+    // CAPEP2 Exact Header (18 columns)
+    const p2Header = [
+      'Exam', 'Unit', 'Subject', 'Month', 'Year', 'Paper', 'Number', 'Part',
+      'Subpart', 'Section', 'Topic', 'Difficulty', 'Marks', 'Question', 'SVG',
+      'Validated Question Code', 'Q', 'Question Diagram Path Prefix'
+    ];
+    csvContent = p2Header.join(',') + '\n';
+
+    for (const r of rows) {
+      const { subject, unit } = parseSubjectAndUnit(r.subject_name || '');
+      const fixedQRaw = fixLatexStr(r.question_raw);
+      const fixedQCode = fixLatexStr(r.question_code);
+      const plainQ = extractPlainLatex(fixedQCode, fixedQRaw);
+
+      const row = [
+        escCsv(r.exam || 'cape'),
+        escCsv(unit),
+        escCsv(subject),
+        escCsv(r.month || 'May'),
+        escCsv(r.year || ''),
+        escCsv(r.paper),
+        escCsv(r.number),
+        escCsv(r.part || ''),
+        escCsv(r.subpart || ''),
+        escCsv(r.section || ''),
+        escCsv(r.topic || ''),
+        escCsv(r.difficulty || ''),
+        escCsv(r.marks || ''),
+        escCsv(fixedQRaw),
+        escCsv(''), // SVG
+        escCsv(fixedQCode),
+        escCsv(plainQ),
+        escCsv(r.question_diagram_key || '')
+      ];
+      csvContent += row.join(',') + '\n';
+    }
+  } else {
+    // CAPEP1 Exact Header (31 columns matching Questions - CAPEP1 (1).csv)
+    const p1Header = [
+      'Exam', 'Unit', 'Subject', 'Month', 'Year', 'Paper', 'Number', 'Section',
+      'Topic', 'Difficulty', 'Correct', 'Question', 'Answer A', 'Answer B',
+      'Answer C', 'Answer D', 'Validated Question Code', 'Validated Answer A Code',
+      'Validated Answer B Code', 'Validated Answer C Code', 'Validated Answer D Code',
+      'Q', 'A', 'B', 'C', 'D', 'Question Diagram Path Prefix',
+      'A Diagram Path Prefix', 'B Diagram Path Prefix', 'C Diagram Path Prefix', 'D Diagram Path Prefix'
+    ];
+    csvContent = p1Header.join(',') + '\n';
+
+    for (const r of rows) {
+      const { subject, unit } = parseSubjectAndUnit(r.subject_name || '');
+      const fixedQRaw  = fixLatexStr(r.question_raw);
+      const fixedARaw  = fixLatexStr(r.a_raw);
+      const fixedBRaw  = fixLatexStr(r.b_raw);
+      const fixedCRaw  = fixLatexStr(r.c_raw);
+      const fixedDRaw  = fixLatexStr(r.d_raw);
+
+      const fixedQCode = fixLatexStr(r.question_code);
+      const fixedACode = fixLatexStr(r.a_code);
+      const fixedBCode = fixLatexStr(r.b_code);
+      const fixedCCode = fixLatexStr(r.c_code);
+      const fixedDCode = fixLatexStr(r.d_code);
+
+      const plainQ = extractPlainLatex(fixedQCode, fixedQRaw);
+      const plainA = extractPlainLatex(fixedACode, fixedARaw);
+      const plainB = extractPlainLatex(fixedBCode, fixedBRaw);
+      const plainC = extractPlainLatex(fixedCCode, fixedCRaw);
+      const plainD = extractPlainLatex(fixedDCode, fixedDRaw);
+
+      const row = [
+        escCsv(r.exam || 'cape'),
+        escCsv(unit),
+        escCsv(subject),
+        escCsv(r.month || 'May'),
+        escCsv(r.year || ''),
+        escCsv(r.paper),
+        escCsv(r.number),
+        escCsv(r.section || ''),
+        escCsv(r.topic || ''),
+        escCsv(r.difficulty || ''),
+        escCsv(r.correct_choice || ''),
+        escCsv(fixedQRaw),
+        escCsv(fixedARaw),
+        escCsv(fixedBRaw),
+        escCsv(fixedCRaw),
+        escCsv(fixedDRaw),
+        escCsv(fixedQCode),
+        escCsv(fixedACode),
+        escCsv(fixedBCode),
+        escCsv(fixedCCode),
+        escCsv(fixedDCode),
+        escCsv(plainQ),
+        escCsv(plainA),
+        escCsv(plainB),
+        escCsv(plainC),
+        escCsv(plainD),
+        escCsv(r.question_diagram_key || ''),
+        escCsv(r.a_diag || ''),
+        escCsv(r.b_diag || ''),
+        escCsv(r.c_diag || ''),
+        escCsv(r.d_diag || '')
+      ];
+      csvContent += row.join(',') + '\n';
+    }
+  }
+
+  const exportFilename = `Questions_CAPEP${isPaper2Only ? '2' : '1'}_Export_${Date.now()}.csv`;
+
+  return new Response(csvContent, {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${exportFilename}"`
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // GET /admin/fixed-questions/export?ids=1,2,3
 // Generates and streams downloadable CSV of fixed questions in CAPEP1/CAPEP2 format.
 // ---------------------------------------------------------------------------
@@ -1100,8 +1422,7 @@ export async function handleExportFixedQuestionsCSV(
       const batch = ids.slice(i, i + BATCH_SIZE);
       const placeholders = batch.map(() => '?').join(',');
       const { results } = await env.DB.prepare(`
-        SELECT fq.*, q.number as q_num, q.part as q_part, q.subpart as q_subpart,
-               q.unit_title, q.module_title, q.marks, q.correct_choice
+        SELECT fq.*, q.section, q.topic, q.difficulty, q.marks, q.correct_choice, q.question_diagram_key
         FROM fixed_questions fq
         LEFT JOIN questions q ON q.id = fq.original_question_id
         WHERE fq.id IN (${placeholders})
@@ -1113,60 +1434,28 @@ export async function handleExportFixedQuestionsCSV(
     let whereSql = subject ? 'WHERE fq.subject_name = ?' : '';
     const params = subject ? [subject] : [];
     const { results } = await env.DB.prepare(`
-      SELECT fq.*, q.number as q_num, q.part as q_part, q.subpart as q_subpart,
-             q.unit_title, q.module_title, q.marks, q.correct_choice
+      SELECT fq.*, q.section, q.topic, q.difficulty, q.marks, q.correct_choice, q.question_diagram_key
       FROM fixed_questions fq
       LEFT JOIN questions q ON q.id = fq.original_question_id
       ${whereSql}
       ORDER BY fq.paper, fq.subject_name, fq.year, fq.number
     `).bind(...params).all<any>();
-    if (results) fqList = results;
+    if (results) fqList = results || [];
   }
 
-  const escCsv = (val: any) => {
-    if (val === null || val === undefined) return '""';
-    const str = String(val);
-    return `"${str.replace(/"/g, '""')}"`;
-  };
-
-  const header = [
-    'cape', 'paper', 'subject', 'month', 'year', 'number', 'part', 'unit_title',
-    'module_title', 'marks', 'answer_key', 'question_raw', 'answer_a_raw', 'answer_b_raw',
-    'answer_c_raw', 'answer_d_raw', 'validated_question_code', 'validated_answer_a_code',
-    'validated_answer_b_code', 'validated_answer_c_code', 'validated_answer_d_code',
-    'q', 'a', 'b', 'c', 'd', 'q_key', 'a_key', 'b_key', 'c_key', 'd_key'
+  // Exact 31 columns matching Questions - CAPEP1 (1).csv
+  const p1Header = [
+    'Exam', 'Unit', 'Subject', 'Month', 'Year', 'Paper', 'Number', 'Section',
+    'Topic', 'Difficulty', 'Correct', 'Question', 'Answer A', 'Answer B',
+    'Answer C', 'Answer D', 'Validated Question Code', 'Validated Answer A Code',
+    'Validated Answer B Code', 'Validated Answer C Code', 'Validated Answer D Code',
+    'Q', 'A', 'B', 'C', 'D', 'Question Diagram Path Prefix',
+    'A Diagram Path Prefix', 'B Diagram Path Prefix', 'C Diagram Path Prefix', 'D Diagram Path Prefix'
   ];
 
-  let csvContent = header.join(',') + '\n';
+  let csvContent = p1Header.join(',') + '\n';
 
-  const pattern1 = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
-  const pattern2 = /\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}/g;
-  const pattern3 = /\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g;
-  const pattern4 = /(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))/g;
-  const pattern5 = /_\{\$([a-zA-Z0-9_]+)\$\}/g;
-  const pattern6 = /(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
-  const pattern7 = /\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
-  const pattern8 = /(\d+)\s*\$\s*\$\s*(\d+)/g;
-  const pattern9 = /(\d+)\s*\\text\{\s*\}\s*(\d+)/g;
-  const pattern10 = /\(\\+(?:frac)\{([^}]+)\}\{([^}]+)\}\)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9+\-]+))/g;
-  const pattern11 = /\\+(?:log)_\{([a-zA-Z0-9]+)\}/g;
-
-  const fixStr = (s: string | null | undefined) => {
-    if (!s) return '';
-    return s.replace(pattern1, '$1 $2')
-            .replace(pattern2, '\\$1_{($2)}')
-            .replace(pattern3, '\\$1^{(-$2)}')
-            .replace(pattern4, '$1 {^$2$3}')
-            .replace(pattern5, '_\\text{$1}')
-            .replace(pattern6, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`)
-            .replace(pattern7, (m, p1) => ` \\${p1.toLowerCase()} `)
-            .replace(pattern8, '$1$2')
-            .replace(pattern9, '$1$2')
-            .replace(pattern10, '(\\frac{$1}{$2}^{($3$4)})')
-            .replace(pattern11, '\\log_$1');
-  };
-
-  for (const fq of (fqList ?? [])) {
+  for (const fq of fqList) {
     let choices: any[] = [];
     if (fq.paper === 1 && fq.original_question_id) {
       const { results } = await env.DB.prepare(`
@@ -1181,34 +1470,58 @@ export async function handleExportFixedQuestionsCSV(
     const cC = findChoice('C');
     const cD = findChoice('D');
 
+    const { subject, unit } = parseSubjectAndUnit(fq.subject_name || '');
+
+    const fixedQRaw = fixLatexStr(fq.fixed_question_raw);
+    const fixedARaw = fixLatexStr(cA?.answer_raw);
+    const fixedBRaw = fixLatexStr(cB?.answer_raw);
+    const fixedCRaw = fixLatexStr(cC?.answer_raw);
+    const fixedDRaw = fixLatexStr(cD?.answer_raw);
+
+    const fixedQCode = fixLatexStr(fq.fixed_question_code);
+    const fixedACode = fixLatexStr(cA?.answer_code);
+    const fixedBCode = fixLatexStr(cB?.answer_code);
+    const fixedCCode = fixLatexStr(cC?.answer_code);
+    const fixedDCode = fixLatexStr(cD?.answer_code);
+
+    const plainQ = extractPlainLatex(fixedQCode, fixedQRaw);
+    const plainA = extractPlainLatex(fixedACode, fixedARaw);
+    const plainB = extractPlainLatex(fixedBCode, fixedBRaw);
+    const plainC = extractPlainLatex(fixedCCode, fixedCRaw);
+    const plainD = extractPlainLatex(fixedDCode, fixedDRaw);
+
     const row = [
       escCsv('cape'),
-      escCsv(fq.paper),
-      escCsv(fq.subject_name ? fq.subject_name.replace(/ U[12]$/i, '') : ''),
+      escCsv(unit),
+      escCsv(subject),
       escCsv(fq.month || 'May'),
       escCsv(fq.year || ''),
+      escCsv(fq.paper),
       escCsv(fq.number),
-      escCsv(fq.part || ''),
-      escCsv(fq.unit_title || ''),
-      escCsv(fq.module_title || ''),
-      escCsv(fq.marks || ''),
+      escCsv(fq.section || ''),
+      escCsv(fq.topic || ''),
+      escCsv(fq.difficulty || ''),
       escCsv(fq.correct_choice || ''),
-      escCsv(fq.fixed_question_raw),
-      escCsv(fixStr(cA?.answer_raw)),
-      escCsv(fixStr(cB?.answer_raw)),
-      escCsv(fixStr(cC?.answer_raw)),
-      escCsv(fixStr(cD?.answer_raw)),
-      escCsv(fq.fixed_question_code),
-      escCsv(fixStr(cA?.answer_code)),
-      escCsv(fixStr(cB?.answer_code)),
-      escCsv(fixStr(cC?.answer_code)),
-      escCsv(fixStr(cD?.answer_code)),
-      escCsv(fq.fixed_question_raw),
-      escCsv(fixStr(cA?.answer_raw)),
-      escCsv(fixStr(cB?.answer_raw)),
-      escCsv(fixStr(cC?.answer_raw)),
-      escCsv(fixStr(cD?.answer_raw)),
-      escCsv(''), escCsv(''), escCsv(''), escCsv(''), escCsv('')
+      escCsv(fixedQRaw),
+      escCsv(fixedARaw),
+      escCsv(fixedBRaw),
+      escCsv(fixedCRaw),
+      escCsv(fixedDRaw),
+      escCsv(fixedQCode),
+      escCsv(fixedACode),
+      escCsv(fixedBCode),
+      escCsv(fixedCCode),
+      escCsv(fixedDCode),
+      escCsv(plainQ),
+      escCsv(plainA),
+      escCsv(plainB),
+      escCsv(plainC),
+      escCsv(plainD),
+      escCsv(fq.question_diagram_key || ''),
+      escCsv(cA?.diagram_key || ''),
+      escCsv(cB?.diagram_key || ''),
+      escCsv(cC?.diagram_key || ''),
+      escCsv(cD?.diagram_key || '')
     ];
 
     csvContent += row.join(',') + '\n';

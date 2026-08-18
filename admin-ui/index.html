@@ -60,7 +60,9 @@
           <h1 class="page-title">Papers</h1>
           <p class="page-subtitle">All exam sittings loaded in the database</p>
         </div>
-        <div class="page-actions">
+        <div class="page-actions flex gap-2" style="flex-wrap: wrap;">
+          <button class="btn btn-ghost" id="btn-export-all-papers">⬇ Export All CSV</button>
+          <button class="btn btn-primary" id="btn-export-selected-papers" disabled>⬇ Export Selected (0)</button>
           <button class="btn btn-ghost" id="btn-refresh-papers">↺ Refresh</button>
           <button class="btn btn-primary" id="btn-go-upload">⬆ Upload Paper</button>
         </div>
@@ -103,6 +105,9 @@
         <table id="papers-table">
           <thead>
             <tr>
+              <th style="width: 38px; text-align: center;">
+                <input type="checkbox" id="papers-select-all" title="Select all filtered papers" />
+              </th>
               <th>Subject</th>
               <th>Paper</th>
               <th>Year</th>

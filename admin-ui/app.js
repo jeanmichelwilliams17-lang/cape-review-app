@@ -78,11 +78,26 @@ document.getElementById('cfg-api-token').value  = cfg.apiToken;
 let deletePaperData = null;
 let papersCache = [];   // full list from API
 
+let selectedPapers = new Set();
+
+function getPaperKey(p) {
+  return `${p.subject || ''}___${p.paper || ''}___${p.year || ''}___${p.month || ''}`;
+}
+
+function updateSelectedPapersBtn() {
+  const btn = document.getElementById('btn-export-selected-papers');
+  if (btn) {
+    btn.disabled = selectedPapers.size === 0;
+    btn.textContent = `⬇ Export Selected (${selectedPapers.size})`;
+  }
+}
+
 function renderPapersTable(papers) {
   const tbody     = document.getElementById('papers-tbody');
   const tableWrap = document.getElementById('papers-table-wrap');
   const emptyEl   = document.getElementById('papers-empty');
   const countEl   = document.getElementById('papers-filter-count');
+  const selectAll = document.getElementById('papers-select-all');
 
   tbody.innerHTML = '';
 
@@ -96,9 +111,14 @@ function renderPapersTable(papers) {
   const frag = document.createDocumentFragment();
   papers.forEach(p => {
     const pct = p.review_pct ?? 0;
+    const pKey = getPaperKey(p);
+    const isChecked = selectedPapers.has(pKey);
     const tr  = document.createElement('tr');
     tr.innerHTML = `
-      <td>${escHtml(p.subject)}</td>
+      <td style="text-align:center;">
+        <input type="checkbox" class="paper-checkbox" data-key="${escAttr(pKey)}" ${isChecked ? 'checked' : ''} />
+      </td>
+      <td><strong>${escHtml(p.subject)}</strong></td>
       <td><span class="badge badge-accent">Paper ${p.paper}</span></td>
       <td>${p.year ?? '—'}</td>
       <td>${escHtml(p.month ?? '—')}</td>
@@ -113,6 +133,12 @@ function renderPapersTable(papers) {
       </td>
       <td>
         <div class="flex gap-2">
+          <button class="btn btn-primary btn-sm btn-export-paper"
+            data-subject="${escAttr(p.subject)}"
+            data-paper="${p.paper}" data-year="${p.year ?? ''}" data-month="${escAttr(p.month || '')}"
+            title="Download questions as CSV matching CAPEP1 format">
+            ⬇ CSV
+          </button>
           <button class="btn btn-ghost btn-sm btn-reviews-paper"
             data-subject="${escAttr(p.subject)}"
             data-paper="${p.paper}" data-year="${p.year ?? ''}" data-month="${escAttr(p.month || '')}">
@@ -147,7 +173,42 @@ function renderPapersTable(papers) {
     ? `Showing ${papers.length} of ${total} papers`
     : `${total} paper${total === 1 ? '' : 's'}`;
 
+  // Update Select All checkbox state
+  if (selectAll) {
+    const allFilteredSelected = papers.length > 0 && papers.every(p => selectedPapers.has(getPaperKey(p)));
+    selectAll.checked = allFilteredSelected;
+  }
+
+  updateSelectedPapersBtn();
+
+  // Wire checkbox events
+  tbody.querySelectorAll('.paper-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const key = e.target.dataset.key;
+      if (e.target.checked) {
+        selectedPapers.add(key);
+      } else {
+        selectedPapers.delete(key);
+      }
+      updateSelectedPapersBtn();
+      if (selectAll) {
+        selectAll.checked = papers.length > 0 && papers.every(p => selectedPapers.has(getPaperKey(p)));
+      }
+    });
+  });
+
   // Wire action buttons
+  tbody.querySelectorAll('.btn-export-paper').forEach(btn => {
+    btn.addEventListener('click', () => {
+      downloadQuestionsCSV({
+        subject: btn.dataset.subject,
+        paper:   btn.dataset.paper,
+        year:    btn.dataset.year || undefined,
+        month:   btn.dataset.month || undefined
+      });
+    });
+  });
+
   tbody.querySelectorAll('.btn-reviews-paper').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById('rev-filter-subject').value = btn.dataset.subject;
@@ -188,18 +249,96 @@ function renderPapersTable(papers) {
   });
 }
 
-function applyPapersFilter() {
+// Master Select All on Papers Table
+document.getElementById('papers-select-all')?.addEventListener('change', (e) => {
+  const isChecked = e.target.checked;
+  const filtered = getFilteredPapers();
+  filtered.forEach(p => {
+    const key = getPaperKey(p);
+    if (isChecked) {
+      selectedPapers.add(key);
+    } else {
+      selectedPapers.delete(key);
+    }
+  });
+  renderPapersTable(filtered);
+});
+
+// Helper to trigger browser CSV download from worker endpoint
+async function downloadQuestionsCSV(params = {}) {
+  const query = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null && v !== '') {
+      query.set(k, v);
+    }
+  }
+
+  const url = cfg.workerUrl.replace(/\/$/, '') + '/admin/export-csv?' + query.toString();
+  toast('Generating CSV export…', 'info');
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${cfg.apiToken}`
+      }
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText || `Export failed with status ${res.status}`);
+    }
+
+    const blob = await res.blob();
+    const disposition = res.headers.get('Content-Disposition') || '';
+    let filename = 'Questions_Export.csv';
+    const match = disposition.match(/filename="?([^";]+)"?/);
+    if (match) filename = match[1];
+
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+
+    toast(`Successfully downloaded ${filename}`, 'success');
+  } catch (err) {
+    toast(`Export error: ${err.message}`, 'error');
+  }
+}
+
+// Export All Papers in Database (up to 10,000 questions)
+document.getElementById('btn-export-all-papers')?.addEventListener('click', () => {
+  downloadQuestionsCSV({ limit: '10000' });
+});
+
+// Export Selected Papers
+document.getElementById('btn-export-selected-papers')?.addEventListener('click', () => {
+  if (selectedPapers.size === 0) {
+    toast('No papers selected. Please check at least one paper.', 'error');
+    return;
+  }
+  const papersArray = Array.from(selectedPapers);
+  downloadQuestionsCSV({ papers: papersArray.join(','), limit: '10000' });
+});
+
+function getFilteredPapers() {
   const subj  = document.getElementById('papers-filter-subject').value.trim().toLowerCase();
   const paper = document.getElementById('papers-filter-paper').value.trim();
   const year  = document.getElementById('papers-filter-year').value.trim();
 
-  const filtered = papersCache.filter(p => {
+  return papersCache.filter(p => {
     if (subj  && !String(p.subject).toLowerCase().includes(subj)) return false;
     if (paper && String(p.paper) !== paper) return false;
     if (year  && String(p.year)  !== year)  return false;
     return true;
   });
+}
 
+function applyPapersFilter() {
+  const filtered = getFilteredPapers();
   renderPapersTable(filtered);
 }
 

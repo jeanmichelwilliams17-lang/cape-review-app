@@ -19,6 +19,7 @@ import {
   handleAdminGetFixedQuestions,
   handleApplyFixedQuestions,
   handleExportFixedQuestionsCSV,
+  handleExportQuestionsCSV,
 } from './admin';
 
 export default {
@@ -469,6 +470,9 @@ export default {
         }
         if (pathname === '/admin/fixed-questions/export' && method === 'GET') {
           return withCors(await handleExportFixedQuestionsCSV(url, env));
+        }
+        if ((pathname === '/admin/export-csv' || pathname === '/admin/export-questions') && method === 'GET') {
+          return withCors(await handleExportQuestionsCSV(url, env));
         }
 
         const adminQMatch = pathname.match(/^\/admin\/questions\/(\d+)$/);
