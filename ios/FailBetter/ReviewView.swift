@@ -338,6 +338,8 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     s = s.replacingOccurrences(of: #"\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
     // Auto-fix trig/log inverse powers e.g. \cos^{-1} -> \cos^{(-1)}
     s = s.replacingOccurrences(of: #"\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}"#, with: #"\\$1^{(-$2)}"#, options: .regularExpression)
+    // Auto-fix digit base powers e.g. 2^n -> 2 {^n}, 3^r -> 3 {^r}
+    s = s.replacingOccurrences(of: #"(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))"#, with: "$1 {^$2$3}", options: .regularExpression)
 
     guard !s.isEmpty else { return s }
 

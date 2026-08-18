@@ -9,11 +9,12 @@ This document details all the LaTeX formatting errors, rendering bugs, and comma
 | # | Error Category | Sample Broken Syntax | Fixed Corrected Syntax | Affected Systems |
 |---|---|---|---|---|
 | **1** | **Unspaced Coefficients / Digits Before Commands** | `4\sqrt{x}`, `2\pi`, `4\cos x`, `2\mathbf{i}` | `4 \sqrt{x}`, `2 \pi`, `4 \cos x`, `2 \mathbf{i}` | KaTeX, LaTeXSwiftUI |
-| **2** | **Unbracketed Arrow Subscripts in Limits** | `\lim_{x \to 3}`, `\lim_{n \to \infty}` | `\lim_{(x \to 3)}`, `\lim_{(n \to \infty)}` | KaTeX, LaTeXSwiftUI |
+| **2** | **Operator Subscripts (Limits & Summations)** | `\lim_{x \to 3}`, `\sum_{r=1}^n` | `\lim_{(x \to 3)}`, `\sum_{(r=1)}^n` | KaTeX, LaTeXSwiftUI |
 | **3** | **Unparenthesized Exponents in Inverse Functions** | `\cos^{-1}(\frac{x}{2})`, `\sin^{-1}(0.2)` | `\cos^{(-1)}(\frac{x}{2})`, `\sin^{(-1)}(0.2)` | LaTeXSwiftUI, Equation Parser |
-| **4** | **Escaped Dollar Sign (`\$`) Delimiter Collision** | `collected \$6\,000 from clients` | Strip `\$` before math mode delimiter check | Mobile & Web Math Mode |
-| **5** | **Plain Text Prose Wrapped in Math Delimiters** | `$Which of the following is correct?$` | Keep as plain text prose without `$ ... $` | Mobile Typography / Spacing |
-| **6** | **Unspaced Chemical Formulas & Physical Units** | `\text{NH}_3\text{Cl}`, `27\,ms^{-1}` | `\text{NH}_3 \text{Cl}`, `27 \, \text{ms}^{(-1)}` | Chemistry & Physics Papers |
+| **4** | **Digit Base Powers with Spaced Braces** | `2^n`, `3^r`, `10^5` | `2 {^n}`, `3 {^r}`, `10 {^5}` | LaTeXSwiftUI Superscripts |
+| **5** | **Escaped Dollar Sign (`\$`) Delimiter Collision** | `collected \$6\,000 from clients` | Strip `\$` before math mode delimiter check | Mobile & Web Math Mode |
+| **6** | **Plain Text Prose Wrapped in Math Delimiters** | `$Which of the following is correct?$` | Keep as plain text prose without `$ ... $` | Mobile Typography / Spacing |
+| **7** | **Unspaced Chemical Formulas & Physical Units** | `\text{NH}_3\text{Cl}`, `27\,ms^{-1}` | `\text{NH}_3 \text{Cl}`, `27 \, \text{ms}^{(-1)}` | Chemistry & Physics Papers |
 
 ---
 

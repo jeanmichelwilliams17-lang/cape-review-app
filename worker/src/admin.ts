@@ -1142,12 +1142,14 @@ export async function handleExportFixedQuestionsCSV(
   const pattern1 = /(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g;
   const pattern2 = /\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}/g;
   const pattern3 = /\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g;
+  const pattern4 = /(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))/g;
 
   const fixStr = (s: string | null | undefined) => {
     if (!s) return '';
     return s.replace(pattern1, '$1 $2')
             .replace(pattern2, '\\$1_{($2)}')
-            .replace(pattern3, '\\$1^{(-$2)}');
+            .replace(pattern3, '\\$1^{(-$2)}')
+            .replace(pattern4, '$1 {^$2$3}');
   };
 
   for (const fq of (fqList ?? [])) {

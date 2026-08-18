@@ -393,6 +393,7 @@ struct FixedQuestionsReviewView: View {
         s = s.replacingOccurrences(of: #"(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])"#, with: "$1 $2", options: .regularExpression)
         s = s.replacingOccurrences(of: #"\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
         s = s.replacingOccurrences(of: #"\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}"#, with: #"\\$1^{(-$2)}"#, options: .regularExpression)
+        s = s.replacingOccurrences(of: #"(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))"#, with: "$1 {^$2$3}", options: .regularExpression)
         guard !s.isEmpty else { return s }
 
         let sNoEscDollar = s.replacingOccurrences(of: "\\$", with: "")

@@ -43,8 +43,34 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2024, 'May', 12, NULL, NULL,
+            '\text{Given that } ( \sec^2 x = 1 + \tan^2 x ), ( \int_0^{\frac{\pi}{4}} \frac{\tan^2 x}{4} dx ) \text{ is}', '\text{Given that } ( \sec^2 x = 1 + \tan^2 x ), ( \int_0 {^\frac{\pi}{4}} \frac{\tan^2 x}{4} dx ) \text{ is}', 'LaTeX("Given that $( \\sec^2 x = 1 + \\tan^2 x ), ( \\int_0^{\\frac{\\pi}{4}} \\frac{\\tan^2 x}{4} dx )$ is").parsingMode(.onlyEquations)', 'LaTeX("Given that $( \\sec^2 x = 1 + \\tan^2 x ), ( \\int_0 {^\\frac{\\pi}{4}} \\frac{\\tan^2 x}{4} dx )$ is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 12
+          AND (2024 IS NULL OR q.year = 2024)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2024, 'May', 17, NULL, NULL,
+            '\text{Which of the following sequences is a convergent sequence?}', '\text{Which of the following sequences is a convergent sequence?}', 'LaTeX("Which of the following sequences is a convergent sequence?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following sequences is a convergent sequence?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 17
+          AND (2024 IS NULL OR q.year = 2024)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2024, 'May', 21, NULL, NULL,
-            '\text{The series } ( \sum_{n=0}^{\infty} \frac{5}{2^n} ) \text{ converges to the value}', '\text{The series } ( \sum_{(n=0)}^{\infty} \frac{5}{2^n} ) \text{ converges to the value}', 'LaTeX("The series $( \\sum_{n=0}^{\\infty} \\frac{5}{2^n} )$ converges to the value").parsingMode(.onlyEquations)', 'LaTeX("The series $( \\sum_{(n=0)}^{\\infty} \\frac{5}{2^n} )$ converges to the value").parsingMode(.onlyEquations)',
+            '\text{The series } ( \sum_{n=0}^{\infty} \frac{5}{2^n} ) \text{ converges to the value}', '\text{The series } ( \sum_{(n=0)}^{\infty} \frac{5}{2 {^n}} ) \text{ converges to the value}', 'LaTeX("The series $( \\sum_{n=0}^{\\infty} \\frac{5}{2^n} )$ converges to the value").parsingMode(.onlyEquations)', 'LaTeX("The series $( \\sum_{(n=0)}^{\\infty} \\frac{5}{2 {^n}} )$ converges to the value").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -173,6 +199,19 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2025, 'May', 17, NULL, NULL,
+            '\text{Given that } ( u_n ) \text{ represents the } ( n^{th} ) \text{ term of a sequence, which of the following diverges?}', '\text{Given that } ( u_n ) \text{ represents the } ( n^{th} ) \text{ term of a sequence, which of the following diverges?}', 'LaTeX("Given that $( u_n )$ represents the $( n^{th} )$ term of a sequence, which of the following diverges?").parsingMode(.onlyEquations)', 'LaTeX("Given that $( u_n )$ represents the $( n^{th} )$ term of a sequence, which of the following diverges?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 17
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2025, 'May', 18, NULL, NULL,
             '\text{The value of } ( \sum_{n=0}^{\infty} x^n ) \text{ for } ( |x| < 1 ) \text{ is}', '\text{The value of } ( \sum_{(n=0)}^{\infty} x^n ) \text{ for } ( |x| < 1 ) \text{ is}', 'LaTeX("The value of $( \\sum_{n=0}^{\\infty} x^n )$ for $( |x| < 1 )$ is").parsingMode(.onlyEquations)', 'LaTeX("The value of $( \\sum_{(n=0)}^{\\infty} x^n )$ for $( |x| < 1 )$ is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -205,8 +244,8 @@ I. ( \sum_{r=1}^n (7+3r) )
 II. ( \sum_{r=1}^n \log_{10} 3^{(r+1)} )
 III. ( \sum_{r=1}^n \log_{10} (r+1) )', '\text{Which of the following series are arithmetic series?}
 I. ( \sum_{(r=1)}^n (7+3r) )
-II. ( \sum_{(r=1)}^n \log_{10} 3^{(r+1)} )
-III. ( \sum_{(r=1)}^n \log_{10} (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{r=1}^n (7+3r) )$\n$II. ( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\n$III. ( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{(r=1)}^n (7+3r) )$\n$II. ( \\sum_{(r=1)}^n \\log_{10} 3^{(r+1)} )$\n$III. ( \\sum_{(r=1)}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)',
+II. ( \sum_{(r=1)}^n \log_{10} 3 {^(r+1)} )
+III. ( \sum_{(r=1)}^n \log_{10} (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{r=1}^n (7+3r) )$\n$II. ( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\n$III. ( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\n$I. ( \\sum_{(r=1)}^n (7+3r) )$\n$II. ( \\sum_{(r=1)}^n \\log_{10} 3 {^(r+1)} )$\n$III. ( \\sum_{(r=1)}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -284,7 +323,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2026, 'May', 11, NULL, NULL,
-            '\text{Given that } ( \cos 2x = 1 - 2\sin^2 x ) \text{, } ( \int_0^{\pi} \sin^2 (\frac{x}{4}) dx ) \text{ is}', '\text{Given that } ( \cos 2x = 1 - 2 \sin^2 x ) \text{, } ( \int_0^{\pi} \sin^2 (\frac{x}{4}) dx ) \text{ is}', 'LaTeX("Given that $( \\cos 2x = 1 - 2\\sin^2 x )$, $( \\int_0^{\\pi} \\sin^2 (\\frac{x}{4}) dx )$ is").parsingMode(.onlyEquations)', 'LaTeX("Given that $( \\cos 2x = 1 - 2 \\sin^2 x )$, $( \\int_0^{\\pi} \\sin^2 (\\frac{x}{4}) dx )$ is").parsingMode(.onlyEquations)',
+            '\text{Given that } ( \cos 2x = 1 - 2\sin^2 x ) \text{, } ( \int_0^{\pi} \sin^2 (\frac{x}{4}) dx ) \text{ is}', '\text{Given that } ( \cos 2x = 1 - 2 \sin^2 x ) \text{, } ( \int_0 {^\pi} \sin^2 (\frac{x}{4}) dx ) \text{ is}', 'LaTeX("Given that $( \\cos 2x = 1 - 2\\sin^2 x )$, $( \\int_0^{\\pi} \\sin^2 (\\frac{x}{4}) dx )$ is").parsingMode(.onlyEquations)', 'LaTeX("Given that $( \\cos 2x = 1 - 2 \\sin^2 x )$, $( \\int_0 {^\\pi} \\sin^2 (\\frac{x}{4}) dx )$ is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -315,12 +354,25 @@ INSERT INTO fixed_questions (
 \text{II. } ( \sum_{r=1}^n \log_{10} 3^{(r+1)} )
 \text{III. } ( \sum_{r=1}^n \log_{10} (r+1) )', '\text{Which of the following series are arithmetic series?}
 \text{I. } ( \sum_{(r=1)}^n (7 + 3r) )
-\text{II. } ( \sum_{(r=1)}^n \log_{10} 3^{(r+1)} )
-\text{III. } ( \sum_{(r=1)}^n \log_{10} (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{r=1}^n (7 + 3r) )$\nII. $( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\nIII. $( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{(r=1)}^n (7 + 3r) )$\nII. $( \\sum_{(r=1)}^n \\log_{10} 3^{(r+1)} )$\nIII. $( \\sum_{(r=1)}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)',
+\text{II. } ( \sum_{(r=1)}^n \log_{10} 3 {^(r+1)} )
+\text{III. } ( \sum_{(r=1)}^n \log_{10} (r+1) )', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{r=1}^n (7 + 3r) )$\nII. $( \\sum_{r=1}^n \\log_{10} 3^{(r+1)} )$\nIII. $( \\sum_{r=1}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)', 'LaTeX("Which of the following series are arithmetic series?\nI. $( \\sum_{(r=1)}^n (7 + 3r) )$\nII. $( \\sum_{(r=1)}^n \\log_{10} 3 {^(r+1)} )$\nIII. $( \\sum_{(r=1)}^n \\log_{10} (r+1) )$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 22
+          AND (2026 IS NULL OR q.year = 2026)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2026, 'May', 27, NULL, NULL,
+            '\text{By using the Newton-Raphson method with a first approximation } ( x_1 ) \text{, the second approximation } ( x_2 ) \text{ for a root of the equation } ( x^5 = x^3 + 25 ) \text{ may be expressed as}', '\text{By using the Newton-Raphson method with a first approximation } ( x_1 ) \text{, the second approximation } ( x_2 ) \text{ for a root of the equation } ( x^5 = x^3 + 25 ) \text{ may be expressed as}', 'LaTeX("By using the Newton-Raphson method with a first approximation $( x_1 )$, the second approximation $( x_2 )$ for a root of the equation $( x^5 = x^3 + 25 )$ may be expressed as").parsingMode(.onlyEquations)', 'LaTeX("By using the Newton-Raphson method with a first approximation $( x_1 )$, the second approximation $( x_2 )$ for a root of the equation $( x^5 = x^3 + 25 )$ may be expressed as").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 27
           AND (2026 IS NULL OR q.year = 2026)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -335,6 +387,87 @@ INSERT INTO fixed_questions (
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'PureMathematics U2' AND q.paper = 1 AND q.number = 45
           AND (2026 IS NULL OR q.year = 2026)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2019, 'May', 2, NULL, NULL,
+            '\text{What is the name of the combinational circuit which converts binary information from } ( n ) \text{ coded inputs to a maximum of } ( 2^n ) \text{ unique outputs?}', '\text{What is the name of the combinational circuit which converts binary information from } ( n ) \text{ coded inputs to a maximum of } ( 2 {^n} ) \text{ unique outputs?}', 'LaTeX("What is the name of the combinational circuit which converts binary information from $( n )$ coded inputs to a maximum of $( 2^n )$ unique outputs?").parsingMode(.onlyEquations)', 'LaTeX("What is the name of the combinational circuit which converts binary information from $( n )$ coded inputs to a maximum of $( 2 {^n} )$ unique outputs?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 2
+          AND (2019 IS NULL OR q.year = 2019)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2019, 'May', 22, NULL, NULL,
+            '\text{Item 22 refers to the following algorithm.}
+\text{1. } ( y = 5 )
+\text{2. } ( x = 1 )
+\text{3. while } ( x < 10 ) \text{ AND } ( x > 0 ) \text{ do}
+\text{4. expo = pow (x, y)}
+\text{5. print expo}
+\text{6. }
+\text{7. Endwhile}
+\text{NB The function pow raises the first value passed to it by the second value. For example, pow (5, 2) returns the value 25 } ( (5^2) )\text{. What statement can be placed in line 6 to ensure that the while loop terminates?}', '\text{Item 22 refers to the following algorithm.}
+\text{1. } ( y = 5 )
+\text{2. } ( x = 1 )
+\text{3. while } ( x < 10 ) \text{ AND } ( x > 0 ) \text{ do}
+\text{4. expo = pow (x, y)}
+\text{5. print expo}
+\text{6. }
+\text{7. Endwhile}
+\text{NB The function pow raises the first value passed to it by the second value. For example, pow (5, 2) returns the value 25 } ( (5 {^2}) )\text{. What statement can be placed in line 6 to ensure that the while loop terminates?}', 'LaTeX("Item 22 refers to the following algorithm.\n1. $( y = 5 )$\n2. $( x = 1 )$\n3. while $( x < 10 )$ AND $( x > 0 )$ do\n4. expo = pow (x, y)\n5. print expo\n6. \n7. Endwhile\nNB The function pow raises the first value passed to it by the second value. For example, pow (5, 2) returns the value 25 $( (5^2) )$. What statement can be placed in line 6 to ensure that the while loop terminates?").parsingMode(.onlyEquations)', 'LaTeX("Item 22 refers to the following algorithm.\n1. $( y = 5 )$\n2. $( x = 1 )$\n3. while $( x < 10 )$ AND $( x > 0 )$ do\n4. expo = pow (x, y)\n5. print expo\n6. \n7. Endwhile\nNB The function pow raises the first value passed to it by the second value. For example, pow (5, 2) returns the value 25 $( (5 {^2}) )$. What statement can be placed in line 6 to ensure that the while loop terminates?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 22
+          AND (2019 IS NULL OR q.year = 2019)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2020, 'May', 9, NULL, NULL,
+            '\text{What is the name of the combinational circuit which converts binary information from } ( n ) \text{ coded inputs to a maximum of } ( 2^n ) \text{ unique outputs?}', '\text{What is the name of the combinational circuit which converts binary information from } ( n ) \text{ coded inputs to a maximum of } ( 2 {^n} ) \text{ unique outputs?}', 'LaTeX("What is the name of the combinational circuit which converts binary information from $( n )$ coded inputs to a maximum of $( 2^n )$ unique outputs?").parsingMode(.onlyEquations)', 'LaTeX("What is the name of the combinational circuit which converts binary information from $( n )$ coded inputs to a maximum of $( 2 {^n} )$ unique outputs?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 9
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 2, NULL, NULL,
+            '\text{What is the name of the combinational circuit which converts binary information from }  n  \text{ coded inputs to a maximum of }  2^n  \text{ unique outputs?}', '\text{What is the name of the combinational circuit which converts binary information from }  n  \text{ coded inputs to a maximum of }  2 {^n}  \text{ unique outputs?}', 'LaTeX("What is the name of the combinational circuit which converts binary information from  $n$  coded inputs to a maximum of  $2^n$  unique outputs?").parsingMode(.onlyEquations)', 'LaTeX("What is the name of the combinational circuit which converts binary information from  $n$  coded inputs to a maximum of  $2 {^n}$  unique outputs?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 2
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2024, 'May', 2, NULL, NULL,
+            '\text{What is the name of the combinational circuit which converts binary information from }  n  \text{ coded inputs to a maximum of }  2^n  \text{ unique outputs?}', '\text{What is the name of the combinational circuit which converts binary information from }  n  \text{ coded inputs to a maximum of }  2 {^n}  \text{ unique outputs?}', 'LaTeX("What is the name of the combinational circuit which converts binary information from  $n$  coded inputs to a maximum of  $2^n$  unique outputs?").parsingMode(.onlyEquations)', 'LaTeX("What is the name of the combinational circuit which converts binary information from  $n$  coded inputs to a maximum of  $2 {^n}$  unique outputs?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'ComputerScience U1' AND q.paper = 1 AND q.number = 2
+          AND (2024 IS NULL OR q.year = 2024)
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -410,6 +543,36 @@ INSERT INTO fixed_questions (
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'AppliedMathematics U1' AND q.paper = 1 AND q.number = 18
           AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2019, 'May', 23, NULL, NULL,
+            '\text{Item 23 refers to the following table.
+Assuming that the random variable } ( X \sim N(40, 15^2) ) \text{, then the expected frequency of the class 35–45, to 3 significant figures, is}', '\text{Item 23 refers to the following table.
+Assuming that the random variable } ( X \sim N(40, 15 {^2}) ) \text{, then the expected frequency of the class 35–45, to 3 significant figures, is}', 'LaTeX("Item 23 refers to the following table.\nAssuming that the random variable $( X \\sim N(40, 15^2) )$, then the expected frequency of the class 35–45, to 3 significant figures, is").parsingMode(.onlyEquations)', 'LaTeX("Item 23 refers to the following table.\nAssuming that the random variable $( X \\sim N(40, 15 {^2}) )$, then the expected frequency of the class 35–45, to 3 significant figures, is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'AppliedMathematics U2' AND q.paper = 1 AND q.number = 23
+          AND (2019 IS NULL OR q.year = 2019)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2020, 'May', 17, NULL, NULL,
+            '\text{The height, in cm, gained by a certain tree in the first year after planting is denoted by the random variable } ( X ) \text{. The results of a random sample of 100 trees of the same type are summarized in the following table.
+Assuming that variable } ( X ) \text{ may be modelled by a } ( N(40, 15^2) ) \text{, the expected frequency of the class } ( 35 < X \le 45 ) \text{, to 3 significant figures, is}', '\text{The height, in cm, gained by a certain tree in the first year after planting is denoted by the random variable } ( X ) \text{. The results of a random sample of 100 trees of the same type are summarized in the following table.
+Assuming that variable } ( X ) \text{ may be modelled by a } ( N(40, 15 {^2}) ) \text{, the expected frequency of the class } ( 35 < X \le 45 ) \text{, to 3 significant figures, is}', 'LaTeX("The height, in cm, gained by a certain tree in the first year after planting is denoted by the random variable $( X )$. The results of a random sample of 100 trees of the same type are summarized in the following table.\nAssuming that variable $( X )$ may be modelled by a $( N(40, 15^2) )$, the expected frequency of the class $( 35 < X \\le 45 )$, to 3 significant figures, is").parsingMode(.onlyEquations)', 'LaTeX("The height, in cm, gained by a certain tree in the first year after planting is denoted by the random variable $( X )$. The results of a random sample of 100 trees of the same type are summarized in the following table.\nAssuming that variable $( X )$ may be modelled by a $( N(40, 15 {^2}) )$, the expected frequency of the class $( 35 < X \\le 45 )$, to 3 significant figures, is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'AppliedMathematics U2' AND q.paper = 1 AND q.number = 17
+          AND (2020 IS NULL OR q.year = 2020)
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -606,8 +769,21 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2020, 'May', 30, NULL, NULL,
+            '\text{Which of the following waves has a wavelength within the range } ( 4 \times 10^{-7}\text{m} - 7.5 \times 10^{-7}\text{ m} ) \text{?}', '\text{Which of the following waves has a wavelength within the range } ( 4 \times 10 {^-7}\text{m} - 7.5 \times 10 {^-7}\text{ m} ) \text{?}', 'LaTeX("Which of the following waves has a wavelength within the range $( 4 \\times 10^{-7}$m$- 7.5 \\times 10^{-7}$ m$)$?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following waves has a wavelength within the range $( 4 \\times 10 {^-7}$m$- 7.5 \\times 10 {^-7}$ m$)$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 1 AND q.number = 30
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2020, 'May', 32, NULL, NULL,
-            '\text{An immersion heater rated at } ( 150\text{ W} ) \text{ is fitted into a large block of ice at } ( 0\text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10^5\text{ J kg}^{-1} ) \text{. How long will it take to melt } ( 10\text{ g} ) \text{ of ice?}', '\text{An immersion heater rated at } ( 150 \text{ W} ) \text{ is fitted into a large block of ice at } ( 0 \text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10^5 \text{ J kg}^{-1} ) \text{. How long will it take to melt } ( 10 \text{ g} ) \text{ of ice?}', 'LaTeX("An immersion heater rated at $( 150$ W$)$ is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10^5$ J kg$^{-1} )$. How long will it take to melt $( 10$ g$)$ of ice?").parsingMode(.onlyEquations)', 'LaTeX("An immersion heater rated at $( 150$ W$)$ is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10^5$ J kg$^{-1} )$. How long will it take to melt $( 10$ g$)$ of ice?").parsingMode(.onlyEquations)',
+            '\text{An immersion heater rated at } ( 150\text{ W} ) \text{ is fitted into a large block of ice at } ( 0\text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10^5\text{ J kg}^{-1} ) \text{. How long will it take to melt } ( 10\text{ g} ) \text{ of ice?}', '\text{An immersion heater rated at } ( 150 \text{ W} ) \text{ is fitted into a large block of ice at } ( 0 \text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10 {^5} \text{ J kg}^{-1} ) \text{. How long will it take to melt } ( 10 \text{ g} ) \text{ of ice?}', 'LaTeX("An immersion heater rated at $( 150$ W$)$ is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10^5$ J kg$^{-1} )$. How long will it take to melt $( 10$ g$)$ of ice?").parsingMode(.onlyEquations)', 'LaTeX("An immersion heater rated at $( 150$ W$)$ is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10 {^5}$ J kg$^{-1} )$. How long will it take to melt $( 10$ g$)$ of ice?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -646,7 +822,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2020, 'May', 37, NULL, NULL,
-            '\text{Helium gas is kept in a container at a pressure of } ( 1.7 \times 10^5\text{ Pa} ) \text{. If the density of helium is } ( 0.92\text{ kg m}^{-3} ) \text{, what is the root mean square speed of the helium atoms?}', '\text{Helium gas is kept in a container at a pressure of } ( 1.7 \times 10^5 \text{ Pa} ) \text{. If the density of helium is } ( 0.92 \text{ kg m}^{-3} ) \text{, what is the root mean square speed of the helium atoms?}', 'LaTeX("Helium gas is kept in a container at a pressure of $( 1.7 \\times 10^5$ Pa$)$. If the density of helium is $( 0.92$ kg m$^{-3} )$, what is the root mean square speed of the helium atoms?").parsingMode(.onlyEquations)', 'LaTeX("Helium gas is kept in a container at a pressure of $( 1.7 \\times 10^5$ Pa$)$. If the density of helium is $( 0.92$ kg m$^{-3} )$, what is the root mean square speed of the helium atoms?").parsingMode(.onlyEquations)',
+            '\text{Helium gas is kept in a container at a pressure of } ( 1.7 \times 10^5\text{ Pa} ) \text{. If the density of helium is } ( 0.92\text{ kg m}^{-3} ) \text{, what is the root mean square speed of the helium atoms?}', '\text{Helium gas is kept in a container at a pressure of } ( 1.7 \times 10 {^5} \text{ Pa} ) \text{. If the density of helium is } ( 0.92 \text{ kg m}^{-3} ) \text{, what is the root mean square speed of the helium atoms?}', 'LaTeX("Helium gas is kept in a container at a pressure of $( 1.7 \\times 10^5$ Pa$)$. If the density of helium is $( 0.92$ kg m$^{-3} )$, what is the root mean square speed of the helium atoms?").parsingMode(.onlyEquations)', 'LaTeX("Helium gas is kept in a container at a pressure of $( 1.7 \\times 10 {^5}$ Pa$)$. If the density of helium is $( 0.92$ kg m$^{-3} )$, what is the root mean square speed of the helium atoms?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -917,6 +1093,19 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2022, 'May', 30, NULL, NULL,
+            '\text{Which of the following waves has a wavelength within the range } ( 4 \times 10^{-7}\text{ m} - 7.5 \times 10^{-7}\text{ m} ) \text{?}', '\text{Which of the following waves has a wavelength within the range } ( 4 \times 10 {^-7}\text{ m} - 7.5 \times 10 {^-7}\text{ m} ) \text{?}', 'LaTeX("Which of the following waves has a wavelength within the range $( 4 \\times 10^{-7}$ m$- 7.5 \\times 10^{-7}$ m$)$?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following waves has a wavelength within the range $( 4 \\times 10 {^-7}$ m$- 7.5 \\times 10 {^-7}$ m$)$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 1 AND q.number = 30
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2022, 'May', 32, NULL, NULL,
             '\text{The readings on a resistance thermometer are as follows:}
 \text{Ice point } ( 27.5\text{ }\Omega )
@@ -939,7 +1128,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2022, 'May', 33, NULL, NULL,
-            '\text{An immersion heater rated 150 W is fitted into a large block of ice at } ( 0\text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10^5\text{ J kg}^{-1} ) \text{. How long does it take to melt 10 g of ice?}', '\text{An immersion heater rated 150 W is fitted into a large block of ice at } ( 0 \text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10^5 \text{ J kg}^{-1} ) \text{. How long does it take to melt 10 g of ice?}', 'LaTeX("An immersion heater rated 150 W is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10^5$ J kg$^{-1} )$. How long does it take to melt 10 g of ice?").parsingMode(.onlyEquations)', 'LaTeX("An immersion heater rated 150 W is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10^5$ J kg$^{-1} )$. How long does it take to melt 10 g of ice?").parsingMode(.onlyEquations)',
+            '\text{An immersion heater rated 150 W is fitted into a large block of ice at } ( 0\text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10^5\text{ J kg}^{-1} ) \text{. How long does it take to melt 10 g of ice?}', '\text{An immersion heater rated 150 W is fitted into a large block of ice at } ( 0 \text{ }^\circ\text{C} ) \text{. The specific latent heat of fusion of the ice is } ( 3 \times 10 {^5} \text{ J kg}^{-1} ) \text{. How long does it take to melt 10 g of ice?}', 'LaTeX("An immersion heater rated 150 W is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10^5$ J kg$^{-1} )$. How long does it take to melt 10 g of ice?").parsingMode(.onlyEquations)', 'LaTeX("An immersion heater rated 150 W is fitted into a large block of ice at $( 0$ $^\\circ$C$)$. The specific latent heat of fusion of the ice is $( 3 \\times 10 {^5}$ J kg$^{-1} )$. How long does it take to melt 10 g of ice?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -952,7 +1141,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2022, 'May', 40, NULL, NULL,
-            '\text{The mean kinetic energy per molecule in a sample of a monoatomic gas is } ( 8.28 \times 10^{-21}\text{ J} ) \text{. What is the temperature of the gas?}', '\text{The mean kinetic energy per molecule in a sample of a monoatomic gas is } ( 8.28 \times 10^{-21}\text{ J} ) \text{. What is the temperature of the gas?}', 'LaTeX("The mean kinetic energy per molecule in a sample of a monoatomic gas is $( 8.28 \\times 10^{-21}$ J$)$. What is the temperature of the gas?").parsingMode(.onlyEquations)', 'LaTeX("The mean kinetic energy per molecule in a sample of a monoatomic gas is $( 8.28 \\times 10^{-21}$ J$)$. What is the temperature of the gas?").parsingMode(.onlyEquations)',
+            '\text{The mean kinetic energy per molecule in a sample of a monoatomic gas is } ( 8.28 \times 10^{-21}\text{ J} ) \text{. What is the temperature of the gas?}', '\text{The mean kinetic energy per molecule in a sample of a monoatomic gas is } ( 8.28 \times 10 {^-21}\text{ J} ) \text{. What is the temperature of the gas?}', 'LaTeX("The mean kinetic energy per molecule in a sample of a monoatomic gas is $( 8.28 \\times 10^{-21}$ J$)$. What is the temperature of the gas?").parsingMode(.onlyEquations)', 'LaTeX("The mean kinetic energy per molecule in a sample of a monoatomic gas is $( 8.28 \\times 10 {^-21}$ J$)$. What is the temperature of the gas?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -977,14 +1166,131 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2021, 'May', 2, NULL, NULL,
+            '\text{The resistivity of a } ( 3 \text{ m} ) \text{ length of constantan wire of diameter } ( 0.4 \text{ mm} ) \text{ and resistance } ( 8 \text{ } \Omega ) \text{ is}', '\text{The resistivity of a } ( 3 \text{ m} ) \text{ length of constantan wire of diameter } ( 0.4 \text{ mm} ) \text{ and resistance } ( 8 \text{ } \Omega ) \text{ is}', 'LaTeX("The resistivity of a $( 3$ m$)$ length of constantan wire of diameter $( 0.4$ mm$)$ and resistance $( 8$ $\\Omega )$ is").parsingMode(.onlyEquations)', 'LaTeX("The resistivity of a $( 3$ m$)$ length of constantan wire of diameter $( 0.4$ mm$)$ and resistance $( 8$ $\\Omega )$ is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 2
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 5, NULL, NULL,
+            '\text{A beta particle passes a point } ( 100 \text{ nm} ) \text{ away from an alpha particle. What is the magnitude of the electrostatic force between the particles at that point?}', '\text{A beta particle passes a point } ( 100 \text{ nm} ) \text{ away from an alpha particle. What is the magnitude of the electrostatic force between the particles at that point?}', 'LaTeX("A beta particle passes a point $( 100$ nm$)$ away from an alpha particle. What is the magnitude of the electrostatic force between the particles at that point?").parsingMode(.onlyEquations)', 'LaTeX("A beta particle passes a point $( 100$ nm$)$ away from an alpha particle. What is the magnitude of the electrostatic force between the particles at that point?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 5
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2021, 'May', 10, NULL, NULL,
             '\text{What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing is } ( 3 \text{ A} \text{?} )
 \text{(Assume } ( \mu_o = 4\pi \times 10^{-7} \text{ H m}^{-1} ) \text{.)}', '\text{What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing is } ( 3 \text{ A} \text{?} )
-\text{(Assume } ( \mu_o = 4 \pi \times 10^{-7} \text{ H m}^{-1} ) \text{.)}', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing is $( 3$ A?$)$\n(Assume $( \\mu_o = 4\\pi \\times 10^{-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing is $( 3$ A?$)$\n(Assume $( \\mu_o = 4 \\pi \\times 10^{-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)',
+\text{(Assume } ( \mu_o = 4 \pi \times 10 {^-7} \text{ H m}^{-1} ) \text{.)}', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing is $( 3$ A?$)$\n(Assume $( \\mu_o = 4\\pi \\times 10^{-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing is $( 3$ A?$)$\n(Assume $( \\mu_o = 4 \\pi \\times 10 {^-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 10
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 35, NULL, NULL,
+            '\text{Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is } ( 12.3 \times 10^{-19} \text{ J} ). \text{ What is the measured value of Planck''s constant?}', '\text{Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is } ( 12.3 \times 10 {^-19} \text{ J} ). \text{ What is the measured value of Planck''s constant?}', 'LaTeX("Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is $( 12.3 \\times 10^{-19}$ J$).$ What is the measured value of Planck''s constant?").parsingMode(.onlyEquations)', 'LaTeX("Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is $( 12.3 \\times 10 {^-19}$ J$).$ What is the measured value of Planck''s constant?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 35
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 36, NULL, NULL,
+            '\text{What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of } ( 10 \text{ m s}^{-1} \text{?} )', '\text{What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of } ( 10 \text{ m s}^{-1} \text{?} )', 'LaTeX("What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of $( 10$ m s$^{-1}$?$)$").parsingMode(.onlyEquations)', 'LaTeX("What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of $( 10$ m s$^{-1}$?$)$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 36
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 37, NULL, NULL,
+            '\text{An electron has kinetic energy of } ( 8 \times 10^{-18} \text{ J} ). \text{ What is this value in electron volts?}', '\text{An electron has kinetic energy of } ( 8 \times 10 {^-18} \text{ J} ). \text{ What is this value in electron volts?}', 'LaTeX("An electron has kinetic energy of $( 8 \\times 10^{-18}$ J$).$ What is this value in electron volts?").parsingMode(.onlyEquations)', 'LaTeX("An electron has kinetic energy of $( 8 \\times 10 {^-18}$ J$).$ What is this value in electron volts?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 37
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 40, NULL, NULL,
+            '\text{What is the wavelength of the radiation emitted as a result of an electron transition from } ( E_4 \text{ to } E_2 \text{?} )', '\text{What is the wavelength of the radiation emitted as a result of an electron transition from } ( E_4 \text{ to } E_2 \text{?} )', 'LaTeX("What is the wavelength of the radiation emitted as a result of an electron transition from $( E_4$ to $E_2$?$)$").parsingMode(.onlyEquations)', 'LaTeX("What is the wavelength of the radiation emitted as a result of an electron transition from $( E_4$ to $E_2$?$)$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 40
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 41, NULL, NULL,
+            '\text{In Millikan''s oil drop experiment, a charged drop of mass } ( 4 \times 10^{-15} \text{ kg} ) \text{ is suspended between the metal plates by an electric field of strength } ( 4.2 \times 10^4 \text{ V m}^{-1} ). \text{ The charge of the drop is}', '\text{In Millikan''s oil drop experiment, a charged drop of mass } ( 4 \times 10 {^-15} \text{ kg} ) \text{ is suspended between the metal plates by an electric field of strength } ( 4.2 \times 10 {^4} \text{ V m}^{-1} ). \text{ The charge of the drop is}', 'LaTeX("In Millikan''s oil drop experiment, a charged drop of mass $( 4 \\times 10^{-15}$ kg$)$ is suspended between the metal plates by an electric field of strength $( 4.2 \\times 10^4$ V m$^{-1} ).$ The charge of the drop is").parsingMode(.onlyEquations)', 'LaTeX("In Millikan''s oil drop experiment, a charged drop of mass $( 4 \\times 10 {^-15}$ kg$)$ is suspended between the metal plates by an electric field of strength $( 4.2 \\times 10 {^4}$ V m$^{-1} ).$ The charge of the drop is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 41
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 44, NULL, NULL,
+            '\text{What is the half-life for a radioactive isotope containing } ( 10^{20} \text{ atoms} ) \text{ with a decay constant of } ( 1.60 \times 10^{-5} \text{ hour}^{-1} \text{?} )', '\text{What is the half-life for a radioactive isotope containing } ( 10 {^20} \text{ atoms} ) \text{ with a decay constant of } ( 1.60 \times 10 {^-5} \text{ hour}^{-1} \text{?} )', 'LaTeX("What is the half-life for a radioactive isotope containing $( 10^{20}$ atoms$)$ with a decay constant of $( 1.60 \\times 10^{-5}$ hour$^{-1}$?$)$").parsingMode(.onlyEquations)', 'LaTeX("What is the half-life for a radioactive isotope containing $( 10 {^20}$ atoms$)$ with a decay constant of $( 1.60 \\times 10 {^-5}$ hour$^{-1}$?$)$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 44
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 45, NULL, NULL,
+            '\text{A newly prepared radioactive nuclide has a decay constant of } ( 1.9 \times 10^{-4} \text{ s}^{-1} ). \text{ What is the approximate half-life of the nuclide?}', '\text{A newly prepared radioactive nuclide has a decay constant of } ( 1.9 \times 10 {^-4} \text{ s}^{-1} ). \text{ What is the approximate half-life of the nuclide?}', 'LaTeX("A newly prepared radioactive nuclide has a decay constant of $( 1.9 \\times 10^{-4}$ s$^{-1} ).$ What is the approximate half-life of the nuclide?").parsingMode(.onlyEquations)', 'LaTeX("A newly prepared radioactive nuclide has a decay constant of $( 1.9 \\times 10 {^-4}$ s$^{-1} ).$ What is the approximate half-life of the nuclide?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 45
           AND (2021 IS NULL OR q.year = 2021)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -1063,8 +1369,23 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2024, 'May', 11, NULL, NULL,
+            '\text{Item 11 refers to the following diagram.}
+\text{The magnetic flux density at Point A is}', '\text{Item 11 refers to the following diagram.}
+\text{The magnetic flux density at Point A is}', 'LaTeX("Item 11 refers to the following diagram.\nThe magnetic flux density at Point A is").parsingMode(.onlyEquations)', 'LaTeX("Item 11 refers to the following diagram.\nThe magnetic flux density at Point A is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 11
+          AND (2024 IS NULL OR q.year = 2024)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2024, 'May', 13, NULL, NULL,
-            '\text{A conductor of mass } ( 2.0 \times 10^{-3}\text{ kg} ), \text{ carrying a current of } ( 2.0\text{ A} ), \text{ is balanced by a magnetic field at right angles to it. If the length of the conductor is } ( 8.0\text{ cm} ), \text{ the magnetic field strength is}', '\text{A conductor of mass } ( 2.0 \times 10^{-3}\text{ kg} ), \text{ carrying a current of } ( 2.0 \text{ A} ), \text{ is balanced by a magnetic field at right angles to it. If the length of the conductor is } ( 8.0 \text{ cm} ), \text{ the magnetic field strength is}', 'LaTeX("A conductor of mass $( 2.0 \\times 10^{-3}$ kg$),$ carrying a current of $( 2.0$ A$),$ is balanced by a magnetic field at right angles to it. If the length of the conductor is $( 8.0$ cm$),$ the magnetic field strength is").parsingMode(.onlyEquations)', 'LaTeX("A conductor of mass $( 2.0 \\times 10^{-3}$ kg$),$ carrying a current of $( 2.0$ A$),$ is balanced by a magnetic field at right angles to it. If the length of the conductor is $( 8.0$ cm$),$ the magnetic field strength is").parsingMode(.onlyEquations)',
+            '\text{A conductor of mass } ( 2.0 \times 10^{-3}\text{ kg} ), \text{ carrying a current of } ( 2.0\text{ A} ), \text{ is balanced by a magnetic field at right angles to it. If the length of the conductor is } ( 8.0\text{ cm} ), \text{ the magnetic field strength is}', '\text{A conductor of mass } ( 2.0 \times 10 {^-3}\text{ kg} ), \text{ carrying a current of } ( 2.0 \text{ A} ), \text{ is balanced by a magnetic field at right angles to it. If the length of the conductor is } ( 8.0 \text{ cm} ), \text{ the magnetic field strength is}', 'LaTeX("A conductor of mass $( 2.0 \\times 10^{-3}$ kg$),$ carrying a current of $( 2.0$ A$),$ is balanced by a magnetic field at right angles to it. If the length of the conductor is $( 8.0$ cm$),$ the magnetic field strength is").parsingMode(.onlyEquations)', 'LaTeX("A conductor of mass $( 2.0 \\times 10 {^-3}$ kg$),$ carrying a current of $( 2.0$ A$),$ is balanced by a magnetic field at right angles to it. If the length of the conductor is $( 8.0$ cm$),$ the magnetic field strength is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1122,7 +1443,7 @@ INSERT INTO fixed_questions (
             q.id, s.name, 1, 2024, 'May', 24, NULL, NULL,
             '\text{Item 24 refers to the following op-amp voltage comparator.}
 \text{The supply voltage to the op-amp is } ( + 9\text{ V} ). \text{ If the open loop gain is } ( 10^5 ) \text{ and } ( V_2 = 0 ), \text{ what is the maximum input voltage swing, } ( V_1 ), \text{ for linear amplification?}', '\text{Item 24 refers to the following op-amp voltage comparator.}
-\text{The supply voltage to the op-amp is } ( + 9 \text{ V} ). \text{ If the open loop gain is } ( 10^5 ) \text{ and } ( V_2 = 0 ), \text{ what is the maximum input voltage swing, } ( V_1 ), \text{ for linear amplification?}', 'LaTeX("Item 24 refers to the following op-amp voltage comparator.\nThe supply voltage to the op-amp is $( + 9$ V$).$ If the open loop gain is $( 10^5 )$ and $( V_2 = 0 ),$ what is the maximum input voltage swing, $( V_1 ),$ for linear amplification?").parsingMode(.onlyEquations)', 'LaTeX("Item 24 refers to the following op-amp voltage comparator.\nThe supply voltage to the op-amp is $( + 9$ V$).$ If the open loop gain is $( 10^5 )$ and $( V_2 = 0 ),$ what is the maximum input voltage swing, $( V_1 ),$ for linear amplification?").parsingMode(.onlyEquations)',
+\text{The supply voltage to the op-amp is } ( + 9 \text{ V} ). \text{ If the open loop gain is } ( 10 {^5} ) \text{ and } ( V_2 = 0 ), \text{ what is the maximum input voltage swing, } ( V_1 ), \text{ for linear amplification?}', 'LaTeX("Item 24 refers to the following op-amp voltage comparator.\nThe supply voltage to the op-amp is $( + 9$ V$).$ If the open loop gain is $( 10^5 )$ and $( V_2 = 0 ),$ what is the maximum input voltage swing, $( V_1 ),$ for linear amplification?").parsingMode(.onlyEquations)', 'LaTeX("Item 24 refers to the following op-amp voltage comparator.\nThe supply voltage to the op-amp is $( + 9$ V$).$ If the open loop gain is $( 10 {^5} )$ and $( V_2 = 0 ),$ what is the maximum input voltage swing, $( V_1 ),$ for linear amplification?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1135,7 +1456,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2024, 'May', 25, NULL, NULL,
-            '\text{An operational amplifier circuit has a gain of } ( 10^3 ) \text{ and a bandwidth of } ( 10^3\text{ Hz} ). \text{ What is the approximate bandwidth when the gain is reduced to 10?}', '\text{An operational amplifier circuit has a gain of } ( 10^3 ) \text{ and a bandwidth of } ( 10^3 \text{ Hz} ). \text{ What is the approximate bandwidth when the gain is reduced to 10?}', 'LaTeX("An operational amplifier circuit has a gain of $( 10^3 )$ and a bandwidth of $( 10^3$ Hz$).$ What is the approximate bandwidth when the gain is reduced to 10?").parsingMode(.onlyEquations)', 'LaTeX("An operational amplifier circuit has a gain of $( 10^3 )$ and a bandwidth of $( 10^3$ Hz$).$ What is the approximate bandwidth when the gain is reduced to 10?").parsingMode(.onlyEquations)',
+            '\text{An operational amplifier circuit has a gain of } ( 10^3 ) \text{ and a bandwidth of } ( 10^3\text{ Hz} ). \text{ What is the approximate bandwidth when the gain is reduced to 10?}', '\text{An operational amplifier circuit has a gain of } ( 10 {^3} ) \text{ and a bandwidth of } ( 10 {^3} \text{ Hz} ). \text{ What is the approximate bandwidth when the gain is reduced to 10?}', 'LaTeX("An operational amplifier circuit has a gain of $( 10^3 )$ and a bandwidth of $( 10^3$ Hz$).$ What is the approximate bandwidth when the gain is reduced to 10?").parsingMode(.onlyEquations)', 'LaTeX("An operational amplifier circuit has a gain of $( 10 {^3} )$ and a bandwidth of $( 10 {^3}$ Hz$).$ What is the approximate bandwidth when the gain is reduced to 10?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1215,7 +1536,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2024, 'May', 43, NULL, NULL,
-            '\text{What is the half-life for a radioactive isotope containing } ( 10^{20} ) \text{ atoms with a decay constant of } ( 1.60 \times 10^{-5}\text{ hour}^{-1} )?', '\text{What is the half-life for a radioactive isotope containing } ( 10^{20} ) \text{ atoms with a decay constant of } ( 1.60 \times 10^{-5}\text{ hour}^{-1} )?', 'LaTeX("What is the half-life for a radioactive isotope containing $( 10^{20} )$ atoms with a decay constant of $( 1.60 \\times 10^{-5}$ hour$^{-1} )?$").parsingMode(.onlyEquations)', 'LaTeX("What is the half-life for a radioactive isotope containing $( 10^{20} )$ atoms with a decay constant of $( 1.60 \\times 10^{-5}$ hour$^{-1} )?$").parsingMode(.onlyEquations)',
+            '\text{What is the half-life for a radioactive isotope containing } ( 10^{20} ) \text{ atoms with a decay constant of } ( 1.60 \times 10^{-5}\text{ hour}^{-1} )?', '\text{What is the half-life for a radioactive isotope containing } ( 10 {^20} ) \text{ atoms with a decay constant of } ( 1.60 \times 10 {^-5}\text{ hour}^{-1} )?', 'LaTeX("What is the half-life for a radioactive isotope containing $( 10^{20} )$ atoms with a decay constant of $( 1.60 \\times 10^{-5}$ hour$^{-1} )?$").parsingMode(.onlyEquations)', 'LaTeX("What is the half-life for a radioactive isotope containing $( 10 {^20} )$ atoms with a decay constant of $( 1.60 \\times 10 {^-5}$ hour$^{-1} )?$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1228,7 +1549,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2024, 'May', 44, NULL, NULL,
-            '\text{A sample of radioactive material initially contains } ( 2.0 \times 10^{18} ) \text{ atoms. The material decays by \alpha-emission and has a half-life of } ( 3.0 \times 10^{10}\text{ s} ). \text{ The initial activity of the sample is}', '\text{A sample of radioactive material initially contains } ( 2.0 \times 10^{18} ) \text{ atoms. The material decays by \alpha-emission and has a half-life of } ( 3.0 \times 10^{10}\text{ s} ). \text{ The initial activity of the sample is}', 'LaTeX("A sample of radioactive material initially contains $( 2.0 \\times 10^{18} )$ atoms. The material decays by \\alpha-emission and has a half-life of $( 3.0 \\times 10^{10}$ s$).$ The initial activity of the sample is").parsingMode(.onlyEquations)', 'LaTeX("A sample of radioactive material initially contains $( 2.0 \\times 10^{18} )$ atoms. The material decays by \\alpha-emission and has a half-life of $( 3.0 \\times 10^{10}$ s$).$ The initial activity of the sample is").parsingMode(.onlyEquations)',
+            '\text{A sample of radioactive material initially contains } ( 2.0 \times 10^{18} ) \text{ atoms. The material decays by \alpha-emission and has a half-life of } ( 3.0 \times 10^{10}\text{ s} ). \text{ The initial activity of the sample is}', '\text{A sample of radioactive material initially contains } ( 2.0 \times 10 {^18} ) \text{ atoms. The material decays by \alpha-emission and has a half-life of } ( 3.0 \times 10 {^10}\text{ s} ). \text{ The initial activity of the sample is}', 'LaTeX("A sample of radioactive material initially contains $( 2.0 \\times 10^{18} )$ atoms. The material decays by \\alpha-emission and has a half-life of $( 3.0 \\times 10^{10}$ s$).$ The initial activity of the sample is").parsingMode(.onlyEquations)', 'LaTeX("A sample of radioactive material initially contains $( 2.0 \\times 10 {^18} )$ atoms. The material decays by \\alpha-emission and has a half-life of $( 3.0 \\times 10 {^10}$ s$).$ The initial activity of the sample is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1312,7 +1633,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2021, 'May', 11, NULL, NULL,
-            '\text{A rocket in gravity-free space is burning } ( 5.0 \times 10^2\text{ kg} ) \text{ of fuel per second. The exhaust gases are expelled at } ( 8.0 \times 10^3\text{ m s}^{-1} ) \text{ relative to the rocket, whose mass is } ( 2.0 \times 10^5\text{ kg} ) \text{ at that time. What is the rocket''s acceleration?}', '\text{A rocket in gravity-free space is burning } ( 5.0 \times 10^2 \text{ kg} ) \text{ of fuel per second. The exhaust gases are expelled at } ( 8.0 \times 10^3 \text{ m s}^{-1} ) \text{ relative to the rocket, whose mass is } ( 2.0 \times 10^5 \text{ kg} ) \text{ at that time. What is the rocket''s acceleration?}', 'LaTeX("A rocket in gravity-free space is burning $( 5.0 \\times 10^2$ kg$)$ of fuel per second. The exhaust gases are expelled at $( 8.0 \\times 10^3$ m s$^{-1} )$ relative to the rocket, whose mass is $( 2.0 \\times 10^5$ kg$)$ at that time. What is the rocket''s acceleration?").parsingMode(.onlyEquations)', 'LaTeX("A rocket in gravity-free space is burning $( 5.0 \\times 10^2$ kg$)$ of fuel per second. The exhaust gases are expelled at $( 8.0 \\times 10^3$ m s$^{-1} )$ relative to the rocket, whose mass is $( 2.0 \\times 10^5$ kg$)$ at that time. What is the rocket''s acceleration?").parsingMode(.onlyEquations)',
+            '\text{A rocket in gravity-free space is burning } ( 5.0 \times 10^2\text{ kg} ) \text{ of fuel per second. The exhaust gases are expelled at } ( 8.0 \times 10^3\text{ m s}^{-1} ) \text{ relative to the rocket, whose mass is } ( 2.0 \times 10^5\text{ kg} ) \text{ at that time. What is the rocket''s acceleration?}', '\text{A rocket in gravity-free space is burning } ( 5.0 \times 10 {^2} \text{ kg} ) \text{ of fuel per second. The exhaust gases are expelled at } ( 8.0 \times 10 {^3} \text{ m s}^{-1} ) \text{ relative to the rocket, whose mass is } ( 2.0 \times 10 {^5} \text{ kg} ) \text{ at that time. What is the rocket''s acceleration?}', 'LaTeX("A rocket in gravity-free space is burning $( 5.0 \\times 10^2$ kg$)$ of fuel per second. The exhaust gases are expelled at $( 8.0 \\times 10^3$ m s$^{-1} )$ relative to the rocket, whose mass is $( 2.0 \\times 10^5$ kg$)$ at that time. What is the rocket''s acceleration?").parsingMode(.onlyEquations)', 'LaTeX("A rocket in gravity-free space is burning $( 5.0 \\times 10 {^2}$ kg$)$ of fuel per second. The exhaust gases are expelled at $( 8.0 \\times 10 {^3}$ m s$^{-1} )$ relative to the rocket, whose mass is $( 2.0 \\times 10 {^5}$ kg$)$ at that time. What is the rocket''s acceleration?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1394,7 +1715,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2021, 'May', 25, NULL, NULL,
-            '\text{The wavelength of a yellow light source is } ( 5.89 \times 10^{-7}\text{ m} ) \text{. What is the separation of the yellow fringes formed on a screen } ( 1.8\text{ m} ) \text{ from a double slit with a spacing of } ( 0.2\text{ mm} ) \text{?}', '\text{The wavelength of a yellow light source is } ( 5.89 \times 10^{-7}\text{ m} ) \text{. What is the separation of the yellow fringes formed on a screen } ( 1.8 \text{ m} ) \text{ from a double slit with a spacing of } ( 0.2 \text{ mm} ) \text{?}', 'LaTeX("The wavelength of a yellow light source is $( 5.89 \\times 10^{-7}$ m$)$. What is the separation of the yellow fringes formed on a screen $( 1.8$ m$)$ from a double slit with a spacing of $( 0.2$ mm$)$?").parsingMode(.onlyEquations)', 'LaTeX("The wavelength of a yellow light source is $( 5.89 \\times 10^{-7}$ m$)$. What is the separation of the yellow fringes formed on a screen $( 1.8$ m$)$ from a double slit with a spacing of $( 0.2$ mm$)$?").parsingMode(.onlyEquations)',
+            '\text{The wavelength of a yellow light source is } ( 5.89 \times 10^{-7}\text{ m} ) \text{. What is the separation of the yellow fringes formed on a screen } ( 1.8\text{ m} ) \text{ from a double slit with a spacing of } ( 0.2\text{ mm} ) \text{?}', '\text{The wavelength of a yellow light source is } ( 5.89 \times 10 {^-7}\text{ m} ) \text{. What is the separation of the yellow fringes formed on a screen } ( 1.8 \text{ m} ) \text{ from a double slit with a spacing of } ( 0.2 \text{ mm} ) \text{?}', 'LaTeX("The wavelength of a yellow light source is $( 5.89 \\times 10^{-7}$ m$)$. What is the separation of the yellow fringes formed on a screen $( 1.8$ m$)$ from a double slit with a spacing of $( 0.2$ mm$)$?").parsingMode(.onlyEquations)', 'LaTeX("The wavelength of a yellow light source is $( 5.89 \\times 10 {^-7}$ m$)$. What is the separation of the yellow fringes formed on a screen $( 1.8$ m$)$ from a double slit with a spacing of $( 0.2$ mm$)$?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1407,7 +1728,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2021, 'May', 27, NULL, NULL,
-            '\text{A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of } ( 5\text{ ms} ) \text{ duration. If the wavelength of the electromagnetic waves is } ( 2 \times 10^{-6}\text{ m} ) \text{, the number of wavelengths in EACH pulse is approximately}', '\text{A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of } ( 5 \text{ ms} ) \text{ duration. If the wavelength of the electromagnetic waves is } ( 2 \times 10^{-6}\text{ m} ) \text{, the number of wavelengths in EACH pulse is approximately}', 'LaTeX("A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of $( 5$ ms$)$ duration. If the wavelength of the electromagnetic waves is $( 2 \\times 10^{-6}$ m$)$, the number of wavelengths in EACH pulse is approximately").parsingMode(.onlyEquations)', 'LaTeX("A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of $( 5$ ms$)$ duration. If the wavelength of the electromagnetic waves is $( 2 \\times 10^{-6}$ m$)$, the number of wavelengths in EACH pulse is approximately").parsingMode(.onlyEquations)',
+            '\text{A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of } ( 5\text{ ms} ) \text{ duration. If the wavelength of the electromagnetic waves is } ( 2 \times 10^{-6}\text{ m} ) \text{, the number of wavelengths in EACH pulse is approximately}', '\text{A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of } ( 5 \text{ ms} ) \text{ duration. If the wavelength of the electromagnetic waves is } ( 2 \times 10 {^-6}\text{ m} ) \text{, the number of wavelengths in EACH pulse is approximately}', 'LaTeX("A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of $( 5$ ms$)$ duration. If the wavelength of the electromagnetic waves is $( 2 \\times 10^{-6}$ m$)$, the number of wavelengths in EACH pulse is approximately").parsingMode(.onlyEquations)', 'LaTeX("A communications satellite sends information to Earth in the form of electromagnetic waves in bursts of $( 5$ ms$)$ duration. If the wavelength of the electromagnetic waves is $( 2 \\times 10 {^-6}$ m$)$, the number of wavelengths in EACH pulse is approximately").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1433,7 +1754,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2021, 'May', 29, NULL, NULL,
-            '\text{As light travelling in air enters a medium, its speed changes to } ( 2.4 \times 10^8\text{ m s}^{-1} ) \text{. The refractive index of the medium is}', '\text{As light travelling in air enters a medium, its speed changes to } ( 2.4 \times 10^8 \text{ m s}^{-1} ) \text{. The refractive index of the medium is}', 'LaTeX("As light travelling in air enters a medium, its speed changes to $( 2.4 \\times 10^8$ m s$^{-1} )$. The refractive index of the medium is").parsingMode(.onlyEquations)', 'LaTeX("As light travelling in air enters a medium, its speed changes to $( 2.4 \\times 10^8$ m s$^{-1} )$. The refractive index of the medium is").parsingMode(.onlyEquations)',
+            '\text{As light travelling in air enters a medium, its speed changes to } ( 2.4 \times 10^8\text{ m s}^{-1} ) \text{. The refractive index of the medium is}', '\text{As light travelling in air enters a medium, its speed changes to } ( 2.4 \times 10 {^8} \text{ m s}^{-1} ) \text{. The refractive index of the medium is}', 'LaTeX("As light travelling in air enters a medium, its speed changes to $( 2.4 \\times 10^8$ m s$^{-1} )$. The refractive index of the medium is").parsingMode(.onlyEquations)', 'LaTeX("As light travelling in air enters a medium, its speed changes to $( 2.4 \\times 10 {^8}$ m s$^{-1} )$. The refractive index of the medium is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1472,7 +1793,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2021, 'May', 38, NULL, NULL,
-            '\text{The circular opening of a furnace has a radius of } ( 6 \times 10^{-2}\text{ m} ) \text{ at } ( 1450\text{ K} ) \text{. It emits radiation equivalent to } ( 60\% ) \text{ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?}', '\text{The circular opening of a furnace has a radius of } ( 6 \times 10^{-2}\text{ m} ) \text{ at } ( 1450 \text{ K} ) \text{. It emits radiation equivalent to } ( 60\% ) \text{ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?}', 'LaTeX("The circular opening of a furnace has a radius of $( 6 \\times 10^{-2}$ m$)$ at $( 1450$ K$)$. It emits radiation equivalent to $( 60\\% )$ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?").parsingMode(.onlyEquations)', 'LaTeX("The circular opening of a furnace has a radius of $( 6 \\times 10^{-2}$ m$)$ at $( 1450$ K$)$. It emits radiation equivalent to $( 60\\% )$ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?").parsingMode(.onlyEquations)',
+            '\text{The circular opening of a furnace has a radius of } ( 6 \times 10^{-2}\text{ m} ) \text{ at } ( 1450\text{ K} ) \text{. It emits radiation equivalent to } ( 60\% ) \text{ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?}', '\text{The circular opening of a furnace has a radius of } ( 6 \times 10 {^-2}\text{ m} ) \text{ at } ( 1450 \text{ K} ) \text{. It emits radiation equivalent to } ( 60\% ) \text{ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?}', 'LaTeX("The circular opening of a furnace has a radius of $( 6 \\times 10^{-2}$ m$)$ at $( 1450$ K$)$. It emits radiation equivalent to $( 60\\% )$ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?").parsingMode(.onlyEquations)', 'LaTeX("The circular opening of a furnace has a radius of $( 6 \\times 10 {^-2}$ m$)$ at $( 1450$ K$)$. It emits radiation equivalent to $( 60\\% )$ of that for a perfect black body radiator at the same temperature. What is the power radiated from the opening of the furnace?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1555,10 +1876,49 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2025, 'May', 2, NULL, NULL,
+            '\text{The resistivity of a } ( 3 \text{ m} ) \text{ length of constantan wire of diameter } ( 0.4 \text{ mm} ) \text{ and resistance } ( 8 \text{ } \Omega ) \text{ is}', '\text{The resistivity of a } ( 3 \text{ m} ) \text{ length of constantan wire of diameter } ( 0.4 \text{ mm} ) \text{ and resistance } ( 8 \text{ } \Omega ) \text{ is}', 'LaTeX("The resistivity of a $( 3$ m$)$ length of constantan wire of diameter $( 0.4$ mm$)$ and resistance $( 8$ $\\Omega )$ is").parsingMode(.onlyEquations)', 'LaTeX("The resistivity of a $( 3$ m$)$ length of constantan wire of diameter $( 0.4$ mm$)$ and resistance $( 8$ $\\Omega )$ is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 7, NULL, NULL,
+            '\text{What is the electric potential } ( 25 \text{ cm} ) \text{ from a point charge of } ( 6 \times 10^{-8} \text{ C} ) \text{?}', '\text{What is the electric potential } ( 25 \text{ cm} ) \text{ from a point charge of } ( 6 \times 10 {^-8} \text{ C} ) \text{?}', 'LaTeX("What is the electric potential $( 25$ cm$)$ from a point charge of $( 6 \\times 10^{-8}$ C$)$?").parsingMode(.onlyEquations)', 'LaTeX("What is the electric potential $( 25$ cm$)$ from a point charge of $( 6 \\times 10 {^-8}$ C$)$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 7
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 8, NULL, NULL,
+            '\text{The energy stored in a capacitor of capacitance } ( 4 \text{ } \mu\text{F} ) \text{ and charge } ( 180 \text{ } \mu\text{C} ) \text{ is } ( 4.05 \times 10^{-3} \text{ J} ). \text{ What would be the value of the capacitor, if the charge remains the same and the energy stored is now } ( 4.05 \times 10^{-2} \text{ J} ) \text{?}', '\text{The energy stored in a capacitor of capacitance } ( 4 \text{ } \mu\text{F} ) \text{ and charge } ( 180 \text{ } \mu\text{C} ) \text{ is } ( 4.05 \times 10 {^-3} \text{ J} ). \text{ What would be the value of the capacitor, if the charge remains the same and the energy stored is now } ( 4.05 \times 10 {^-2} \text{ J} ) \text{?}', 'LaTeX("The energy stored in a capacitor of capacitance $( 4$ $\\mu$F$)$ and charge $( 180$ $\\mu$C$)$ is $( 4.05 \\times 10^{-3}$ J$).$ What would be the value of the capacitor, if the charge remains the same and the energy stored is now $( 4.05 \\times 10^{-2}$ J$)$?").parsingMode(.onlyEquations)', 'LaTeX("The energy stored in a capacitor of capacitance $( 4$ $\\mu$F$)$ and charge $( 180$ $\\mu$C$)$ is $( 4.05 \\times 10 {^-3}$ J$).$ What would be the value of the capacitor, if the charge remains the same and the energy stored is now $( 4.05 \\times 10 {^-2}$ J$)$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 8
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2025, 'May', 10, NULL, NULL,
             '\text{What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing through the solenoid is 3 A?}
 \text{(Assume } ( \mu_o = 4\pi \times 10^{-7} \text{ H m}^{-1} ) \text{.)}', '\text{What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing through the solenoid is 3 A?}
-\text{(Assume } ( \mu_o = 4 \pi \times 10^{-7} \text{ H m}^{-1} ) \text{.)}', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing through the solenoid is 3 A?\n(Assume $( \\mu_o = 4\\pi \\times 10^{-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing through the solenoid is 3 A?\n(Assume $( \\mu_o = 4 \\pi \\times 10^{-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)',
+\text{(Assume } ( \mu_o = 4 \pi \times 10 {^-7} \text{ H m}^{-1} ) \text{.)}', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing through the solenoid is 3 A?\n(Assume $( \\mu_o = 4\\pi \\times 10^{-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)', 'LaTeX("What is the magnetic flux density at the centre of a long solenoid, given that the number of turns per unit length is 12 turns per centimetre and the current passing through the solenoid is 3 A?\n(Assume $( \\mu_o = 4 \\pi \\times 10 {^-7}$ H m$^{-1} )$.)").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1570,14 +1930,144 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2025, 'May', 13, NULL, NULL,
+            '\text{A conductor of mass } ( 2.0 \times 10^{-3} \text{ kg} ) \text{ carrying a current of 2.0 A is balanced by a magnetic field at right angles to it. If the length of the conductor is 8.0 cm, the magnetic field strength is}', '\text{A conductor of mass } ( 2.0 \times 10 {^-3} \text{ kg} ) \text{ carrying a current of 2.0 A is balanced by a magnetic field at right angles to it. If the length of the conductor is 8.0 cm, the magnetic field strength is}', 'LaTeX("A conductor of mass $( 2.0 \\times 10^{-3}$ kg$)$ carrying a current of 2.0 A is balanced by a magnetic field at right angles to it. If the length of the conductor is 8.0 cm, the magnetic field strength is").parsingMode(.onlyEquations)', 'LaTeX("A conductor of mass $( 2.0 \\times 10 {^-3}$ kg$)$ carrying a current of 2.0 A is balanced by a magnetic field at right angles to it. If the length of the conductor is 8.0 cm, the magnetic field strength is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 13
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 24, NULL, NULL,
+            '\text{The supply voltage to the op-amp is } ( \pm 9 \text{ V} ). \text{ If the open loop gain is } ( 10^5 ) \text{ and } ( V_2 = 0 ), \text{ what is the maximum input voltage swing, } ( V_1 ), \text{ for linear amplification?}', '\text{The supply voltage to the op-amp is } ( \pm 9 \text{ V} ). \text{ If the open loop gain is } ( 10 {^5} ) \text{ and } ( V_2 = 0 ), \text{ what is the maximum input voltage swing, } ( V_1 ), \text{ for linear amplification?}', 'LaTeX("The supply voltage to the op-amp is $( \\pm 9$ V$).$ If the open loop gain is $( 10^5 )$ and $( V_2 = 0 ),$ what is the maximum input voltage swing, $( V_1 ),$ for linear amplification?").parsingMode(.onlyEquations)', 'LaTeX("The supply voltage to the op-amp is $( \\pm 9$ V$).$ If the open loop gain is $( 10 {^5} )$ and $( V_2 = 0 ),$ what is the maximum input voltage swing, $( V_1 ),$ for linear amplification?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 24
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 31, NULL, NULL,
+            '\text{What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of } ( 10 \text{ m s}^{-1} ) \text{?}', '\text{What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of } ( 10 \text{ m s}^{-1} ) \text{?}', 'LaTeX("What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of $( 10$ m s$^{-1} )$?").parsingMode(.onlyEquations)', 'LaTeX("What is the de Broglie wavelength of an Olympic sprinter of mass 60 kg when running at a speed of $( 10$ m s$^{-1} )$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 31
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 32, NULL, NULL,
+            '\text{An electron has kinetic energy of } ( 8 \times 10^{-18} \text{ J} ). \text{ What is this value in electron volts?}', '\text{An electron has kinetic energy of } ( 8 \times 10 {^-18} \text{ J} ). \text{ What is this value in electron volts?}', 'LaTeX("An electron has kinetic energy of $( 8 \\times 10^{-18}$ J$).$ What is this value in electron volts?").parsingMode(.onlyEquations)', 'LaTeX("An electron has kinetic energy of $( 8 \\times 10 {^-18}$ J$).$ What is this value in electron volts?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 32
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 36, NULL, NULL,
+            '\text{Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is } ( 12.3 \times 10^{-19} \text{ J} ). \text{ What is the measured value of Planck''s constant?}', '\text{Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is } ( 12.3 \times 10 {^-19} \text{ J} ). \text{ What is the measured value of Planck''s constant?}', 'LaTeX("Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is $( 12.3 \\times 10^{-19}$ J$).$ What is the measured value of Planck''s constant?").parsingMode(.onlyEquations)', 'LaTeX("Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is $( 12.3 \\times 10 {^-19}$ J$).$ What is the measured value of Planck''s constant?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 36
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 40, NULL, NULL,
+            '\text{What is the wavelength of the radiation emitted as a result of an electron transition from } ( E_4 \text{ to } E_2 \text{?} )', '\text{What is the wavelength of the radiation emitted as a result of an electron transition from } ( E_4 \text{ to } E_2 \text{?} )', 'LaTeX("What is the wavelength of the radiation emitted as a result of an electron transition from $( E_4$ to $E_2$?$)$").parsingMode(.onlyEquations)', 'LaTeX("What is the wavelength of the radiation emitted as a result of an electron transition from $( E_4$ to $E_2$?$)$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 40
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 42, NULL, NULL,
+            '\text{The half-life of a sample of radioactive substance is 100 years. What is its decay constant?}', '\text{The half-life of a sample of radioactive substance is 100 years. What is its decay constant?}', 'LaTeX("The half-life of a sample of radioactive substance is 100 years. What is its decay constant?").parsingMode(.onlyEquations)', 'LaTeX("The half-life of a sample of radioactive substance is 100 years. What is its decay constant?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 42
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 44, NULL, NULL,
+            '\text{A sample of radioactive material initially contains } ( 2.0 \times 10^{18} \text{ atoms} ). \text{ The material decays by } ( \alpha\text{-emission} ) \text{ and has a half-life of } ( 3.0 \times 10^{10} \text{ s} ). \text{ The initial activity of the sample is}', '\text{A sample of radioactive material initially contains } ( 2.0 \times 10 {^18} \text{ atoms} ). \text{ The material decays by } ( \alpha\text{-emission} ) \text{ and has a half-life of } ( 3.0 \times 10 {^10} \text{ s} ). \text{ The initial activity of the sample is}', 'LaTeX("A sample of radioactive material initially contains $( 2.0 \\times 10^{18}$ atoms$).$ The material decays by $( \\alpha$-emission$)$ and has a half-life of $( 3.0 \\times 10^{10}$ s$).$ The initial activity of the sample is").parsingMode(.onlyEquations)', 'LaTeX("A sample of radioactive material initially contains $( 2.0 \\times 10 {^18}$ atoms$).$ The material decays by $( \\alpha$-emission$)$ and has a half-life of $( 3.0 \\times 10 {^10}$ s$).$ The initial activity of the sample is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 44
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 45, NULL, NULL,
+            '\text{A newly prepared radioactive nuclide has a decay constant of } ( 1.9 \times 10^{-4} \text{ s}^{-1} ). \text{ What is the approximate half-life of the nuclide?}', '\text{A newly prepared radioactive nuclide has a decay constant of } ( 1.9 \times 10 {^-4} \text{ s}^{-1} ). \text{ What is the approximate half-life of the nuclide?}', 'LaTeX("A newly prepared radioactive nuclide has a decay constant of $( 1.9 \\times 10^{-4}$ s$^{-1} ).$ What is the approximate half-life of the nuclide?").parsingMode(.onlyEquations)', 'LaTeX("A newly prepared radioactive nuclide has a decay constant of $( 1.9 \\times 10 {^-4}$ s$^{-1} ).$ What is the approximate half-life of the nuclide?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 45
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2020, 'May', 1, NULL, NULL,
+            '\text{Which isotopic half-life is BEST suited for use as a tracer in medicine?}', '\text{Which isotopic half-life is BEST suited for use as a tracer in medicine?}', 'LaTeX("Which isotopic half-life is BEST suited for use as a tracer in medicine?").parsingMode(.onlyEquations)', 'LaTeX("Which isotopic half-life is BEST suited for use as a tracer in medicine?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 1
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2020, 'May', 5, NULL, NULL,
             '\text{Items 5–6 refer to the following half-equations for the reaction between iodine and sodium thiosulfate.}
 ( 2\text{S}_2\text{O}_3^{2-}\text{(aq)} \rightarrow \text{S}_4\text{O}_6^{2-}\text{(aq)} + 2\text{e}^- )
 ( \text{I}_2\text{(aq)} + 2\text{e}^- \rightarrow 2\text{I}^-\text{(aq)} )
 \text{The overall balanced chemical equation for the reaction is}', '\text{Items 5–6 refer to the following half-equations for the reaction between iodine and sodium thiosulfate.}
-( 2 \text{S}_2 \text{O}_3^{2-}\text{(aq)} \rightarrow \text{S}_4 \text{O}_6^{2-}\text{(aq)} + 2 \text{e}^- )
+( 2 \text{S}_2 \text{O}_3 {^2-}\text{(aq)} \rightarrow \text{S}_4 \text{O}_6 {^2-}\text{(aq)} + 2 \text{e}^- )
 ( \text{I}_2 \text{(aq)} + 2 \text{e}^- \rightarrow 2 \text{I}^-\text{(aq)} )
-\text{The overall balanced chemical equation for the reaction is}', 'LaTeX("Items 5–6 refer to the following half-equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow$S$_4$O$_6^{2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)', 'LaTeX("Items 5–6 refer to the following half-equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow$S$_4$O$_6^{2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)',
+\text{The overall balanced chemical equation for the reaction is}', 'LaTeX("Items 5–6 refer to the following half-equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow$S$_4$O$_6^{2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)', 'LaTeX("Items 5–6 refer to the following half-equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3 {^2-}$(aq)$\\rightarrow$S$_4$O$_6 {^2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1634,6 +2124,19 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2020, 'May', 13, NULL, NULL,
+            '\text{Which of the following processes represents an oxidation?}', '\text{Which of the following processes represents an oxidation?}', 'LaTeX("Which of the following processes represents an oxidation?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following processes represents an oxidation?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 13
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2020, 'May', 14, NULL, NULL,
             '\text{The second ionization energy of calcium is } ( 1150 \text{ kJ mol}^{-1} )\text{. Which of the following equations represents this statement?}', '\text{The second ionization energy of calcium is } ( 1150 \text{ kJ mol}^{-1} )\text{. Which of the following equations represents this statement?}', 'LaTeX("The second ionization energy of calcium is $( 1150$ kJ mol$^{-1} )$. Which of the following equations represents this statement?").parsingMode(.onlyEquations)', 'LaTeX("The second ionization energy of calcium is $( 1150$ kJ mol$^{-1} )$. Which of the following equations represents this statement?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -1648,11 +2151,24 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 1, 2020, 'May', 19, NULL, NULL,
-            '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6\text{H}_5\text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6\text{H}_5\text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10^{-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6 \text{H}_5 \text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6 \text{H}_5 \text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10^{-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)',
+            '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6\text{H}_5\text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6\text{H}_5\text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10^{-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6 \text{H}_5 \text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6 \text{H}_5 \text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10 {^-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10 {^-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 19
+          AND (2020 IS NULL OR q.year = 2020)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2020, 'May', 20, NULL, NULL,
+            '\text{The solubility product of } ( \text{BaSO}_4 ) \text{ at } ( 25 \text{ } ^\circ\text{C} ) \text{ is } ( 1 \times 10^{-10} \text{ mol}^2 \text{ dm}^{-6} )\text{. The number of moles of } ( \text{BaSO}_4 ) \text{ that will dissolve in } ( 1 \text{ dm}^3 ) \text{ of water to form a saturated solution is}', '\text{The solubility product of } ( \text{BaSO}_4 ) \text{ at } ( 25 \text{ } ^\circ\text{C} ) \text{ is } ( 1 \times 10 {^-10} \text{ mol}^2 \text{ dm}^{-6} )\text{. The number of moles of } ( \text{BaSO}_4 ) \text{ that will dissolve in } ( 1 \text{ dm}^3 ) \text{ of water to form a saturated solution is}', 'LaTeX("The solubility product of $($BaSO$_4 )$ at $( 25$ $^\\circ$C$)$ is $( 1 \\times 10^{-10}$ mol$^2$ dm$^{-6} )$. The number of moles of $($BaSO$_4 )$ that will dissolve in $( 1$ dm$^3 )$ of water to form a saturated solution is").parsingMode(.onlyEquations)', 'LaTeX("The solubility product of $($BaSO$_4 )$ at $( 25$ $^\\circ$C$)$ is $( 1 \\times 10 {^-10}$ mol$^2$ dm$^{-6} )$. The number of moles of $($BaSO$_4 )$ that will dissolve in $( 1$ dm$^3 )$ of water to form a saturated solution is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 20
           AND (2020 IS NULL OR q.year = 2020)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -1758,8 +2274,8 @@ INSERT INTO fixed_questions (
             '\text{What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?}
 ( \text{I}_2\text{(aq)} + 2\text{S}_2\text{O}_3^{2-}\text{(aq)} \rightarrow 2\text{I}^-\text{(aq)} + \text{S}_4\text{O}_6^{2-}\text{(aq)} )
 ( 4\text{Cl}_2\text{(aq)} + \text{S}_2\text{O}_3^{2-}\text{(aq)} + 5\text{H}_2\text{O(l)} \rightarrow 8\text{Cl}^-\text{(aq)} + 2\text{SO}_4^{2-}\text{(aq)} + 10\text{H}^+\text{(aq)} )', '\text{What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?}
-( \text{I}_2 \text{(aq)} + 2 \text{S}_2 \text{O}_3^{2-}\text{(aq)} \rightarrow 2 \text{I}^-\text{(aq)} + \text{S}_4 \text{O}_6^{2-}\text{(aq)} )
-( 4 \text{Cl}_2 \text{(aq)} + \text{S}_2 \text{O}_3^{2-}\text{(aq)} + 5 \text{H}_2 \text{O(l)} \rightarrow 8 \text{Cl}^-\text{(aq)} + 2 \text{SO}_4^{2-}\text{(aq)} + 10 \text{H}^+\text{(aq)} )', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6^{2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3^{2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4^{2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6^{2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3^{2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4^{2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)',
+( \text{I}_2 \text{(aq)} + 2 \text{S}_2 \text{O}_3 {^2-}\text{(aq)} \rightarrow 2 \text{I}^-\text{(aq)} + \text{S}_4 \text{O}_6 {^2-}\text{(aq)} )
+( 4 \text{Cl}_2 \text{(aq)} + \text{S}_2 \text{O}_3 {^2-}\text{(aq)} + 5 \text{H}_2 \text{O(l)} \rightarrow 8 \text{Cl}^-\text{(aq)} + 2 \text{SO}_4 {^2-}\text{(aq)} + 10 \text{H}^+\text{(aq)} )', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6^{2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3^{2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4^{2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3 {^2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6 {^2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3 {^2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4 {^2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1818,8 +2334,21 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2021, 'May', 15, NULL, NULL,
+            '\text{Which of the following processes represents an oxidation?}', '\text{Which of the following processes represents an oxidation?}', 'LaTeX("Which of the following processes represents an oxidation?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following processes represents an oxidation?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 15
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2021, 'May', 19, NULL, NULL,
-            '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6\text{H}_5\text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6\text{H}_5\text{COOH} )\text{. } ( \text{K}_{a(\text{benzoic acid})} = 6.4 \times 10^{-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6 \text{H}_5 \text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6 \text{H}_5 \text{COOH} )\text{. } ( \text{K}_{a(\text{benzoic acid})} = 6.4 \times 10^{-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{a($benzoic acid$)} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{a($benzoic acid$)} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)',
+            '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6\text{H}_5\text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6\text{H}_5\text{COOH} )\text{. } ( \text{K}_{a(\text{benzoic acid})} = 6.4 \times 10^{-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6 \text{H}_5 \text{COONa} ) \text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6 \text{H}_5 \text{COOH} )\text{. } ( \text{K}_{a(\text{benzoic acid})} = 6.4 \times 10 {^-5} \text{ mol dm}^{-3} )\text{. The pH of the buffer is}', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{a($benzoic acid$)} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{a($benzoic acid$)} = 6.4 \\times 10 {^-5}$ mol dm$^{-3} )$. The pH of the buffer is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1876,6 +2405,51 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2021, 'May', 24, NULL, NULL,
+            '\text{The solubility product, } ( \text{K}_{sp} ) \text{, at } ( 298 \text{ K} ) \text{ for three Group II metal sulfates is given in the following table.}
+\text{Which of the metal sulfates would precipitate out of solution if equal volumes of } ( 10^{-3} \text{ mol dm}^{-3} ) \text{ solution containing the sulfate ion and the Group II metal are mixed?}', '\text{The solubility product, } ( \text{K}_{sp} ) \text{, at } ( 298 \text{ K} ) \text{ for three Group II metal sulfates is given in the following table.}
+\text{Which of the metal sulfates would precipitate out of solution if equal volumes of } ( 10 {^-3} \text{ mol dm}^{-3} ) \text{ solution containing the sulfate ion and the Group II metal are mixed?}', 'LaTeX("The solubility product, $($K$_{sp} )$, at $( 298$ K$)$ for three Group II metal sulfates is given in the following table.\nWhich of the metal sulfates would precipitate out of solution if equal volumes of $( 10^{-3}$ mol dm$^{-3} )$ solution containing the sulfate ion and the Group II metal are mixed?").parsingMode(.onlyEquations)', 'LaTeX("The solubility product, $($K$_{sp} )$, at $( 298$ K$)$ for three Group II metal sulfates is given in the following table.\nWhich of the metal sulfates would precipitate out of solution if equal volumes of $( 10 {^-3}$ mol dm$^{-3} )$ solution containing the sulfate ion and the Group II metal are mixed?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 24
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 25, NULL, NULL,
+            '\text{The solubility product of } ( \text{BaSO}_4 ) \text{ at } ( 25 \text{ } ^\circ\text{C} ) \text{ is } ( 1 \times 10^{-10} \text{ mol}^2 \text{ dm}^{-6} )\text{. The number of moles of } ( \text{BaSO}_4 ) \text{ that will dissolve in } ( 1 \text{ dm}^3 ) \text{ of water to form a saturated solution is}', '\text{The solubility product of } ( \text{BaSO}_4 ) \text{ at } ( 25 \text{ } ^\circ\text{C} ) \text{ is } ( 1 \times 10 {^-10} \text{ mol}^2 \text{ dm}^{-6} )\text{. The number of moles of } ( \text{BaSO}_4 ) \text{ that will dissolve in } ( 1 \text{ dm}^3 ) \text{ of water to form a saturated solution is}', 'LaTeX("The solubility product of $($BaSO$_4 )$ at $( 25$ $^\\circ$C$)$ is $( 1 \\times 10^{-10}$ mol$^2$ dm$^{-6} )$. The number of moles of $($BaSO$_4 )$ that will dissolve in $( 1$ dm$^3 )$ of water to form a saturated solution is").parsingMode(.onlyEquations)', 'LaTeX("The solubility product of $($BaSO$_4 )$ at $( 25$ $^\\circ$C$)$ is $( 1 \\times 10 {^-10}$ mol$^2$ dm$^{-6} )$. The number of moles of $($BaSO$_4 )$ that will dissolve in $( 1$ dm$^3 )$ of water to form a saturated solution is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 25
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2021, 'May', 26, NULL, NULL,
+            '\text{A weak acid, HX, dissociates as follows:}
+( \text{HX(aq)} \rightleftharpoons \text{X}^-\text{(aq)} + \text{H}^+\text{(aq)} )
+\text{The dissociation constant, } ( \text{K}_a ) \text{, for the reaction above is } ( 1.0 \times 10^{-12} \text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10^{-2} \text{ mol dm}^{-3} \text{ HX} ) \text{?}', '\text{A weak acid, HX, dissociates as follows:}
+( \text{HX(aq)} \rightleftharpoons \text{X}^-\text{(aq)} + \text{H}^+\text{(aq)} )
+\text{The dissociation constant, } ( \text{K}_a ) \text{, for the reaction above is } ( 1.0 \times 10 {^-12} \text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10 {^-2} \text{ mol dm}^{-3} \text{ HX} ) \text{?}', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_a )$, for the reaction above is $( 1.0 \\times 10^{-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10^{-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_a )$, for the reaction above is $( 1.0 \\times 10 {^-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10 {^-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 26
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2021, 'May', 27, NULL, NULL,
             '\text{Compounds P, Q and R form an equilibrium as shown below.}
 ( 2\text{P(aq)} + \text{Q(aq)} \rightleftharpoons 2\text{R(aq)} )
@@ -1911,9 +2485,9 @@ INSERT INTO fixed_questions (
 I. \text{Greater ionic product of } ( \text{Ca}^{2+} ) \text{ and } ( \text{CO}_3^{2-} ) \text{ ions}
 II. \text{Smaller solubility product of } ( \text{CaCO}_3\text{(s)} )
 III. \text{Greater solubility product of } ( \text{CaCO}_3\text{(s)} )', '\text{Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help(s) this process?}
-I. \text{Greater ionic product of } ( \text{Ca}^{2+} ) \text{ and } ( \text{CO}_3^{2-} ) \text{ ions}
+I. \text{Greater ionic product of } ( \text{Ca}^{2+} ) \text{ and } ( \text{CO}_3 {^2-} ) \text{ ions}
 II. \text{Smaller solubility product of } ( \text{CaCO}_3 \text{(s)} )
-III. \text{Greater solubility product of } ( \text{CaCO}_3 \text{(s)} )', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help(s) this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3^{2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help(s) this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3^{2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)',
+III. \text{Greater solubility product of } ( \text{CaCO}_3 \text{(s)} )', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help(s) this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3^{2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help(s) this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3 {^2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1942,8 +2516,8 @@ INSERT INTO fixed_questions (
             '\text{What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?}
 ( \text{I}_2\text{(aq)} + 2\text{S}_2\text{O}_3^{2-}\text{(aq)} \rightarrow 2\text{I}^-\text{(aq)} + \text{S}_4\text{O}_6^{2-}\text{(aq)} )
 ( 4\text{Cl}_2\text{(aq)} + \text{S}_2\text{O}_3^{2-}\text{(aq)} + 5\text{H}_2\text{O(l)} \rightarrow 8\text{Cl}^-\text{(aq)} + 2\text{SO}_4^{2-}\text{(aq)} + 10\text{H}^+\text{(aq)} )', '\text{What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?}
-( \text{I}_2 \text{(aq)} + 2 \text{S}_2 \text{O}_3^{2-}\text{(aq)} \rightarrow 2 \text{I}^-\text{(aq)} + \text{S}_4 \text{O}_6^{2-}\text{(aq)} )
-( 4 \text{Cl}_2 \text{(aq)} + \text{S}_2 \text{O}_3^{2-}\text{(aq)} + 5 \text{H}_2 \text{O(l)} \rightarrow 8 \text{Cl}^-\text{(aq)} + 2 \text{SO}_4^{2-}\text{(aq)} + 10 \text{H}^+\text{(aq)} )', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6^{2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3^{2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4^{2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6^{2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3^{2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4^{2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)',
+( \text{I}_2 \text{(aq)} + 2 \text{S}_2 \text{O}_3 {^2-}\text{(aq)} \rightarrow 2 \text{I}^-\text{(aq)} + \text{S}_4 \text{O}_6 {^2-}\text{(aq)} )
+( 4 \text{Cl}_2 \text{(aq)} + \text{S}_2 \text{O}_3 {^2-}\text{(aq)} + 5 \text{H}_2 \text{O(l)} \rightarrow 8 \text{Cl}^-\text{(aq)} + 2 \text{SO}_4 {^2-}\text{(aq)} + 10 \text{H}^+\text{(aq)} )', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6^{2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3^{2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4^{2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)', 'LaTeX("What deduction can be made from the following reactions of iodine and chlorine with sodium thiosulfate?\n$($I$_2$(aq)$+ 2$S$_2$O$_3 {^2-}$(aq)$\\rightarrow 2$I$^-$(aq)$+$S$_4$O$_6 {^2-}$(aq)$)$\n$( 4$Cl$_2$(aq)$+$S$_2$O$_3 {^2-}$(aq)$+ 5$H$_2$O(l)$\\rightarrow 8$Cl$^-$(aq)$+ 2$SO$_4 {^2-}$(aq)$+ 10$H$^+$(aq)$)$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -1975,9 +2549,9 @@ INSERT INTO fixed_questions (
 ( 2\text{S}_2\text{O}_3^{2-}\text{(aq)} \rightarrow \text{S}_4\text{O}_6^{2-}\text{(aq)} + 2\text{e}^- )
 ( \text{I}_2\text{(aq)} + 2\text{e}^- \rightarrow 2\text{I}^-\text{(aq)} )
 \text{The overall balanced chemical equation for the reaction is}', '\text{Items 5 and 6 refer to the following half equations for the reaction between iodine and sodium thiosulfate.}
-( 2 \text{S}_2 \text{O}_3^{2-}\text{(aq)} \rightarrow \text{S}_4 \text{O}_6^{2-}\text{(aq)} + 2 \text{e}^- )
+( 2 \text{S}_2 \text{O}_3 {^2-}\text{(aq)} \rightarrow \text{S}_4 \text{O}_6 {^2-}\text{(aq)} + 2 \text{e}^- )
 ( \text{I}_2 \text{(aq)} + 2 \text{e}^- \rightarrow 2 \text{I}^-\text{(aq)} )
-\text{The overall balanced chemical equation for the reaction is}', 'LaTeX("Items 5 and 6 refer to the following half equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow$S$_4$O$_6^{2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)', 'LaTeX("Items 5 and 6 refer to the following half equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow$S$_4$O$_6^{2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)',
+\text{The overall balanced chemical equation for the reaction is}', 'LaTeX("Items 5 and 6 refer to the following half equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3^{2-}$(aq)$\\rightarrow$S$_4$O$_6^{2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)', 'LaTeX("Items 5 and 6 refer to the following half equations for the reaction between iodine and sodium thiosulfate.\n$( 2$S$_2$O$_3 {^2-}$(aq)$\\rightarrow$S$_4$O$_6 {^2-}$(aq)$+ 2$e$^- )$\n$($I$_2$(aq)$+ 2$e$^- \\rightarrow 2$I$^-$(aq)$)$\nThe overall balanced chemical equation for the reaction is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -2008,6 +2582,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 8
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2022, 'May', 13, NULL, NULL,
+            '\text{Which of the following processes represents an oxidation?}', '\text{Which of the following processes represents an oxidation?}', 'LaTeX("Which of the following processes represents an oxidation?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following processes represents an oxidation?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 13
           AND (2022 IS NULL OR q.year = 2022)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -2079,12 +2666,29 @@ INSERT INTO fixed_questions (
         ) SELECT
             q.id, s.name, 1, 2022, 'May', 19, NULL, NULL,
             '\text{A buffer is made by dissolving } ( 28.8\text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6\text{H}_5\text{COONa} )\text{, in } ( 1\text{ dm}^3 ) \text{ of } ( 0.4\text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6\text{H}_5\text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10^{-5}\text{ mol dm}^{-3} )\text{.}
-\text{The pH of the buffer is}', '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6 \text{H}_5 \text{COONa} )\text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6 \text{H}_5 \text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10^{-5}\text{ mol dm}^{-3} )\text{.}
-\text{The pH of the buffer is}', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$.\nThe pH of the buffer is").parsingMode(.onlyEquations)', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$.\nThe pH of the buffer is").parsingMode(.onlyEquations)',
+\text{The pH of the buffer is}', '\text{A buffer is made by dissolving } ( 28.8 \text{ g} ) \text{ of sodium benzoate, } ( \text{C}_6 \text{H}_5 \text{COONa} )\text{, in } ( 1 \text{ dm}^3 ) \text{ of } ( 0.4 \text{ mol dm}^{-3} ) \text{ benzoic acid, } ( \text{C}_6 \text{H}_5 \text{COOH} )\text{. } ( \text{K}_{\text{a(benzoic acid)}} = 6.4 \times 10 {^-5}\text{ mol dm}^{-3} )\text{.}
+\text{The pH of the buffer is}', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10^{-5}$ mol dm$^{-3} )$.\nThe pH of the buffer is").parsingMode(.onlyEquations)', 'LaTeX("A buffer is made by dissolving $( 28.8$ g$)$ of sodium benzoate, $($C$_6$H$_5$COONa$)$, in $( 1$ dm$^3 )$ of $( 0.4$ mol dm$^{-3} )$ benzoic acid, $($C$_6$H$_5$COOH$)$. $($K$_{$a(benzoic acid)$} = 6.4 \\times 10 {^-5}$ mol dm$^{-3} )$.\nThe pH of the buffer is").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 19
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2022, 'May', 20, NULL, NULL,
+            '\text{A weak acid, HX, dissociates as follows:}
+( \text{HX(aq)} \rightleftharpoons \text{X}^-\text{(aq)} + \text{H}^+\text{(aq)} )
+\text{The dissociation constant, } ( \text{K}_{\text{a}} )\text{, for the above reaction is } ( 1.0 \times 10^{-12}\text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10^{-2}\text{ mol dm}^{-3}\text{ HX} )\text{?}', '\text{A weak acid, HX, dissociates as follows:}
+( \text{HX(aq)} \rightleftharpoons \text{X}^-\text{(aq)} + \text{H}^+\text{(aq)} )
+\text{The dissociation constant, } ( \text{K}_{\text{a}} )\text{, for the above reaction is } ( 1.0 \times 10 {^-12}\text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10 {^-2}\text{ mol dm}^{-3}\text{ HX} )\text{?}', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_{$a$} )$, for the above reaction is $( 1.0 \\times 10^{-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10^{-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_{$a$} )$, for the above reaction is $( 1.0 \\times 10 {^-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10 {^-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 20
           AND (2022 IS NULL OR q.year = 2022)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -2113,8 +2717,8 @@ INSERT INTO fixed_questions (
             '\text{In a saturated solution of silver carbonate, equilibrium can be established between dissolved ions and undissolved salt according to the following equation.}
 ( \text{Ag}_2\text{CO}_3\text{(s)} \rightarrow 2\text{Ag}^+\text{(aq)} + \text{CO}_3^{2-}\text{(aq)} )
 \text{What is the solubility of the } ( \text{Ag}_2\text{CO}_3\text{(s)} ) \text{ at } ( 20\text{ }^\circ\text{C} ) \text{ given that the solubility product of silver carbonate is } ( 8 \times 10^{-12}\text{ mol}^3\text{ dm}^{-9} )\text{?}', '\text{In a saturated solution of silver carbonate, equilibrium can be established between dissolved ions and undissolved salt according to the following equation.}
-( \text{Ag}_2 \text{CO}_3 \text{(s)} \rightarrow 2 \text{Ag}^+\text{(aq)} + \text{CO}_3^{2-}\text{(aq)} )
-\text{What is the solubility of the } ( \text{Ag}_2 \text{CO}_3 \text{(s)} ) \text{ at } ( 20 \text{ }^\circ\text{C} ) \text{ given that the solubility product of silver carbonate is } ( 8 \times 10^{-12}\text{ mol}^3 \text{ dm}^{-9} )\text{?}', 'LaTeX("In a saturated solution of silver carbonate, equilibrium can be established between dissolved ions and undissolved salt according to the following equation.\n$($Ag$_2$CO$_3$(s)$\\rightarrow 2$Ag$^+$(aq)$+$CO$_3^{2-}$(aq)$)$\nWhat is the solubility of the $($Ag$_2$CO$_3$(s)$)$ at $( 20$ $^\\circ$C$)$ given that the solubility product of silver carbonate is $( 8 \\times 10^{-12}$ mol$^3$ dm$^{-9} )$?").parsingMode(.onlyEquations)', 'LaTeX("In a saturated solution of silver carbonate, equilibrium can be established between dissolved ions and undissolved salt according to the following equation.\n$($Ag$_2$CO$_3$(s)$\\rightarrow 2$Ag$^+$(aq)$+$CO$_3^{2-}$(aq)$)$\nWhat is the solubility of the $($Ag$_2$CO$_3$(s)$)$ at $( 20$ $^\\circ$C$)$ given that the solubility product of silver carbonate is $( 8 \\times 10^{-12}$ mol$^3$ dm$^{-9} )$?").parsingMode(.onlyEquations)',
+( \text{Ag}_2 \text{CO}_3 \text{(s)} \rightarrow 2 \text{Ag}^+\text{(aq)} + \text{CO}_3 {^2-}\text{(aq)} )
+\text{What is the solubility of the } ( \text{Ag}_2 \text{CO}_3 \text{(s)} ) \text{ at } ( 20 \text{ }^\circ\text{C} ) \text{ given that the solubility product of silver carbonate is } ( 8 \times 10 {^-12}\text{ mol}^3 \text{ dm}^{-9} )\text{?}', 'LaTeX("In a saturated solution of silver carbonate, equilibrium can be established between dissolved ions and undissolved salt according to the following equation.\n$($Ag$_2$CO$_3$(s)$\\rightarrow 2$Ag$^+$(aq)$+$CO$_3^{2-}$(aq)$)$\nWhat is the solubility of the $($Ag$_2$CO$_3$(s)$)$ at $( 20$ $^\\circ$C$)$ given that the solubility product of silver carbonate is $( 8 \\times 10^{-12}$ mol$^3$ dm$^{-9} )$?").parsingMode(.onlyEquations)', 'LaTeX("In a saturated solution of silver carbonate, equilibrium can be established between dissolved ions and undissolved salt according to the following equation.\n$($Ag$_2$CO$_3$(s)$\\rightarrow 2$Ag$^+$(aq)$+$CO$_3 {^2-}$(aq)$)$\nWhat is the solubility of the $($Ag$_2$CO$_3$(s)$)$ at $( 20$ $^\\circ$C$)$ given that the solubility product of silver carbonate is $( 8 \\times 10 {^-12}$ mol$^3$ dm$^{-9} )$?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -2144,9 +2748,9 @@ INSERT INTO fixed_questions (
 I. \text{Greater ionic product of } ( \text{Ca}^{2+} ) \text{ and } ( \text{CO}_3^{2-} ) \text{ ions}
 II. \text{Smaller solubility product of } ( \text{CaCO}_3\text{(s)} )
 III. \text{Greater solubility product of } ( \text{CaCO}_3\text{(s)} )', '\text{Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help this process?}
-I. \text{Greater ionic product of } ( \text{Ca}^{2+} ) \text{ and } ( \text{CO}_3^{2-} ) \text{ ions}
+I. \text{Greater ionic product of } ( \text{Ca}^{2+} ) \text{ and } ( \text{CO}_3 {^2-} ) \text{ ions}
 II. \text{Smaller solubility product of } ( \text{CaCO}_3 \text{(s)} )
-III. \text{Greater solubility product of } ( \text{CaCO}_3 \text{(s)} )', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3^{2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3^{2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)',
+III. \text{Greater solubility product of } ( \text{CaCO}_3 \text{(s)} )', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3^{2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)', 'LaTeX("Marine animals such as oysters and other shellfish rely on the slow precipitation of calcium carbonate to form their shells. Which of the following properties help this process?\n$I.$Greater ionic product of $($Ca$^{2+} )$ and $($CO$_3 {^2-} )$ ions\n$II.$Smaller solubility product of $($CaCO$_3$(s)$)$\n$III.$Greater solubility product of $($CaCO$_3$(s)$)$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -2314,6 +2918,21 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2022, 'May', 13, NULL, NULL,
+            '\text{What is the pressure of 0.55 mol of } ( \text{NH}_3 ) \text{ gas in a 2.00 } ( \text{dm}^3 ) \text{ vessel at 25 } ( ^\circ\text{C} ) \text{, using the ideal gas law?}
+( R = 8.21 \times 10^{-2} \text{ atm dm}^3 \text{ K}^{-1} \text{ mol}^{-1} )', '\text{What is the pressure of 0.55 mol of } ( \text{NH}_3 ) \text{ gas in a 2.00 } ( \text{dm}^3 ) \text{ vessel at 25 } ( ^\circ\text{C} ) \text{, using the ideal gas law?}
+( R = 8.21 \times 10 {^-2} \text{ atm dm}^3 \text{ K}^{-1} \text{ mol}^{-1} )', 'LaTeX("What is the pressure of 0.55 mol of $($NH$_3 )$ gas in a 2.00 $($dm$^3 )$ vessel at 25 $( ^\\circ$C$)$, using the ideal gas law?\n$( R = 8.21 \\times 10^{-2}$ atm dm$^3$ K$^{-1}$ mol$^{-1} )$").parsingMode(.onlyEquations)', 'LaTeX("What is the pressure of 0.55 mol of $($NH$_3 )$ gas in a 2.00 $($dm$^3 )$ vessel at 25 $( ^\\circ$C$)$, using the ideal gas law?\n$( R = 8.21 \\times 10 {^-2}$ atm dm$^3$ K$^{-1}$ mol$^{-1} )$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 13
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2022, 'May', 16, NULL, NULL,
             '\text{What transitions are expected from } ( \text{C}_6\text{H}_5\text{NO}_2 ) \text{ in a UV-Vis spectrum?}', '\text{What transitions are expected from } ( \text{C}_6 \text{H}_5 \text{NO}_2 ) \text{ in a UV-Vis spectrum?}', 'LaTeX("What transitions are expected from $($C$_6$H$_5$NO$_2 )$ in a UV-Vis spectrum?").parsingMode(.onlyEquations)', 'LaTeX("What transitions are expected from $($C$_6$H$_5$NO$_2 )$ in a UV-Vis spectrum?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -2333,6 +2952,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 22
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2022, 'May', 27, NULL, NULL,
+            '\text{A compound absorbs light of frequency 940 MHz. The wavelength, in cm, of the light absorbed is ( } ( c = 3.0 \times 10^8 \text{ m s}^{-1} ) \text{ )}', '\text{A compound absorbs light of frequency 940 MHz. The wavelength, in cm, of the light absorbed is ( } ( c = 3.0 \times 10 {^8} \text{ m s}^{-1} ) \text{ )}', 'LaTeX("A compound absorbs light of frequency 940 MHz. The wavelength, in cm, of the light absorbed is ( $( c = 3.0 \\times 10^8$ m s$^{-1} )$ )").parsingMode(.onlyEquations)', 'LaTeX("A compound absorbs light of frequency 940 MHz. The wavelength, in cm, of the light absorbed is ( $( c = 3.0 \\times 10 {^8}$ m s$^{-1} )$ )").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 27
           AND (2022 IS NULL OR q.year = 2022)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -2575,8 +3207,8 @@ INSERT INTO fixed_questions (
             '\text{Sodium sulfite reacts with potassium manganate(VII) according to the following equation.}
 ( 2\text{MnO}_4^- + 6\text{H}^+ + 5\text{SO}_3^{2-} \to 2\text{Mn}^{2+} + 3\text{H}_2\text{O} + 5\text{SO}_4^{2-} )
 \text{In a titration, } ( 25 \text{ cm}^3 ) \text{ of } ( 0.04 \text{ mol dm}^{-3} ) \text{ sodium sulfite solution required } ( 20 \text{ cm}^3 ) \text{ of acidified } ( \text{KMnO}_4 \text{ for complete oxidation. The concentration of } \text{KMnO}_4 \text{ is} )', '\text{Sodium sulfite reacts with potassium manganate(VII) according to the following equation.}
-( 2 \text{MnO}_4^- + 6 \text{H}^+ + 5 \text{SO}_3^{2-} \to 2 \text{Mn}^{2+} + 3 \text{H}_2 \text{O} + 5 \text{SO}_4^{2-} )
-\text{In a titration, } ( 25 \text{ cm}^3 ) \text{ of } ( 0.04 \text{ mol dm}^{-3} ) \text{ sodium sulfite solution required } ( 20 \text{ cm}^3 ) \text{ of acidified } ( \text{KMnO}_4 \text{ for complete oxidation. The concentration of } \text{KMnO}_4 \text{ is} )', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3^{2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4^{2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3^{2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4^{2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)',
+( 2 \text{MnO}_4^- + 6 \text{H}^+ + 5 \text{SO}_3 {^2-} \to 2 \text{Mn}^{2+} + 3 \text{H}_2 \text{O} + 5 \text{SO}_4 {^2-} )
+\text{In a titration, } ( 25 \text{ cm}^3 ) \text{ of } ( 0.04 \text{ mol dm}^{-3} ) \text{ sodium sulfite solution required } ( 20 \text{ cm}^3 ) \text{ of acidified } ( \text{KMnO}_4 \text{ for complete oxidation. The concentration of } \text{KMnO}_4 \text{ is} )', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3^{2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4^{2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3 {^2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4 {^2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -2615,6 +3247,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 35
+          AND (2023 IS NULL OR q.year = 2023)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2023, 'May', 38, NULL, NULL,
+            '\text{Item 38 refers to the following test for pollutants in a sample of water. What is the MOST appropriate inference based on the above observation?}', '\text{Item 38 refers to the following test for pollutants in a sample of water. What is the MOST appropriate inference based on the above observation?}', 'LaTeX("Item 38 refers to the following test for pollutants in a sample of water. What is the MOST appropriate inference based on the above observation?").parsingMode(.onlyEquations)', 'LaTeX("Item 38 refers to the following test for pollutants in a sample of water. What is the MOST appropriate inference based on the above observation?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 38
           AND (2023 IS NULL OR q.year = 2023)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -2743,8 +3388,8 @@ INSERT INTO fixed_questions (
             '\text{Sodium sulfite reacts with potassium manganate(VII) according to the following equation.}
 ( 2\text{MnO}_4^- + 6\text{H}^+ + 5\text{SO}_3^{2-} \to 2\text{Mn}^{2+} + 3\text{H}_2\text{O} + 5\text{SO}_4^{2-} )
 \text{In a titration, } ( 25 \text{ cm}^3 ) \text{ of } ( 0.04 \text{ mol dm}^{-3} ) \text{ sodium sulfite solution required } ( 20 \text{ cm}^3 ) \text{ of acidified } ( \text{KMnO}_4 \text{ for complete oxidation. The concentration of } \text{KMnO}_4 \text{ is} )', '\text{Sodium sulfite reacts with potassium manganate(VII) according to the following equation.}
-( 2 \text{MnO}_4^- + 6 \text{H}^+ + 5 \text{SO}_3^{2-} \to 2 \text{Mn}^{2+} + 3 \text{H}_2 \text{O} + 5 \text{SO}_4^{2-} )
-\text{In a titration, } ( 25 \text{ cm}^3 ) \text{ of } ( 0.04 \text{ mol dm}^{-3} ) \text{ sodium sulfite solution required } ( 20 \text{ cm}^3 ) \text{ of acidified } ( \text{KMnO}_4 \text{ for complete oxidation. The concentration of } \text{KMnO}_4 \text{ is} )', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3^{2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4^{2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3^{2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4^{2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)',
+( 2 \text{MnO}_4^- + 6 \text{H}^+ + 5 \text{SO}_3 {^2-} \to 2 \text{Mn}^{2+} + 3 \text{H}_2 \text{O} + 5 \text{SO}_4 {^2-} )
+\text{In a titration, } ( 25 \text{ cm}^3 ) \text{ of } ( 0.04 \text{ mol dm}^{-3} ) \text{ sodium sulfite solution required } ( 20 \text{ cm}^3 ) \text{ of acidified } ( \text{KMnO}_4 \text{ for complete oxidation. The concentration of } \text{KMnO}_4 \text{ is} )', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3^{2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4^{2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)', 'LaTeX("Sodium sulfite reacts with potassium manganate(VII) according to the following equation.\n$( 2$MnO$_4^- + 6$H$^+ + 5$SO$_3 {^2-} \\to 2$Mn$^{2+} + 3$H$_2$O$+ 5$SO$_4 {^2-} )$\nIn a titration, $( 25$ cm$^3 )$ of $( 0.04$ mol dm$^{-3} )$ sodium sulfite solution required $( 20$ cm$^3 )$ of acidified $($KMnO$_4$ for complete oxidation. The concentration of KMnO$_4$ is$)$").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -2762,6 +3407,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 29
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 30, NULL, NULL,
+            '\text{A compound absorbs light with a frequency of } ( 940 \text{ MHz.} ) \text{ The wavelength, in cm, of the light absorbed is } ( (c = 3.0 \times 10^8 \text{ m s}^{-1}) )', '\text{A compound absorbs light with a frequency of } ( 940 \text{ MHz.} ) \text{ The wavelength, in cm, of the light absorbed is } ( (c = 3.0 \times 10 {^8} \text{ m s}^{-1}) )', 'LaTeX("A compound absorbs light with a frequency of $( 940$ MHz.$)$ The wavelength, in cm, of the light absorbed is $( (c = 3.0 \\times 10^8$ m s$^{-1}) )$").parsingMode(.onlyEquations)', 'LaTeX("A compound absorbs light with a frequency of $( 940$ MHz.$)$ The wavelength, in cm, of the light absorbed is $( (c = 3.0 \\times 10 {^8}$ m s$^{-1}) )$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 30
           AND (2025 IS NULL OR q.year = 2025)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -2794,6 +3452,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 34
+          AND (2025 IS NULL OR q.year = 2025)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2025, 'May', 36, NULL, NULL,
+            '\text{Dissolved } ( \text{O}_2 \text{ (DO)} ) \text{ in water is very important for aquatic organisms. However, the dissolved } ( \text{O}_2 ) \text{ in a body of water fluctuates daily. Which of the following factors and its effect accounts for this fluctuation?}', '\text{Dissolved } ( \text{O}_2 \text{ (DO)} ) \text{ in water is very important for aquatic organisms. However, the dissolved } ( \text{O}_2 ) \text{ in a body of water fluctuates daily. Which of the following factors and its effect accounts for this fluctuation?}', 'LaTeX("Dissolved $($O$_2$ (DO)$)$ in water is very important for aquatic organisms. However, the dissolved $($O$_2 )$ in a body of water fluctuates daily. Which of the following factors and its effect accounts for this fluctuation?").parsingMode(.onlyEquations)', 'LaTeX("Dissolved $($O$_2$ (DO)$)$ in water is very important for aquatic organisms. However, the dissolved $($O$_2 )$ in a body of water fluctuates daily. Which of the following factors and its effect accounts for this fluctuation?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 36
           AND (2025 IS NULL OR q.year = 2025)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -2863,6 +3534,19 @@ INSERT INTO fixed_questions (
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Biology U1' AND q.paper = 1 AND q.number = 3
           AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2023, 'May', 14, NULL, NULL,
+            '\text{Which of the following shows the amount of energy, in kJm}^{-2} \text{ yr}^{-1} \text{, available to the primary consumers?}', '\text{Which of the following shows the amount of energy, in kJm}^{-2} \text{ yr}^{-1} \text{, available to the primary consumers?}', 'LaTeX("Which of the following shows the amount of energy, in kJm$^{-2}$ yr$^{-1}$, available to the primary consumers?").parsingMode(.onlyEquations)', 'LaTeX("Which of the following shows the amount of energy, in kJm$^{-2}$ yr$^{-1}$, available to the primary consumers?").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Biology U2' AND q.paper = 1 AND q.number = 14
+          AND (2023 IS NULL OR q.year = 2023)
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -3055,6 +3739,19 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2024, 'May', 10, NULL, NULL,
+            '\text{Given that } f(x) = 3^x \text{, then } f^{-1}(x) \text{ is}', '\text{Given that } f(x) = 3 {^x} \text{, then } f^{-1}(x) \text{ is}', 'LaTeX("Given that $f(x) = 3^x$, then $f^{-1}(x)$ is").parsingMode(.onlyEquations)', 'LaTeX("Given that $f(x) = 3 {^x}$, then $f^{-1}(x)$ is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 1 AND q.number = 10
+          AND (2024 IS NULL OR q.year = 2024)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2024, 'May', 18, NULL, NULL,
             '\text{Given that } \mathbf{a} = \mathbf{i} - \mathbf{j}, \mathbf{b} = -\mathbf{i} + 2\mathbf{j} + 3\mathbf{k}, \vec{OP} = \mathbf{a} + 2\mathbf{b} \text{ and } \vec{OQ} = 2\mathbf{a} - \mathbf{b} \text{, then } \vec{OP} \cdot \vec{OQ} \text{ is equal to}', '\text{Given that } \mathbf{a} = \mathbf{i} - \mathbf{j}, \mathbf{b} = -\mathbf{i} + 2 \mathbf{j} + 3 \mathbf{k}, \vec{OP} = \mathbf{a} + 2 \mathbf{b} \text{ and } \vec{OQ} = 2 \mathbf{a} - \mathbf{b} \text{, then } \vec{OP} \cdot \vec{OQ} \text{ is equal to}', 'LaTeX("Given that $\\mathbf{a} = \\mathbf{i} - \\mathbf{j}, \\mathbf{b} = -\\mathbf{i} + 2\\mathbf{j} + 3\\mathbf{k}, \\vec{OP} = \\mathbf{a} + 2\\mathbf{b}$ and $\\vec{OQ} = 2\\mathbf{a} - \\mathbf{b}$, then $\\vec{OP} \\cdot \\vec{OQ}$ is equal to").parsingMode(.onlyEquations)', 'LaTeX("Given that $\\mathbf{a} = \\mathbf{i} - \\mathbf{j}, \\mathbf{b} = -\\mathbf{i} + 2 \\mathbf{j} + 3 \\mathbf{k}, \\vec{OP} = \\mathbf{a} + 2 \\mathbf{b}$ and $\\vec{OQ} = 2 \\mathbf{a} - \\mathbf{b}$, then $\\vec{OP} \\cdot \\vec{OQ}$ is equal to").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -3126,6 +3823,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'PureMathematics U1' AND q.paper = 1 AND q.number = 36
+          AND (2024 IS NULL OR q.year = 2024)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2024, 'May', 39, NULL, NULL,
+            '\int 3^x \, dx =', '\int 3 {^x} \, dx =', 'LaTeX("$\\int 3^x \\, dx =$").parsingMode(.onlyEquations)', 'LaTeX("$\\int 3 {^x} \\, dx =$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 1 AND q.number = 39
           AND (2024 IS NULL OR q.year = 2024)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -3308,6 +4018,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'PureMathematics U1' AND q.paper = 1 AND q.number = 8
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2022, 'May', 10, NULL, NULL,
+            '\text{Given that } f(x) = 3^x \text{, then } f^{-1}(x) \text{ is}', '\text{Given that } f(x) = 3 {^x} \text{, then } f^{-1}(x) \text{ is}', 'LaTeX("Given that $f(x) = 3^x$, then $f^{-1}(x)$ is").parsingMode(.onlyEquations)', 'LaTeX("Given that $f(x) = 3 {^x}$, then $f^{-1}(x)$ is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 1 AND q.number = 10
           AND (2022 IS NULL OR q.year = 2022)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -3692,8 +4415,38 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'a', 'i',
+            '\text{Apply the trapezium rule with THREE equal intervals to estimate the value of }  \int_0^{\frac{\pi}{3}} \tan x \, dx \text{.}', '\text{Apply the trapezium rule with THREE equal intervals to estimate the value of }  \int_0 {^\frac{\pi}{3}} \tan x \, dx \text{.}', 'LaTeX("Apply the trapezium rule with THREE equal intervals to estimate the value of  $\\int_0^{\\frac{\\pi}{3}} \\tan x \\, dx$.").parsingMode(.onlyEquations)', 'LaTeX("Apply the trapezium rule with THREE equal intervals to estimate the value of  $\\int_0 {^\\frac{\\pi}{3}} \\tan x \\, dx$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'a'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'a', 'ii',
+            '\text{Using an appropriate trigonometric identity, determine the EXACT value of }  \int_0^{\frac{\pi}{3}} \tan x \, dx \text{.}', '\text{Using an appropriate trigonometric identity, determine the EXACT value of }  \int_0 {^\frac{\pi}{3}} \tan x \, dx \text{.}', 'LaTeX("Using an appropriate trigonometric identity, determine the EXACT value of  $\\int_0^{\\frac{\\pi}{3}} \\tan x \\, dx$.").parsingMode(.onlyEquations)', 'LaTeX("Using an appropriate trigonometric identity, determine the EXACT value of  $\\int_0 {^\\frac{\\pi}{3}} \\tan x \\, dx$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'a'
+          AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 2, 2026, 'May', 2, 'b', 'i',
-            '\text{Use the substitution }  u = \cos^{-1} \frac{1}{2}x  \text{ to show that }  \int_0^1 \frac{\cos^{-1} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5\pi^2}{72} \text{.}', '\text{Use the substitution }  u = \cos^{(-1)} \frac{1}{2}x  \text{ to show that }  \int_0^1 \frac{\cos^{(-1)} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5 \pi^2}{72} \text{.}', 'LaTeX("Use the substitution  $u = \\cos^{-1} \\frac{1}{2}x$  to show that  $\\int_0^1 \\frac{\\cos^{-1} \\frac{1}{2}x}{\\sqrt{4 - x^2}} \\, dx = \\frac{5\\pi^2}{72}$.").parsingMode(.onlyEquations)', 'LaTeX("Use the substitution  $u = \\cos^{(-1)} \\frac{1}{2}x$  to show that  $\\int_0^1 \\frac{\\cos^{(-1)} \\frac{1}{2}x}{\\sqrt{4 - x^2}} \\, dx = \\frac{5 \\pi^2}{72}$.").parsingMode(.onlyEquations)',
+            '\text{Use the substitution }  u = \cos^{-1} \frac{1}{2}x  \text{ to show that }  \int_0^1 \frac{\cos^{-1} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5\pi^2}{72} \text{.}', '\text{Use the substitution }  u = \cos^{(-1)} \frac{1}{2}x  \text{ to show that }  \int_0 {^1} \frac{\cos^{(-1)} \frac{1}{2}x}{\sqrt{4 - x^2}} \, dx = \frac{5 \pi^2}{72} \text{.}', 'LaTeX("Use the substitution  $u = \\cos^{-1} \\frac{1}{2}x$  to show that  $\\int_0^1 \\frac{\\cos^{-1} \\frac{1}{2}x}{\\sqrt{4 - x^2}} \\, dx = \\frac{5\\pi^2}{72}$.").parsingMode(.onlyEquations)', 'LaTeX("Use the substitution  $u = \\cos^{(-1)} \\frac{1}{2}x$  to show that  $\\int_0 {^1} \\frac{\\cos^{(-1)} \\frac{1}{2}x}{\\sqrt{4 - x^2}} \\, dx = \\frac{5 \\pi^2}{72}$.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -3701,6 +4454,66 @@ INSERT INTO fixed_questions (
           AND (2026 IS NULL OR q.year = 2026)
           AND q.part = 'b'
           AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'c', 'i',
+            '\text{It is given that }  I_n = \int_0^{\pi} \sin^n \theta \, d\theta  \text{ for integers }  n \ge 0 \text{. Show that }  I_n = \frac{n-1}{n} I_{n-2} \text{.}', '\text{It is given that }  I_n = \int_0 {^\pi} \sin^n \theta \, d\theta  \text{ for integers }  n \ge 0 \text{. Show that }  I_n = \frac{n-1}{n} I_{n-2} \text{.}', 'LaTeX("It is given that  $I_n = \\int_0^{\\pi} \\sin^n \\theta \\, d\\theta$  for integers  $n \\ge 0$. Show that  $I_n = \\frac{n-1}{n} I_{n-2}$.").parsingMode(.onlyEquations)', 'LaTeX("It is given that  $I_n = \\int_0 {^\\pi} \\sin^n \\theta \\, d\\theta$  for integers  $n \\ge 0$. Show that  $I_n = \\frac{n-1}{n} I_{n-2}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'c'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'a', 'i',
+            '\text{Consider the sequence }  \{ a_n \}  \text{ where }  a_n = \frac{1}{3^{n-1}}  \text{ for positive integers }  n \text{. State the values of the first FOUR terms of the sequence, }  a_1, a_2, a_3  \text{ and }  a_4 \text{.}', '\text{Consider the sequence }  \{ a_n \}  \text{ where }  a_n = \frac{1}{3 {^n-1}}  \text{ for positive integers }  n \text{. State the values of the first FOUR terms of the sequence, }  a_1, a_2, a_3  \text{ and }  a_4 \text{.}', 'LaTeX("Consider the sequence  $\\{ a_n \\}$  where  $a_n = \\frac{1}{3^{n-1}}$  for positive integers  $n$. State the values of the first FOUR terms of the sequence,  $a_1, a_2, a_3$  and  $a_4$.").parsingMode(.onlyEquations)', 'LaTeX("Consider the sequence  $\\{ a_n \\}$  where  $a_n = \\frac{1}{3 {^n-1}}$  for positive integers  $n$. State the values of the first FOUR terms of the sequence,  $a_1, a_2, a_3$  and  $a_4$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'a'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'b', 'i',
+            '\text{Express the series }  4 + 4^2 + 4^3 + \dots + 4^n  \text{ using summation notation.}', '\text{Express the series }  4 + 4 {^2} + 4 {^3} + \dots + 4 {^n}  \text{ using summation notation.}', 'LaTeX("Express the series  $4 + 4^2 + 4^3 + \\dots + 4^n$  using summation notation.").parsingMode(.onlyEquations)', 'LaTeX("Express the series  $4 + 4 {^2} + 4 {^3} + \\dots + 4 {^n}$  using summation notation.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'b', 'ii',
+            '\text{Prove by mathematical induction that }  4 + 4^2 + 4^3 + \dots + 4^n = \frac{4}{3}(4^n - 1)  \text{ for all positive integers }  n \text{.}', '\text{Prove by mathematical induction that }  4 + 4 {^2} + 4 {^3} + \dots + 4 {^n} = \frac{4}{3}(4 {^n} - 1)  \text{ for all positive integers }  n \text{.}', 'LaTeX("Prove by mathematical induction that  $4 + 4^2 + 4^3 + \\dots + 4^n = \\frac{4}{3}(4^n - 1)$  for all positive integers  $n$.").parsingMode(.onlyEquations)', 'LaTeX("Prove by mathematical induction that  $4 + 4 {^2} + 4 {^3} + \\dots + 4 {^n} = \\frac{4}{3}(4 {^n} - 1)$  for all positive integers  $n$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'b'
+          AND q.subpart = 'ii'
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -3767,6 +4580,38 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 2, 2023, 'May', 2, 'b', 'i',
+            '\text{Evaluate }  \int_2^5 \frac{3x}{x^2 - 4x + 5} \, dx .', '\text{Evaluate }  \int_2 {^5} \frac{3x}{x^2 - 4x + 5} \, dx .', 'LaTeX("Evaluate  $\\int_2^5 \\frac{3x}{x^2 - 4x + 5} \\, dx$.").parsingMode(.onlyEquations)', 'LaTeX("Evaluate  $\\int_2 {^5} \\frac{3x}{x^2 - 4x + 5} \\, dx$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 2
+          AND (2023 IS NULL OR q.year = 2023)
+          AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2023, 'May', 3, 'c', 'i',
+            '\text{Use mathematical induction to prove that }  \frac{d^n}{dx^n} (e^x \sin x) = 2^{n/2} e^x \sin (x + \frac{n\pi}{4}) . 
+ \text{You may use the fact that }  \sin x + \cos x = \sqrt{2} \sin (x + \frac{\pi}{4})  \text{ and that }  \frac{d^{k+1}}{dx^{k+1}} f(x) = \frac{d}{dx} \left( \frac{d^k}{dx^k} f(x) \right) .', '\text{Use mathematical induction to prove that }  \frac{d^n}{dx^n} (e^x \sin x) = 2 {^n/2} e^x \sin (x + \frac{n\pi}{4}) . 
+ \text{You may use the fact that }  \sin x + \cos x = \sqrt{2} \sin (x + \frac{\pi}{4})  \text{ and that }  \frac{d^{k+1}}{dx^{k+1}} f(x) = \frac{d}{dx} \left( \frac{d^k}{dx^k} f(x) \right) .', 'LaTeX("Use mathematical induction to prove that  $\\frac{d^n}{dx^n} (e^x \\sin x) = 2^{n/2} e^x \\sin (x + \\frac{n\\pi}{4})$. \n You may use the fact that  $\\sin x + \\cos x = \\sqrt{2} \\sin (x + \\frac{\\pi}{4})$  and that  $\\frac{d^{k+1}}{dx^{k+1}} f(x) = \\frac{d}{dx} \\left( \\frac{d^k}{dx^k} f(x) \\right)$.").parsingMode(.onlyEquations)', 'LaTeX("Use mathematical induction to prove that  $\\frac{d^n}{dx^n} (e^x \\sin x) = 2 {^n/2} e^x \\sin (x + \\frac{n\\pi}{4})$. \n You may use the fact that  $\\sin x + \\cos x = \\sqrt{2} \\sin (x + \\frac{\\pi}{4})$  and that  $\\frac{d^{k+1}}{dx^{k+1}} f(x) = \\frac{d}{dx} \\left( \\frac{d^k}{dx^k} f(x) \\right)$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 3
+          AND (2023 IS NULL OR q.year = 2023)
+          AND q.part = 'c'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 2, 2023, 'May', 4, 'b', 'i',
             '\text{Show that }  \theta_{n+1} = \sin^{-1} \left( \frac{2}{8 - \theta_n^2} \right)  \text{ is a suitable iteration for the approximation of the roots of the equation }  \csc \theta = 4 - \frac{1}{2} \theta^2 .', '\text{Show that }  \theta_{n+1} = \sin^{(-1)} \left( \frac{2}{8 - \theta_n^2} \right)  \text{ is a suitable iteration for the approximation of the roots of the equation }  \csc \theta = 4 - \frac{1}{2} \theta^2 .', 'LaTeX("Show that  $\\theta_{n+1} = \\sin^{-1} \\left( \\frac{2}{8 - \\theta_n^2} \\right)$  is a suitable iteration for the approximation of the roots of the equation  $\\csc \\theta = 4 - \\frac{1}{2} \\theta^2$.").parsingMode(.onlyEquations)', 'LaTeX("Show that  $\\theta_{n+1} = \\sin^{(-1)} \\left( \\frac{2}{8 - \\theta_n^2} \\right)$  is a suitable iteration for the approximation of the roots of the equation  $\\csc \\theta = 4 - \\frac{1}{2} \\theta^2$.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -3775,6 +4620,55 @@ INSERT INTO fixed_questions (
         WHERE s.name = 'PureMathematics U2' AND q.paper = 2 AND q.number = 4
           AND (2023 IS NULL OR q.year = 2023)
           AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'a', 'i',
+            '\text{Complete the table below given that }  h(x) = 5 - 2^{x+1}  \text{ for }  0 \leq x \leq 4 . 
+ \text{x 0 1 2 3 4} 
+ \text{h(x) ... ... -3 ... ...}', '\text{Complete the table below given that }  h(x) = 5 - 2 {^x+1}  \text{ for }  0 \leq x \leq 4 . 
+ \text{x 0 1 2 3 4} 
+ \text{h(x) ... ... -3 ... ...}', 'LaTeX("Complete the table below given that  $h(x) = 5 - 2^{x+1}$  for  $0 \\leq x \\leq 4$. \n x 0 1 2 3 4 \n h(x) ... ... -3 ... ...").parsingMode(.onlyEquations)', 'LaTeX("Complete the table below given that  $h(x) = 5 - 2 {^x+1}$  for  $0 \\leq x \\leq 4$. \n x 0 1 2 3 4 \n h(x) ... ... -3 ... ...").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'a'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'a', 'ii',
+            '\text{On the grid provided on page 9, plot the graph of }  h(x) = 5 - 2^{x+1} .', '\text{On the grid provided on page 9, plot the graph of }  h(x) = 5 - 2 {^x+1} .', 'LaTeX("On the grid provided on page 9, plot the graph of  $h(x) = 5 - 2^{x+1}$.").parsingMode(.onlyEquations)', 'LaTeX("On the grid provided on page 9, plot the graph of  $h(x) = 5 - 2 {^x+1}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'a'
+          AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'd', 'i',
+            '\text{Solve for }  x  \text{ in }  3^{4x+1} = 177\,147 .', '\text{Solve for }  x  \text{ in }  3 {^4x+1} = 177\,147 .', 'LaTeX("Solve for  $x$  in  $3^{4x+1} = 177\\,147$.").parsingMode(.onlyEquations)', 'LaTeX("Solve for  $x$  in  $3 {^4x+1} = 177\\,147$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
           AND q.subpart = 'i'
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -3883,6 +4777,36 @@ INSERT INTO fixed_questions (
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'PureMathematics U1' AND q.paper = 2 AND q.number = 5
           AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 5, 'e', 'i',
+            '\text{Determine }  \int_2^4 x(x - 4)^5 \, dx  \text{ using the substitution }  u = x - 4 .', '\text{Determine }  \int_2 {^4} x(x - 4)^5 \, dx  \text{ using the substitution }  u = x - 4 .', 'LaTeX("Determine  $\\int_2^4 x(x - 4)^5 \\, dx$  using the substitution  $u = x - 4$.").parsingMode(.onlyEquations)', 'LaTeX("Determine  $\\int_2 {^4} x(x - 4)^5 \\, dx$  using the substitution  $u = x - 4$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 2 AND q.number = 5
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'e'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 2, 'b', 'i',
+            '\text{Use mathematical induction to prove that }  7^n - 1  \text{ is divisible by 6 for all }  n \in \mathbb{N}.', '\text{Use mathematical induction to prove that }  7 {^n} - 1  \text{ is divisible by 6 for all }  n \in \mathbb{N}.', 'LaTeX("Use mathematical induction to prove that  $7^n - 1$  is divisible by 6 for all  $n \\in \\mathbb{N}.$").parsingMode(.onlyEquations)', 'LaTeX("Use mathematical induction to prove that  $7 {^n} - 1$  is divisible by 6 for all  $n \\in \\mathbb{N}.$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'PureMathematics U1' AND q.paper = 2 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
           AND q.part = 'b'
           AND q.subpart = 'i'
         LIMIT 1;
@@ -4103,8 +5027,8 @@ INSERT INTO fixed_questions (
 \text{Equilibrium B: }  2\text{CrO}_4^{2-}(\text{aq}) + 2\text{H}^+(\text{aq}) \rightleftharpoons \text{Cr}_2\text{O}_7^{2-}(\text{aq}) + \text{H}_2\text{O(l)} 
 \text{Use Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.}', '\text{Consider the following equilibrium reactions.}
 \text{Equilibrium A: }  \text{H}_2 \text{O(g)} + \text{C(s)} \rightleftharpoons \text{H}_2 \text{(g)} + \text{CO(g)}   \Delta H = +131\,\text{kJ}\,\text{mol}^{-1} 
-\text{Equilibrium B: }  2 \text{CrO}_4^{2-}(\text{aq}) + 2 \text{H}^+(\text{aq}) \rightleftharpoons \text{Cr}_2 \text{O}_7^{2-}(\text{aq}) + \text{H}_2 \text{O(l)} 
-\text{Use Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.}', 'LaTeX("Consider the following equilibrium reactions.\nEquilibrium A:  H$_2$O(g)$+$C(s)$\\rightleftharpoons$H$_2$(g)$+$CO(g) $\\Delta H = +131\\,$kJ$\\,$mol$^{-1}$\nEquilibrium B:  $2$CrO$_4^{2-}($aq$) + 2$H$^+($aq$) \\rightleftharpoons$Cr$_2$O$_7^{2-}($aq$) +$H$_2$O(l)\nUse Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.").parsingMode(.onlyEquations)', 'LaTeX("Consider the following equilibrium reactions.\nEquilibrium A:  H$_2$O(g)$+$C(s)$\\rightleftharpoons$H$_2$(g)$+$CO(g) $\\Delta H = +131\\,$kJ$\\,$mol$^{-1}$\nEquilibrium B:  $2$CrO$_4^{2-}($aq$) + 2$H$^+($aq$) \\rightleftharpoons$Cr$_2$O$_7^{2-}($aq$) +$H$_2$O(l)\nUse Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.").parsingMode(.onlyEquations)',
+\text{Equilibrium B: }  2 \text{CrO}_4 {^2-}(\text{aq}) + 2 \text{H}^+(\text{aq}) \rightleftharpoons \text{Cr}_2 \text{O}_7 {^2-}(\text{aq}) + \text{H}_2 \text{O(l)} 
+\text{Use Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.}', 'LaTeX("Consider the following equilibrium reactions.\nEquilibrium A:  H$_2$O(g)$+$C(s)$\\rightleftharpoons$H$_2$(g)$+$CO(g) $\\Delta H = +131\\,$kJ$\\,$mol$^{-1}$\nEquilibrium B:  $2$CrO$_4^{2-}($aq$) + 2$H$^+($aq$) \\rightleftharpoons$Cr$_2$O$_7^{2-}($aq$) +$H$_2$O(l)\nUse Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.").parsingMode(.onlyEquations)', 'LaTeX("Consider the following equilibrium reactions.\nEquilibrium A:  H$_2$O(g)$+$C(s)$\\rightleftharpoons$H$_2$(g)$+$CO(g) $\\Delta H = +131\\,$kJ$\\,$mol$^{-1}$\nEquilibrium B:  $2$CrO$_4 {^2-}($aq$) + 2$H$^+($aq$) \\rightleftharpoons$Cr$_2$O$_7 {^2-}($aq$) +$H$_2$O(l)\nUse Le Chatelier''s principle to predict and explain the effect of increasing the pressure on Equilibrium A.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -4112,6 +5036,53 @@ INSERT INTO fixed_questions (
           AND (2024 IS NULL OR q.year = 2024)
           AND q.part = 'd'
           AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2024, 'May', 2, 'e', 'ii',
+            '\text{Given that }  K_{\text{a}}  \text{ for the weak acid }  = 7.4 \times 10^{-4}\,\text{mol}\,\text{dm}^{-3} , \text{ calculate the pH of the buffer solution.}', '\text{Given that }  K_{\text{a}}  \text{ for the weak acid }  = 7.4 \times 10 {^-4}\,\text{mol}\,\text{dm}^{-3} , \text{ calculate the pH of the buffer solution.}', 'LaTeX("Given that  $K_{$a$}$  for the weak acid  $= 7.4 \\times 10^{-4}\\,$mol$\\,$dm$^{-3}$,  calculate the pH of the buffer solution.").parsingMode(.onlyEquations)', 'LaTeX("Given that  $K_{$a$}$  for the weak acid  $= 7.4 \\times 10 {^-4}\\,$mol$\\,$dm$^{-3}$,  calculate the pH of the buffer solution.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 2
+          AND (2024 IS NULL OR q.year = 2024)
+          AND q.part = 'e'
+          AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 1, 'e', 'i',
+            '\text{A gas syringe contains }  18.2\,\text{cm}^3  \text{ of air at }  55\,^{\circ}\text{C} . \text{ A volatile liquid with a mass of 0.185 grams is injected into the syringe. The volume of gas in the syringe then becomes }  54.5\,\text{cm}^3  \text{ at }  55\,^{\circ}\text{C}  \text{ and }  1.01 \times 10^5\,\text{Pa} .
+\text{Calculate the molar mass of the liquid. [}  R = 8.314\,\text{J}\,\text{K}^{-1}\,\text{mol}^{-1}  \text{]}', '\text{A gas syringe contains }  18.2\,\text{cm}^3  \text{ of air at }  55\,^{\circ}\text{C} . \text{ A volatile liquid with a mass of 0.185 grams is injected into the syringe. The volume of gas in the syringe then becomes }  54.5\,\text{cm}^3  \text{ at }  55\,^{\circ}\text{C}  \text{ and }  1.01 \times 10 {^5}\,\text{Pa} .
+\text{Calculate the molar mass of the liquid. [}  R = 8.314\,\text{J}\,\text{K}^{-1}\,\text{mol}^{-1}  \text{]}', 'LaTeX("A gas syringe contains  $18.2\\,$cm$^3$  of air at  $55\\,^{\\circ}$C.  A volatile liquid with a mass of 0.185 grams is injected into the syringe. The volume of gas in the syringe then becomes  $54.5\\,$cm$^3$  at  $55\\,^{\\circ}$C  and  $1.01 \\times 10^5\\,$Pa.\nCalculate the molar mass of the liquid. [ $R = 8.314\\,$J$\\,$K$^{-1}\\,$mol$^{-1}$ ]").parsingMode(.onlyEquations)', 'LaTeX("A gas syringe contains  $18.2\\,$cm$^3$  of air at  $55\\,^{\\circ}$C.  A volatile liquid with a mass of 0.185 grams is injected into the syringe. The volume of gas in the syringe then becomes  $54.5\\,$cm$^3$  at  $55\\,^{\\circ}$C  and  $1.01 \\times 10 {^5}\\,$Pa.\nCalculate the molar mass of the liquid. [ $R = 8.314\\,$J$\\,$K$^{-1}\\,$mol$^{-1}$ ]").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 1
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'e'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 2, 'b', 'ii',
+            '\text{Calcium phosphate, }  \text{Ca}_3(\text{PO}_4)_2 , \text{ is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of }  \text{Ca}^{2+}  \text{ and }  \text{PO}_4^{3-}  \text{ ions in equilibrium are }  2 \times 10^{-8}  \text{ and }  1 \times 10^{-9}  \text{ respectively, determine the solubility product, }  K_{\text{sp}} , \text{ of calcium phosphate.}', '\text{Calcium phosphate, }  \text{Ca}_3(\text{PO}_4)_2 , \text{ is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of }  \text{Ca}^{2+}  \text{ and }  \text{PO}_4 {^3-}  \text{ ions in equilibrium are }  2 \times 10 {^-8}  \text{ and }  1 \times 10 {^-9}  \text{ respectively, determine the solubility product, }  K_{\text{sp}} , \text{ of calcium phosphate.}', 'LaTeX("Calcium phosphate,  Ca$_3($PO$_4)_2$,  is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of  Ca$^{2+}$  and  PO$_4^{3-}$  ions in equilibrium are  $2 \\times 10^{-8}$  and  $1 \\times 10^{-9}$  respectively, determine the solubility product,  $K_{$sp$}$,  of calcium phosphate.").parsingMode(.onlyEquations)', 'LaTeX("Calcium phosphate,  Ca$_3($PO$_4)_2$,  is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of  Ca$^{2+}$  and  PO$_4 {^3-}$  ions in equilibrium are  $2 \\times 10 {^-8}$  and  $1 \\times 10 {^-9}$  respectively, determine the solubility product,  $K_{$sp$}$,  of calcium phosphate.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'b'
+          AND q.subpart = 'ii'
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -4148,6 +5119,21 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'd', 'i',
+            '\text{The dissociation constant, }  K_{\text{a}} , \text{ for hydrofluoric acid, HF, is }  5.62 \times 10^{-4}\,\text{mol}\,\text{dm}^{-3} . \text{ Write the equation for the dissociation of hydrofluoric acid in aqueous solution.}', '\text{The dissociation constant, }  K_{\text{a}} , \text{ for hydrofluoric acid, HF, is }  5.62 \times 10 {^-4}\,\text{mol}\,\text{dm}^{-3} . \text{ Write the equation for the dissociation of hydrofluoric acid in aqueous solution.}', 'LaTeX("The dissociation constant,  $K_{$a$}$,  for hydrofluoric acid, HF, is  $5.62 \\times 10^{-4}\\,$mol$\\,$dm$^{-3}$.  Write the equation for the dissociation of hydrofluoric acid in aqueous solution.").parsingMode(.onlyEquations)', 'LaTeX("The dissociation constant,  $K_{$a$}$,  for hydrofluoric acid, HF, is  $5.62 \\times 10 {^-4}\\,$mol$\\,$dm$^{-3}$.  Write the equation for the dissociation of hydrofluoric acid in aqueous solution.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 2, 2024, 'May', 1, 'a', 'i',
             '\text{A hydrocarbon compound whose molecular formula is }  \text{C}_8\text{H}_{18}  \text{ was determined to have a given number of isomers.}
 \text{Define the term ‘structural isomerism’.}', '\text{A hydrocarbon compound whose molecular formula is }  \text{C}_8 \text{H}_{18}  \text{ was determined to have a given number of isomers.}
@@ -4158,6 +5144,23 @@ INSERT INTO fixed_questions (
         WHERE s.name = 'Chemistry U2' AND q.paper = 2 AND q.number = 1
           AND (2024 IS NULL OR q.year = 2024)
           AND q.part = 'a'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2024, 'May', 2, 'b', 'i',
+            '\text{Spectra obtained from the excitation of the sample showed an absorption signal at }  9.4 \times 10^{14}\,\text{Hz} \text{.}
+\text{Calculate the wavelength, }  \lambda \text{, in metres (m), for this radiation.}', '\text{Spectra obtained from the excitation of the sample showed an absorption signal at }  9.4 \times 10 {^14}\,\text{Hz} \text{.}
+\text{Calculate the wavelength, }  \lambda \text{, in metres (m), for this radiation.}', 'LaTeX("Spectra obtained from the excitation of the sample showed an absorption signal at  $9.4 \\times 10^{14}\\,$Hz.\nCalculate the wavelength,  $\\lambda$, in metres (m), for this radiation.").parsingMode(.onlyEquations)', 'LaTeX("Spectra obtained from the excitation of the sample showed an absorption signal at  $9.4 \\times 10 {^14}\\,$Hz.\nCalculate the wavelength,  $\\lambda$, in metres (m), for this radiation.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 2 AND q.number = 2
+          AND (2024 IS NULL OR q.year = 2024)
+          AND q.part = 'b'
           AND q.subpart = 'i'
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -4212,6 +5215,38 @@ INSERT INTO fixed_questions (
           AND (2025 IS NULL OR q.year = 2025)
           AND q.part = 'b'
           AND q.subpart = 'iv'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 2, 'b', 'i',
+            '\text{The energy of an electronic transition has a frequency of }  1.01 \times 10^{16}\,\text{Hz} \text{. Calculate the energy of the radiation emitted.}', '\text{The energy of an electronic transition has a frequency of }  1.01 \times 10 {^16}\,\text{Hz} \text{. Calculate the energy of the radiation emitted.}', 'LaTeX("The energy of an electronic transition has a frequency of  $1.01 \\times 10^{16}\\,$Hz. Calculate the energy of the radiation emitted.").parsingMode(.onlyEquations)', 'LaTeX("The energy of an electronic transition has a frequency of  $1.01 \\times 10 {^16}\\,$Hz. Calculate the energy of the radiation emitted.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 2 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 2, 'e', 'i',
+            '\text{An aqueous solution of }  \text{Cu}^{2+}  \text{ ions at a concentration of }  2.5 \times 10^{-3}\,\text{g dm}^{-3}  \text{ was analysed using a cuvette of path length 1 cm, in a UV/VIS spectrophotometer.}
+\text{Calculate the concentration of the known }  \text{Cu}^{2+}  \text{ ions, in }  \text{mol/dm}^3 \text{.}', '\text{An aqueous solution of }  \text{Cu}^{2+}  \text{ ions at a concentration of }  2.5 \times 10 {^-3}\,\text{g dm}^{-3}  \text{ was analysed using a cuvette of path length 1 cm, in a UV/VIS spectrophotometer.}
+\text{Calculate the concentration of the known }  \text{Cu}^{2+}  \text{ ions, in }  \text{mol/dm}^3 \text{.}', 'LaTeX("An aqueous solution of  Cu$^{2+}$  ions at a concentration of  $2.5 \\times 10^{-3}\\,$g dm$^{-3}$  was analysed using a cuvette of path length 1 cm, in a UV/VIS spectrophotometer.\nCalculate the concentration of the known  Cu$^{2+}$  ions, in  mol/dm$^3$.").parsingMode(.onlyEquations)', 'LaTeX("An aqueous solution of  Cu$^{2+}$  ions at a concentration of  $2.5 \\times 10 {^-3}\\,$g dm$^{-3}$  was analysed using a cuvette of path length 1 cm, in a UV/VIS spectrophotometer.\nCalculate the concentration of the known  Cu$^{2+}$  ions, in  mol/dm$^3$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 2 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'e'
+          AND q.subpart = 'i'
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -4293,6 +5328,100 @@ INSERT INTO fixed_questions (
           AND (2026 IS NULL OR q.year = 2026)
           AND q.part = 'a'
           AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2024, 'May', 3, 'd', 'i',
+            '\text{One mole of an ideal monoatomic gas, }  C_v = \frac{3}{2} R \text{, is taken through the cycle represented by States 1 to 4 as shown in Figure 6. At State 1, }  T_1 = 273\,\text{K}  \text{ and at State 3, }  T_3 = 1092\,\text{K} \text{. On the graph, the vertical scale is set by }  p = 1.01 \times 10^5\,\text{N}\,\text{m}^{-2}  \text{ and the horizontal scale by }  V = 0.0225\,\text{m}^3 \text{. Calculate the work done during the cycle.}', '\text{One mole of an ideal monoatomic gas, }  C_v = \frac{3}{2} R \text{, is taken through the cycle represented by States 1 to 4 as shown in Figure 6. At State 1, }  T_1 = 273\,\text{K}  \text{ and at State 3, }  T_3 = 1092\,\text{K} \text{. On the graph, the vertical scale is set by }  p = 1.01 \times 10 {^5}\,\text{N}\,\text{m}^{-2}  \text{ and the horizontal scale by }  V = 0.0225\,\text{m}^3 \text{. Calculate the work done during the cycle.}', 'LaTeX("One mole of an ideal monoatomic gas,  $C_v = \\frac{3}{2} R$, is taken through the cycle represented by States 1 to 4 as shown in Figure 6. At State 1,  $T_1 = 273\\,$K  and at State 3,  $T_3 = 1092\\,$K. On the graph, the vertical scale is set by  $p = 1.01 \\times 10^5\\,$N$\\,$m$^{-2}$  and the horizontal scale by  $V = 0.0225\\,$m$^3$. Calculate the work done during the cycle.").parsingMode(.onlyEquations)', 'LaTeX("One mole of an ideal monoatomic gas,  $C_v = \\frac{3}{2} R$, is taken through the cycle represented by States 1 to 4 as shown in Figure 6. At State 1,  $T_1 = 273\\,$K  and at State 3,  $T_3 = 1092\\,$K. On the graph, the vertical scale is set by  $p = 1.01 \\times 10 {^5}\\,$N$\\,$m$^{-2}$  and the horizontal scale by  $V = 0.0225\\,$m$^3$. Calculate the work done during the cycle.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2024 IS NULL OR q.year = 2024)
+          AND q.part = 'd'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 3, 'e', 'i',
+            '\text{A glass bowl contains 16.0 kg of punch at }  25.0\,^\circ\text{C} \text{. The punch may be treated as water with specific heat capacity, }  c_{\text{punch}} = 4186\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. 2.5 kg of ice is added to the punch. The ice has an initial temperature of }  -20.0\,^\circ\text{C} \text{. The specific heat capacity of ice is }  c_{\text{ice}} = 2.00 \times 10^3\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. The latent heat of fusion of water is }  3.35 \times 10^5\,\text{J}\,\text{kg}^{-1} \text{. Calculate the heat gained by the ice from the punch in warming up to the melting point.}', '\text{A glass bowl contains 16.0 kg of punch at }  25.0\,^\circ\text{C} \text{. The punch may be treated as water with specific heat capacity, }  c_{\text{punch}} = 4186\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. 2.5 kg of ice is added to the punch. The ice has an initial temperature of }  -20.0\,^\circ\text{C} \text{. The specific heat capacity of ice is }  c_{\text{ice}} = 2.00 \times 10 {^3}\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. The latent heat of fusion of water is }  3.35 \times 10 {^5}\,\text{J}\,\text{kg}^{-1} \text{. Calculate the heat gained by the ice from the punch in warming up to the melting point.}', 'LaTeX("A glass bowl contains 16.0 kg of punch at  $25.0\\,^\\circ$C. The punch may be treated as water with specific heat capacity,  $c_{$punch$} = 4186\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. 2.5 kg of ice is added to the punch. The ice has an initial temperature of  $-20.0\\,^\\circ$C. The specific heat capacity of ice is  $c_{$ice$} = 2.00 \\times 10^3\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. The latent heat of fusion of water is  $3.35 \\times 10^5\\,$J$\\,$kg$^{-1}$. Calculate the heat gained by the ice from the punch in warming up to the melting point.").parsingMode(.onlyEquations)', 'LaTeX("A glass bowl contains 16.0 kg of punch at  $25.0\\,^\\circ$C. The punch may be treated as water with specific heat capacity,  $c_{$punch$} = 4186\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. 2.5 kg of ice is added to the punch. The ice has an initial temperature of  $-20.0\\,^\\circ$C. The specific heat capacity of ice is  $c_{$ice$} = 2.00 \\times 10 {^3}\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. The latent heat of fusion of water is  $3.35 \\times 10 {^5}\\,$J$\\,$kg$^{-1}$. Calculate the heat gained by the ice from the punch in warming up to the melting point.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'e'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 3, 'g', 'ii',
+            '\text{Use the curve in (g)(i) to determine the relative humidity on a day when the temperature is }  32\,^\circ\text{C}  \text{ and the saturated vapour pressure of water in the air is }  2.0 \times 10^2\,\text{Pa} \text{.}', '\text{Use the curve in (g)(i) to determine the relative humidity on a day when the temperature is }  32\,^\circ\text{C}  \text{ and the saturated vapour pressure of water in the air is }  2.0 \times 10 {^2}\,\text{Pa} \text{.}', 'LaTeX("Use the curve in (g)(i) to determine the relative humidity on a day when the temperature is  $32\\,^\\circ$C  and the saturated vapour pressure of water in the air is  $2.0 \\times 10^2\\,$Pa.").parsingMode(.onlyEquations)', 'LaTeX("Use the curve in (g)(i) to determine the relative humidity on a day when the temperature is  $32\\,^\\circ$C  and the saturated vapour pressure of water in the air is  $2.0 \\times 10 {^2}\\,$Pa.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'g'
+          AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'd', 'i',
+            '\text{A bench has two legs which differ in length by }  d = 0.50\,\text{mm} \text{, causing the bench to wobble slightly. The shorter leg is }  1.0\,\text{m}  \text{ in length. The bench is loaded with a mass of }  290\,\text{kg}  \text{ in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area, }  a = 1.0\,\text{cm}^2 \text{. The Young''s modulus for wood is }  1.3 \times 10^{10}\,\text{N}\,\text{m}^{-2} \text{. The shorter leg is compressed by an amount }  \Delta L_{\text{short}}  \text{ and the longer leg is compressed by an amount }  \Delta L_{\text{long}} \text{. Write an expression to show the relationship between }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', '\text{A bench has two legs which differ in length by }  d = 0.50\,\text{mm} \text{, causing the bench to wobble slightly. The shorter leg is }  1.0\,\text{m}  \text{ in length. The bench is loaded with a mass of }  290\,\text{kg}  \text{ in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area, }  a = 1.0\,\text{cm}^2 \text{. The Young''s modulus for wood is }  1.3 \times 10 {^10}\,\text{N}\,\text{m}^{-2} \text{. The shorter leg is compressed by an amount }  \Delta L_{\text{short}}  \text{ and the longer leg is compressed by an amount }  \Delta L_{\text{long}} \text{. Write an expression to show the relationship between }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', 'LaTeX("A bench has two legs which differ in length by  $d = 0.50\\,$mm, causing the bench to wobble slightly. The shorter leg is  $1.0\\,$m  in length. The bench is loaded with a mass of  $290\\,$kg  in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area,  $a = 1.0\\,$cm$^2$. The Young''s modulus for wood is  $1.3 \\times 10^{10}\\,$N$\\,$m$^{-2}$. The shorter leg is compressed by an amount  $\\Delta L_{$short$}$  and the longer leg is compressed by an amount  $\\Delta L_{$long$}$. Write an expression to show the relationship between  $\\Delta L_{$short$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)', 'LaTeX("A bench has two legs which differ in length by  $d = 0.50\\,$mm, causing the bench to wobble slightly. The shorter leg is  $1.0\\,$m  in length. The bench is loaded with a mass of  $290\\,$kg  in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area,  $a = 1.0\\,$cm$^2$. The Young''s modulus for wood is  $1.3 \\times 10 {^10}\\,$N$\\,$m$^{-2}$. The shorter leg is compressed by an amount  $\\Delta L_{$short$}$  and the longer leg is compressed by an amount  $\\Delta L_{$long$}$. Write an expression to show the relationship between  $\\Delta L_{$short$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2024, 'May', 1, 'd', 'i',
+            '\text{An electron travels at }  2.5 \times 10^7\,\text{m}\,\text{s}^{-1}  \text{ in a plane perpendicular to a uniform }  10\,\text{mT}  \text{ magnetic field.}
+\text{Determine an expression for the magnitude of the force acting on the electron.}', '\text{An electron travels at }  2.5 \times 10 {^7}\,\text{m}\,\text{s}^{-1}  \text{ in a plane perpendicular to a uniform }  10\,\text{mT}  \text{ magnetic field.}
+\text{Determine an expression for the magnitude of the force acting on the electron.}', 'LaTeX("An electron travels at  $2.5 \\times 10^7\\,$m$\\,$s$^{-1}$  in a plane perpendicular to a uniform  $10\\,$mT  magnetic field.\nDetermine an expression for the magnitude of the force acting on the electron.").parsingMode(.onlyEquations)', 'LaTeX("An electron travels at  $2.5 \\times 10 {^7}\\,$m$\\,$s$^{-1}$  in a plane perpendicular to a uniform  $10\\,$mT  magnetic field.\nDetermine an expression for the magnitude of the force acting on the electron.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 1
+          AND (2024 IS NULL OR q.year = 2024)
+          AND q.part = 'd'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 1, 'a', 'iii',
+            '\text{A DC generator supplies a current of }  10\,\text{A}  \text{ to a load through a distribution line. The distribution line is a solid copper conductor of diameter }  2.0\,\text{mm} \text{. The free electron density in copper at room temperature is }  8.5 \times 10^{28}\,\text{m}^{-3} \text{.}
+\text{Calculate the drift velocity of the electrons in the distribution line.}', '\text{A DC generator supplies a current of }  10\,\text{A}  \text{ to a load through a distribution line. The distribution line is a solid copper conductor of diameter }  2.0\,\text{mm} \text{. The free electron density in copper at room temperature is }  8.5 \times 10 {^28}\,\text{m}^{-3} \text{.}
+\text{Calculate the drift velocity of the electrons in the distribution line.}', 'LaTeX("A DC generator supplies a current of  $10\\,$A  to a load through a distribution line. The distribution line is a solid copper conductor of diameter  $2.0\\,$mm. The free electron density in copper at room temperature is  $8.5 \\times 10^{28}\\,$m$^{-3}$.\nCalculate the drift velocity of the electrons in the distribution line.").parsingMode(.onlyEquations)', 'LaTeX("A DC generator supplies a current of  $10\\,$A  to a load through a distribution line. The distribution line is a solid copper conductor of diameter  $2.0\\,$mm. The free electron density in copper at room temperature is  $8.5 \\times 10 {^28}\\,$m$^{-3}$.\nCalculate the drift velocity of the electrons in the distribution line.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 1
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'a'
+          AND q.subpart = 'iii'
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
