@@ -1146,6 +1146,8 @@ export async function handleExportFixedQuestionsCSV(
   const pattern5 = /_\{\$([a-zA-Z0-9_]+)\$\}/g;
   const pattern6 = /(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
   const pattern7 = /\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
+  const pattern8 = /(\d+)\s*\$\s*\$\s*(\d+)/g;
+  const pattern9 = /(\d+)\s*\\text\{\s*\}\s*(\d+)/g;
 
   const fixStr = (s: string | null | undefined) => {
     if (!s) return '';
@@ -1155,7 +1157,9 @@ export async function handleExportFixedQuestionsCSV(
             .replace(pattern4, '$1 {^$2$3}')
             .replace(pattern5, '_\\text{$1}')
             .replace(pattern6, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`)
-            .replace(pattern7, (m, p1) => ` \\${p1.toLowerCase()} `);
+            .replace(pattern7, (m, p1) => ` \\${p1.toLowerCase()} `)
+            .replace(pattern8, '$1$2')
+            .replace(pattern9, '$1$2');
   };
 
   for (const fq of (fqList ?? [])) {

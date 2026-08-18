@@ -836,6 +836,8 @@ function cleanAndRenderLatex(text) {
   s = s.replace(/_\{\$([a-zA-Z0-9_]+)\$\}/g, '_\\text{$1}');
   s = s.replace(/(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`);
   s = s.replace(/\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g, (m, p1) => ` \\${p1.toLowerCase()} `);
+  s = s.replace(/(\d+)\s*\$\s*\$\s*(\d+)/g, '$1$2');
+  s = s.replace(/(\d+)\s*\\text\{\s*\}\s*(\d+)/g, '$1$2');
 
   if (typeof katex === 'undefined') return escHtml(s);
 
