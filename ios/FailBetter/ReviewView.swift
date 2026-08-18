@@ -340,6 +340,10 @@ private func stripLaTeXWrapper(_ text: String) -> String {
     s = s.replacingOccurrences(of: #"\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}"#, with: #"\\$1^{(-$2)}"#, options: .regularExpression)
     // Auto-fix digit base powers e.g. 2^n -> 2 {^n}, 3^r -> 3 {^r}
     s = s.replacingOccurrences(of: #"(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))"#, with: "$1 {^$2$3}", options: .regularExpression)
+    // Auto-fix stray dollar signs e.g. V_{$supply$} -> V_{\text{supply}}, n$ Cos$(n\pi) -> n \cos(n\pi)
+    s = s.replacingOccurrences(of: #"_\{\$([a-zA-Z0-9_]+)\$\}"#, with: "_\\\\text{$1}", options: .regularExpression)
+    s = s.replacingOccurrences(of: #"(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$"#, with: "$1 \\\\$2", options: .regularExpression)
+    s = s.replacingOccurrences(of: #"\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$"#, with: " \\\\$1 ", options: .regularExpression)
 
     guard !s.isEmpty else { return s }
 

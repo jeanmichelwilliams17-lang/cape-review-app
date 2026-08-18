@@ -828,11 +828,14 @@ function cleanAndRenderLatex(text) {
   // Un-escape double backslashes and escaped newlines
   s = s.replace(/\\\\/g, '\\').replace(/\\n/g, '\n').trim();
 
-  // Auto-clean digit command collisions (4\sqrt -> 4 \sqrt), operator subscripts (\sum_{l=1} -> \sum_{(l=1)}, \lim_{x \to 3} -> \lim_{(x \to 3)}), unbracketed trig inverse powers (\cos^{-1} -> \cos^{(-1)}), and digit base powers (2^n -> 2 {^n})
+  // Auto-clean digit command collisions (4\sqrt -> 4 \sqrt), operator subscripts (\sum_{l=1} -> \sum_{(l=1)}, \lim_{x \to 3} -> \lim_{(x \to 3)}), unbracketed trig inverse powers (\cos^{-1} -> \cos^{(-1)}), digit base powers (2^n -> 2 {^n}), and stray dollar signs ($a_n = \frac{n$ Cos$(n\pi)}{...}$, V_{$supply$})
   s = s.replace(/(\d)(\\+(?:log|ln|alpha|beta|theta|pi|gamma|sigma|mu|lambda|delta|omega|phi|psi|Phi|Theta|Pi|Sigma|Omega|Lambda|Delta|sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|sqrt|frac|lim|int|sum|prod|cdot|times|div|pm|mp|partial|infty))(?![a-zA-Z])/g, '$1 $2');
   s = s.replace(/\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}/g, '\\$1_{($2)}');
   s = s.replace(/\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g, '\\$1^{(-$2)}');
   s = s.replace(/(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))/g, '$1 {^$2$3}');
+  s = s.replace(/_\{\$([a-zA-Z0-9_]+)\$\}/g, '_\\text{$1}');
+  s = s.replace(/(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`);
+  s = s.replace(/\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g, (m, p1) => ` \\${p1.toLowerCase()} `);
 
   if (typeof katex === 'undefined') return escHtml(s);
 

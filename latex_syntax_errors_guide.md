@@ -15,6 +15,7 @@ This document details all the LaTeX formatting errors, rendering bugs, and comma
 | **5** | **Escaped Dollar Sign (`\$`) Delimiter Collision** | `collected \$6\,000 from clients` | Strip `\$` before math mode delimiter check | Mobile & Web Math Mode |
 | **6** | **Plain Text Prose Wrapped in Math Delimiters** | `$Which of the following is correct?$` | Keep as plain text prose without `$ ... $` | Mobile Typography / Spacing |
 | **7** | **Unspaced Chemical Formulas & Physical Units** | `\text{NH}_3\text{Cl}`, `27\,ms^{-1}` | `\text{NH}_3 \text{Cl}`, `27 \, \text{ms}^{(-1)}` | Chemistry & Physics Papers |
+| **8** | **Stray Dollar Signs Breaking Math Mode** | `\frac{n$ Cos$(n\pi)}{...}`, `V_{$supply$}` | `\frac{n \cos(n\pi)}{...}`, `V_{\text{supply}}` | Math Mode & Equation Parsers |
 
 ---
 

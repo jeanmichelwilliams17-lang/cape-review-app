@@ -1207,6 +1207,19 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2021, 'May', 26, NULL, NULL,
+            '\text{What is the output voltage, } ( V_{\text{out}} ), \text{ of the op-amp in terms of } ( V_1, V_2 ) \text{ and } ( V_3 \text{?} )', '\text{What is the output voltage, } ( V_{\text{out}} ), \text{ of the op-amp in terms of } ( V_1, V_2 ) \text{ and } ( V_3 \text{?} )', 'LaTeX("What is the output voltage, $( V_{$out$} ),$ of the op-amp in terms of $( V_1, V_2 )$ and $( V_3$?$)$").parsingMode(.onlyEquations)', 'LaTeX("What is the output voltage, $( V_{\text{out}} ),$ of the op-amp in terms of $( V_1, V_2 )$ and $( V_3$?$)$").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 1 AND q.number = 26
+          AND (2021 IS NULL OR q.year = 2021)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2021, 'May', 35, NULL, NULL,
             '\text{Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is } ( 12.3 \times 10^{-19} \text{ J} ). \text{ What is the measured value of Planck''s constant?}', '\text{Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is } ( 12.3 \times 10 {^-19} \text{ J} ). \text{ What is the measured value of Planck''s constant?}', 'LaTeX("Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is $( 12.3 \\times 10^{-19}$ J$).$ What is the measured value of Planck''s constant?").parsingMode(.onlyEquations)', 'LaTeX("Platinum is illuminated with light of wavelength 500 nm. The work function for platinum is 6.3 eV and the maximum kinetic energy is $( 12.3 \\times 10 {^-19}$ J$).$ What is the measured value of Planck''s constant?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -2544,6 +2557,27 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 1, 2022, 'May', 4, NULL, NULL,
+            '\text{Item 4 refers to the following enthalpies.}
+( \Delta \text{H}_{\text{latt}} \text{ NaCl} = 787 \text{ kJ mol}^{-1} )
+( \Delta \text{H}_{\text{hyd}} \text{ Na}^+ = -406 \text{ kJ mol}^{-1} )
+( \Delta \text{H}_{\text{hyd}} \text{ Cl}^- = -377 \text{ kJ mol}^{-1} )
+\text{The enthalpy of solution of sodium chloride is}', '\text{Item 4 refers to the following enthalpies.}
+( \Delta \text{H}_{\text{latt}} \text{ NaCl} = 787 \text{ kJ mol}^{-1} )
+( \Delta \text{H}_{\text{hyd}} \text{ Na}^+ = -406 \text{ kJ mol}^{-1} )
+( \Delta \text{H}_{\text{hyd}} \text{ Cl}^- = -377 \text{ kJ mol}^{-1} )
+\text{The enthalpy of solution of sodium chloride is}', 'LaTeX("Item 4 refers to the following enthalpies.\n$( \\Delta$H$_{$latt$}$ NaCl$= 787$ kJ mol$^{-1} )$\n$( \\Delta$H$_{$hyd$}$ Na$^+ = -406$ kJ mol$^{-1} )$\n$( \\Delta$H$_{$hyd$}$ Cl$^- = -377$ kJ mol$^{-1} )$\nThe enthalpy of solution of sodium chloride is").parsingMode(.onlyEquations)', 'LaTeX("Item 4 refers to the following enthalpies.\n$( \\Delta$H$_{\text{latt}}$ NaCl$= 787$ kJ mol$^{-1} )$\n$( \\Delta$H$_{\text{hyd}}$ Na$^+ = -406$ kJ mol$^{-1} )$\n$( \\Delta$H$_{\text{hyd}}$ Cl$^- = -377$ kJ mol$^{-1} )$\nThe enthalpy of solution of sodium chloride is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 1 AND q.number = 4
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 1, 2022, 'May', 5, NULL, NULL,
             '\text{Items 5 and 6 refer to the following half equations for the reaction between iodine and sodium thiosulfate.}
 ( 2\text{S}_2\text{O}_3^{2-}\text{(aq)} \rightarrow \text{S}_4\text{O}_6^{2-}\text{(aq)} + 2\text{e}^- )
@@ -2684,7 +2718,7 @@ INSERT INTO fixed_questions (
 ( \text{HX(aq)} \rightleftharpoons \text{X}^-\text{(aq)} + \text{H}^+\text{(aq)} )
 \text{The dissociation constant, } ( \text{K}_{\text{a}} )\text{, for the above reaction is } ( 1.0 \times 10^{-12}\text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10^{-2}\text{ mol dm}^{-3}\text{ HX} )\text{?}', '\text{A weak acid, HX, dissociates as follows:}
 ( \text{HX(aq)} \rightleftharpoons \text{X}^-\text{(aq)} + \text{H}^+\text{(aq)} )
-\text{The dissociation constant, } ( \text{K}_{\text{a}} )\text{, for the above reaction is } ( 1.0 \times 10 {^-12}\text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10 {^-2}\text{ mol dm}^{-3}\text{ HX} )\text{?}', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_{$a$} )$, for the above reaction is $( 1.0 \\times 10^{-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10^{-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_{$a$} )$, for the above reaction is $( 1.0 \\times 10 {^-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10 {^-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)',
+\text{The dissociation constant, } ( \text{K}_{\text{a}} )\text{, for the above reaction is } ( 1.0 \times 10 {^-12}\text{ mol dm}^{-3} )\text{. What will be the approximate pH of } ( 1.0 \times 10 {^-2}\text{ mol dm}^{-3}\text{ HX} )\text{?}', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_{$a$} )$, for the above reaction is $( 1.0 \\times 10^{-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10^{-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)', 'LaTeX("A weak acid, HX, dissociates as follows:\n$($HX(aq)$\\rightleftharpoons$X$^-$(aq)$+$H$^+$(aq)$)$\nThe dissociation constant, $($K$_{\text{a}} )$, for the above reaction is $( 1.0 \\times 10 {^-12}$ mol dm$^{-3} )$. What will be the approximate pH of $( 1.0 \\times 10 {^-2}$ mol dm$^{-3}$ HX$)$?").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -2926,6 +2960,19 @@ INSERT INTO fixed_questions (
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 13
+          AND (2022 IS NULL OR q.year = 2022)
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 1, 2022, 'May', 14, NULL, NULL,
+            '\text{Halogenoalkanes undergo alkaline hydrolysis to produce the corresponding alcohols. The mechanism for the hydrolysis of a tertiary halogenoalkane is}', '\text{Halogenoalkanes undergo alkaline hydrolysis to produce the corresponding alcohols. The mechanism for the hydrolysis of a tertiary halogenoalkane is}', 'LaTeX("Halogenoalkanes undergo alkaline hydrolysis to produce the corresponding alcohols. The mechanism for the hydrolysis of a tertiary halogenoalkane is").parsingMode(.onlyEquations)', 'LaTeX("Halogenoalkanes undergo alkaline hydrolysis to produce the corresponding alcohols. The mechanism for the hydrolysis of a tertiary halogenoalkane is").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 1 AND q.number = 14
           AND (2022 IS NULL OR q.year = 2022)
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -5043,13 +5090,28 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 2, 2024, 'May', 2, 'e', 'ii',
-            '\text{Given that }  K_{\text{a}}  \text{ for the weak acid }  = 7.4 \times 10^{-4}\,\text{mol}\,\text{dm}^{-3} , \text{ calculate the pH of the buffer solution.}', '\text{Given that }  K_{\text{a}}  \text{ for the weak acid }  = 7.4 \times 10 {^-4}\,\text{mol}\,\text{dm}^{-3} , \text{ calculate the pH of the buffer solution.}', 'LaTeX("Given that  $K_{$a$}$  for the weak acid  $= 7.4 \\times 10^{-4}\\,$mol$\\,$dm$^{-3}$,  calculate the pH of the buffer solution.").parsingMode(.onlyEquations)', 'LaTeX("Given that  $K_{$a$}$  for the weak acid  $= 7.4 \\times 10 {^-4}\\,$mol$\\,$dm$^{-3}$,  calculate the pH of the buffer solution.").parsingMode(.onlyEquations)',
+            '\text{Given that }  K_{\text{a}}  \text{ for the weak acid }  = 7.4 \times 10^{-4}\,\text{mol}\,\text{dm}^{-3} , \text{ calculate the pH of the buffer solution.}', '\text{Given that }  K_{\text{a}}  \text{ for the weak acid }  = 7.4 \times 10 {^-4}\,\text{mol}\,\text{dm}^{-3} , \text{ calculate the pH of the buffer solution.}', 'LaTeX("Given that  $K_{$a$}$  for the weak acid  $= 7.4 \\times 10^{-4}\\,$mol$\\,$dm$^{-3}$,  calculate the pH of the buffer solution.").parsingMode(.onlyEquations)', 'LaTeX("Given that  $K_{\text{a}}$  for the weak acid  $= 7.4 \\times 10 {^-4}\\,$mol$\\,$dm$^{-3}$,  calculate the pH of the buffer solution.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 2
           AND (2024 IS NULL OR q.year = 2024)
           AND q.part = 'e'
+          AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2024, 'May', 3, 'c', 'ii',
+            '\text{Write an equation for the reaction which occurs and identify the species with the higher }  K_{\text{stab}}  \text{ (stability constant) value.}', '\text{Write an equation for the reaction which occurs and identify the species with the higher }  K_{\text{stab}}  \text{ (stability constant) value.}', 'LaTeX("Write an equation for the reaction which occurs and identify the species with the higher  $K_{$stab$}$  (stability constant) value.").parsingMode(.onlyEquations)', 'LaTeX("Write an equation for the reaction which occurs and identify the species with the higher  $K_{\text{stab}}$  (stability constant) value.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 3
+          AND (2024 IS NULL OR q.year = 2024)
+          AND q.part = 'c'
           AND q.subpart = 'ii'
         LIMIT 1;
 INSERT INTO fixed_questions (
@@ -5075,7 +5137,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 2, 2025, 'May', 2, 'b', 'ii',
-            '\text{Calcium phosphate, }  \text{Ca}_3(\text{PO}_4)_2 , \text{ is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of }  \text{Ca}^{2+}  \text{ and }  \text{PO}_4^{3-}  \text{ ions in equilibrium are }  2 \times 10^{-8}  \text{ and }  1 \times 10^{-9}  \text{ respectively, determine the solubility product, }  K_{\text{sp}} , \text{ of calcium phosphate.}', '\text{Calcium phosphate, }  \text{Ca}_3(\text{PO}_4)_2 , \text{ is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of }  \text{Ca}^{2+}  \text{ and }  \text{PO}_4 {^3-}  \text{ ions in equilibrium are }  2 \times 10 {^-8}  \text{ and }  1 \times 10 {^-9}  \text{ respectively, determine the solubility product, }  K_{\text{sp}} , \text{ of calcium phosphate.}', 'LaTeX("Calcium phosphate,  Ca$_3($PO$_4)_2$,  is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of  Ca$^{2+}$  and  PO$_4^{3-}$  ions in equilibrium are  $2 \\times 10^{-8}$  and  $1 \\times 10^{-9}$  respectively, determine the solubility product,  $K_{$sp$}$,  of calcium phosphate.").parsingMode(.onlyEquations)', 'LaTeX("Calcium phosphate,  Ca$_3($PO$_4)_2$,  is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of  Ca$^{2+}$  and  PO$_4 {^3-}$  ions in equilibrium are  $2 \\times 10 {^-8}$  and  $1 \\times 10 {^-9}$  respectively, determine the solubility product,  $K_{$sp$}$,  of calcium phosphate.").parsingMode(.onlyEquations)',
+            '\text{Calcium phosphate, }  \text{Ca}_3(\text{PO}_4)_2 , \text{ is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of }  \text{Ca}^{2+}  \text{ and }  \text{PO}_4^{3-}  \text{ ions in equilibrium are }  2 \times 10^{-8}  \text{ and }  1 \times 10^{-9}  \text{ respectively, determine the solubility product, }  K_{\text{sp}} , \text{ of calcium phosphate.}', '\text{Calcium phosphate, }  \text{Ca}_3(\text{PO}_4)_2 , \text{ is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of }  \text{Ca}^{2+}  \text{ and }  \text{PO}_4 {^3-}  \text{ ions in equilibrium are }  2 \times 10 {^-8}  \text{ and }  1 \times 10 {^-9}  \text{ respectively, determine the solubility product, }  K_{\text{sp}} , \text{ of calcium phosphate.}', 'LaTeX("Calcium phosphate,  Ca$_3($PO$_4)_2$,  is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of  Ca$^{2+}$  and  PO$_4^{3-}$  ions in equilibrium are  $2 \\times 10^{-8}$  and  $1 \\times 10^{-9}$  respectively, determine the solubility product,  $K_{$sp$}$,  of calcium phosphate.").parsingMode(.onlyEquations)', 'LaTeX("Calcium phosphate,  Ca$_3($PO$_4)_2$,  is a water-insoluble mineral which is used to make commercial fertilizers. Given that the concentrations of  Ca$^{2+}$  and  PO$_4 {^3-}$  ions in equilibrium are  $2 \\times 10 {^-8}$  and  $1 \\times 10 {^-9}$  respectively, determine the solubility product,  $K_{\text{sp}}$,  of calcium phosphate.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -5120,7 +5182,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 2, 2026, 'May', 2, 'd', 'i',
-            '\text{The dissociation constant, }  K_{\text{a}} , \text{ for hydrofluoric acid, HF, is }  5.62 \times 10^{-4}\,\text{mol}\,\text{dm}^{-3} . \text{ Write the equation for the dissociation of hydrofluoric acid in aqueous solution.}', '\text{The dissociation constant, }  K_{\text{a}} , \text{ for hydrofluoric acid, HF, is }  5.62 \times 10 {^-4}\,\text{mol}\,\text{dm}^{-3} . \text{ Write the equation for the dissociation of hydrofluoric acid in aqueous solution.}', 'LaTeX("The dissociation constant,  $K_{$a$}$,  for hydrofluoric acid, HF, is  $5.62 \\times 10^{-4}\\,$mol$\\,$dm$^{-3}$.  Write the equation for the dissociation of hydrofluoric acid in aqueous solution.").parsingMode(.onlyEquations)', 'LaTeX("The dissociation constant,  $K_{$a$}$,  for hydrofluoric acid, HF, is  $5.62 \\times 10 {^-4}\\,$mol$\\,$dm$^{-3}$.  Write the equation for the dissociation of hydrofluoric acid in aqueous solution.").parsingMode(.onlyEquations)',
+            '\text{The dissociation constant, }  K_{\text{a}} , \text{ for hydrofluoric acid, HF, is }  5.62 \times 10^{-4}\,\text{mol}\,\text{dm}^{-3} . \text{ Write the equation for the dissociation of hydrofluoric acid in aqueous solution.}', '\text{The dissociation constant, }  K_{\text{a}} , \text{ for hydrofluoric acid, HF, is }  5.62 \times 10 {^-4}\,\text{mol}\,\text{dm}^{-3} . \text{ Write the equation for the dissociation of hydrofluoric acid in aqueous solution.}', 'LaTeX("The dissociation constant,  $K_{$a$}$,  for hydrofluoric acid, HF, is  $5.62 \\times 10^{-4}\\,$mol$\\,$dm$^{-3}$.  Write the equation for the dissociation of hydrofluoric acid in aqueous solution.").parsingMode(.onlyEquations)', 'LaTeX("The dissociation constant,  $K_{\text{a}}$,  for hydrofluoric acid, HF, is  $5.62 \\times 10 {^-4}\\,$mol$\\,$dm$^{-3}$.  Write the equation for the dissociation of hydrofluoric acid in aqueous solution.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -5128,6 +5190,21 @@ INSERT INTO fixed_questions (
           AND (2026 IS NULL OR q.year = 2026)
           AND q.part = 'd'
           AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'a', 'ii',
+            '\text{Explain the relatively small changes which occur across the series of transition elements in the first ionization energy, }  \Delta H_{\text{IE}} , \text{ shown in Table 3.}', '\text{Explain the relatively small changes which occur across the series of transition elements in the first ionization energy, }  \Delta H_{\text{IE}} , \text{ shown in Table 3.}', 'LaTeX("Explain the relatively small changes which occur across the series of transition elements in the first ionization energy,  $\\Delta H_{$IE$}$,  shown in Table 3.").parsingMode(.onlyEquations)', 'LaTeX("Explain the relatively small changes which occur across the series of transition elements in the first ionization energy,  $\\Delta H_{\text{IE}}$,  shown in Table 3.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U1' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'a'
+          AND q.subpart = 'ii'
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -5304,6 +5381,21 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 2, 2026, 'May', 1, 'd', 'i',
+            '\text{Table 1 shows the organic compounds and their }  \text{p}K_{\text{a}}  \text{ values. Using }  \text{p}K_{\text{a}}  \text{ values of 16, 4.8 and 0.6, complete Table 1 with the correct }  \text{p}K_{\text{a}}  \text{ value for EACH organic compound.}', '\text{Table 1 shows the organic compounds and their }  \text{p}K_{\text{a}}  \text{ values. Using }  \text{p}K_{\text{a}}  \text{ values of 16, 4.8 and 0.6, complete Table 1 with the correct }  \text{p}K_{\text{a}}  \text{ value for EACH organic compound.}', 'LaTeX("Table 1 shows the organic compounds and their  p$K_{$a$}$  values. Using  p$K_{$a$}$  values of 16, 4.8 and 0.6, complete Table 1 with the correct  p$K_{$a$}$  value for EACH organic compound.").parsingMode(.onlyEquations)', 'LaTeX("Table 1 shows the organic compounds and their  p$K_{\text{a}}$  values. Using  p$K_{\text{a}}$  values of 16, 4.8 and 0.6, complete Table 1 with the correct  p$K_{\text{a}}$  value for EACH organic compound.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Chemistry U2' AND q.paper = 2 AND q.number = 1
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 2, 2026, 'May', 2, 'b', 'i',
             '\text{In an experiment, 2.70 g of a }  \text{CuSO}_4 \cdot x\text{H}_2\text{O}  \text{ when heated at }  200\,^\circ\text{C}  \text{ for 30 min gave a white solid }  \text{CuSO}_4  \text{ (RMM = 159.6) of mass 1.51 g. Use the information above to determine the chemical formula of the hydrate of }  \text{CuSO}_4 \text{, that is, the }  x  \text{ in }  \text{CuSO}_4 \cdot x\text{H}_2\text{O} \text{.}', '\text{In an experiment, 2.70 g of a }  \text{CuSO}_4 \cdot x\text{H}_2 \text{O}  \text{ when heated at }  200\,^\circ\text{C}  \text{ for 30 min gave a white solid }  \text{CuSO}_4  \text{ (RMM = 159.6) of mass 1.51 g. Use the information above to determine the chemical formula of the hydrate of }  \text{CuSO}_4 \text{, that is, the }  x  \text{ in }  \text{CuSO}_4 \cdot x\text{H}_2 \text{O} \text{.}', 'LaTeX("In an experiment, 2.70 g of a  CuSO$_4 \\cdot x$H$_2$O  when heated at  $200\\,^\\circ$C  for 30 min gave a white solid  CuSO$_4$  (RMM = 159.6) of mass 1.51 g. Use the information above to determine the chemical formula of the hydrate of  CuSO$_4$, that is, the  $x$  in  CuSO$_4 \\cdot x$H$_2$O.").parsingMode(.onlyEquations)', 'LaTeX("In an experiment, 2.70 g of a  CuSO$_4 \\cdot x$H$_2$O  when heated at  $200\\,^\\circ$C  for 30 min gave a white solid  CuSO$_4$  (RMM = 159.6) of mass 1.51 g. Use the information above to determine the chemical formula of the hydrate of  CuSO$_4$, that is, the  $x$  in  CuSO$_4 \\cdot x$H$_2$O.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
@@ -5350,7 +5442,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 2, 2025, 'May', 3, 'e', 'i',
-            '\text{A glass bowl contains 16.0 kg of punch at }  25.0\,^\circ\text{C} \text{. The punch may be treated as water with specific heat capacity, }  c_{\text{punch}} = 4186\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. 2.5 kg of ice is added to the punch. The ice has an initial temperature of }  -20.0\,^\circ\text{C} \text{. The specific heat capacity of ice is }  c_{\text{ice}} = 2.00 \times 10^3\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. The latent heat of fusion of water is }  3.35 \times 10^5\,\text{J}\,\text{kg}^{-1} \text{. Calculate the heat gained by the ice from the punch in warming up to the melting point.}', '\text{A glass bowl contains 16.0 kg of punch at }  25.0\,^\circ\text{C} \text{. The punch may be treated as water with specific heat capacity, }  c_{\text{punch}} = 4186\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. 2.5 kg of ice is added to the punch. The ice has an initial temperature of }  -20.0\,^\circ\text{C} \text{. The specific heat capacity of ice is }  c_{\text{ice}} = 2.00 \times 10 {^3}\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. The latent heat of fusion of water is }  3.35 \times 10 {^5}\,\text{J}\,\text{kg}^{-1} \text{. Calculate the heat gained by the ice from the punch in warming up to the melting point.}', 'LaTeX("A glass bowl contains 16.0 kg of punch at  $25.0\\,^\\circ$C. The punch may be treated as water with specific heat capacity,  $c_{$punch$} = 4186\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. 2.5 kg of ice is added to the punch. The ice has an initial temperature of  $-20.0\\,^\\circ$C. The specific heat capacity of ice is  $c_{$ice$} = 2.00 \\times 10^3\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. The latent heat of fusion of water is  $3.35 \\times 10^5\\,$J$\\,$kg$^{-1}$. Calculate the heat gained by the ice from the punch in warming up to the melting point.").parsingMode(.onlyEquations)', 'LaTeX("A glass bowl contains 16.0 kg of punch at  $25.0\\,^\\circ$C. The punch may be treated as water with specific heat capacity,  $c_{$punch$} = 4186\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. 2.5 kg of ice is added to the punch. The ice has an initial temperature of  $-20.0\\,^\\circ$C. The specific heat capacity of ice is  $c_{$ice$} = 2.00 \\times 10 {^3}\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. The latent heat of fusion of water is  $3.35 \\times 10 {^5}\\,$J$\\,$kg$^{-1}$. Calculate the heat gained by the ice from the punch in warming up to the melting point.").parsingMode(.onlyEquations)',
+            '\text{A glass bowl contains 16.0 kg of punch at }  25.0\,^\circ\text{C} \text{. The punch may be treated as water with specific heat capacity, }  c_{\text{punch}} = 4186\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. 2.5 kg of ice is added to the punch. The ice has an initial temperature of }  -20.0\,^\circ\text{C} \text{. The specific heat capacity of ice is }  c_{\text{ice}} = 2.00 \times 10^3\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. The latent heat of fusion of water is }  3.35 \times 10^5\,\text{J}\,\text{kg}^{-1} \text{. Calculate the heat gained by the ice from the punch in warming up to the melting point.}', '\text{A glass bowl contains 16.0 kg of punch at }  25.0\,^\circ\text{C} \text{. The punch may be treated as water with specific heat capacity, }  c_{\text{punch}} = 4186\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. 2.5 kg of ice is added to the punch. The ice has an initial temperature of }  -20.0\,^\circ\text{C} \text{. The specific heat capacity of ice is }  c_{\text{ice}} = 2.00 \times 10 {^3}\,\text{J}\,\text{kg}^{-1}\,^\circ\text{C}^{-1} \text{. The latent heat of fusion of water is }  3.35 \times 10 {^5}\,\text{J}\,\text{kg}^{-1} \text{. Calculate the heat gained by the ice from the punch in warming up to the melting point.}', 'LaTeX("A glass bowl contains 16.0 kg of punch at  $25.0\\,^\\circ$C. The punch may be treated as water with specific heat capacity,  $c_{$punch$} = 4186\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. 2.5 kg of ice is added to the punch. The ice has an initial temperature of  $-20.0\\,^\\circ$C. The specific heat capacity of ice is  $c_{$ice$} = 2.00 \\times 10^3\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. The latent heat of fusion of water is  $3.35 \\times 10^5\\,$J$\\,$kg$^{-1}$. Calculate the heat gained by the ice from the punch in warming up to the melting point.").parsingMode(.onlyEquations)', 'LaTeX("A glass bowl contains 16.0 kg of punch at  $25.0\\,^\\circ$C. The punch may be treated as water with specific heat capacity,  $c_{\text{punch}} = 4186\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. 2.5 kg of ice is added to the punch. The ice has an initial temperature of  $-20.0\\,^\\circ$C. The specific heat capacity of ice is  $c_{\text{ice}} = 2.00 \\times 10 {^3}\\,$J$\\,$kg$^{-1}\\,^\\circ$C$^{-1}$. The latent heat of fusion of water is  $3.35 \\times 10 {^5}\\,$J$\\,$kg$^{-1}$. Calculate the heat gained by the ice from the punch in warming up to the melting point.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -5380,7 +5472,7 @@ INSERT INTO fixed_questions (
             fix_type, status
         ) SELECT
             q.id, s.name, 2, 2026, 'May', 3, 'd', 'i',
-            '\text{A bench has two legs which differ in length by }  d = 0.50\,\text{mm} \text{, causing the bench to wobble slightly. The shorter leg is }  1.0\,\text{m}  \text{ in length. The bench is loaded with a mass of }  290\,\text{kg}  \text{ in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area, }  a = 1.0\,\text{cm}^2 \text{. The Young''s modulus for wood is }  1.3 \times 10^{10}\,\text{N}\,\text{m}^{-2} \text{. The shorter leg is compressed by an amount }  \Delta L_{\text{short}}  \text{ and the longer leg is compressed by an amount }  \Delta L_{\text{long}} \text{. Write an expression to show the relationship between }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', '\text{A bench has two legs which differ in length by }  d = 0.50\,\text{mm} \text{, causing the bench to wobble slightly. The shorter leg is }  1.0\,\text{m}  \text{ in length. The bench is loaded with a mass of }  290\,\text{kg}  \text{ in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area, }  a = 1.0\,\text{cm}^2 \text{. The Young''s modulus for wood is }  1.3 \times 10 {^10}\,\text{N}\,\text{m}^{-2} \text{. The shorter leg is compressed by an amount }  \Delta L_{\text{short}}  \text{ and the longer leg is compressed by an amount }  \Delta L_{\text{long}} \text{. Write an expression to show the relationship between }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', 'LaTeX("A bench has two legs which differ in length by  $d = 0.50\\,$mm, causing the bench to wobble slightly. The shorter leg is  $1.0\\,$m  in length. The bench is loaded with a mass of  $290\\,$kg  in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area,  $a = 1.0\\,$cm$^2$. The Young''s modulus for wood is  $1.3 \\times 10^{10}\\,$N$\\,$m$^{-2}$. The shorter leg is compressed by an amount  $\\Delta L_{$short$}$  and the longer leg is compressed by an amount  $\\Delta L_{$long$}$. Write an expression to show the relationship between  $\\Delta L_{$short$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)', 'LaTeX("A bench has two legs which differ in length by  $d = 0.50\\,$mm, causing the bench to wobble slightly. The shorter leg is  $1.0\\,$m  in length. The bench is loaded with a mass of  $290\\,$kg  in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area,  $a = 1.0\\,$cm$^2$. The Young''s modulus for wood is  $1.3 \\times 10 {^10}\\,$N$\\,$m$^{-2}$. The shorter leg is compressed by an amount  $\\Delta L_{$short$}$  and the longer leg is compressed by an amount  $\\Delta L_{$long$}$. Write an expression to show the relationship between  $\\Delta L_{$short$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)',
+            '\text{A bench has two legs which differ in length by }  d = 0.50\,\text{mm} \text{, causing the bench to wobble slightly. The shorter leg is }  1.0\,\text{m}  \text{ in length. The bench is loaded with a mass of }  290\,\text{kg}  \text{ in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area, }  a = 1.0\,\text{cm}^2 \text{. The Young''s modulus for wood is }  1.3 \times 10^{10}\,\text{N}\,\text{m}^{-2} \text{. The shorter leg is compressed by an amount }  \Delta L_{\text{short}}  \text{ and the longer leg is compressed by an amount }  \Delta L_{\text{long}} \text{. Write an expression to show the relationship between }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', '\text{A bench has two legs which differ in length by }  d = 0.50\,\text{mm} \text{, causing the bench to wobble slightly. The shorter leg is }  1.0\,\text{m}  \text{ in length. The bench is loaded with a mass of }  290\,\text{kg}  \text{ in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area, }  a = 1.0\,\text{cm}^2 \text{. The Young''s modulus for wood is }  1.3 \times 10 {^10}\,\text{N}\,\text{m}^{-2} \text{. The shorter leg is compressed by an amount }  \Delta L_{\text{short}}  \text{ and the longer leg is compressed by an amount }  \Delta L_{\text{long}} \text{. Write an expression to show the relationship between }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', 'LaTeX("A bench has two legs which differ in length by  $d = 0.50\\,$mm, causing the bench to wobble slightly. The shorter leg is  $1.0\\,$m  in length. The bench is loaded with a mass of  $290\\,$kg  in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area,  $a = 1.0\\,$cm$^2$. The Young''s modulus for wood is  $1.3 \\times 10^{10}\\,$N$\\,$m$^{-2}$. The shorter leg is compressed by an amount  $\\Delta L_{$short$}$  and the longer leg is compressed by an amount  $\\Delta L_{$long$}$. Write an expression to show the relationship between  $\\Delta L_{$short$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)', 'LaTeX("A bench has two legs which differ in length by  $d = 0.50\\,$mm, causing the bench to wobble slightly. The shorter leg is  $1.0\\,$m  in length. The bench is loaded with a mass of  $290\\,$kg  in such a way that both legs are compressed and the table no longer wobbles. The legs are wooden cylinders with cross-sectional area,  $a = 1.0\\,$cm$^2$. The Young''s modulus for wood is  $1.3 \\times 10 {^10}\\,$N$\\,$m$^{-2}$. The shorter leg is compressed by an amount  $\\Delta L_{\text{short}}$  and the longer leg is compressed by an amount  $\\Delta L_{\text{long}}$. Write an expression to show the relationship between  $\\Delta L_{\text{short}}$  and  $\\Delta L_{\text{long}}$.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
@@ -5388,6 +5480,66 @@ INSERT INTO fixed_questions (
           AND (2026 IS NULL OR q.year = 2026)
           AND q.part = 'd'
           AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'd', 'ii',
+            '\text{Assume that the force acting on the short leg is }  F_{\text{short}} \text{. Deduce the equation to show the relationship between }  F_{\text{short}}  \text{ and }  \Delta L_{\text{short}} \text{.}', '\text{Assume that the force acting on the short leg is }  F_{\text{short}} \text{. Deduce the equation to show the relationship between }  F_{\text{short}}  \text{ and }  \Delta L_{\text{short}} \text{.}', 'LaTeX("Assume that the force acting on the short leg is  $F_{$short$}$. Deduce the equation to show the relationship between  $F_{$short$}$  and  $\\Delta L_{$short$}$.").parsingMode(.onlyEquations)', 'LaTeX("Assume that the force acting on the short leg is  $F_{\text{short}}$. Deduce the equation to show the relationship between  $F_{\text{short}}$  and  $\\Delta L_{\text{short}}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'ii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'd', 'iii',
+            '\text{Assume that the force acting on the long leg is }  F_{\text{long}} \text{. Deduce the equation to show the relationship between }  F_{\text{long}}  \text{ and }  \Delta L_{\text{long}} \text{.}', '\text{Assume that the force acting on the long leg is }  F_{\text{long}} \text{. Deduce the equation to show the relationship between }  F_{\text{long}}  \text{ and }  \Delta L_{\text{long}} \text{.}', 'LaTeX("Assume that the force acting on the long leg is  $F_{$long$}$. Deduce the equation to show the relationship between  $F_{$long$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)', 'LaTeX("Assume that the force acting on the long leg is  $F_{\text{long}}$. Deduce the equation to show the relationship between  $F_{\text{long}}$  and  $\\Delta L_{\text{long}}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'iii'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'd', 'iv',
+            '\text{Calculate the values of }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', '\text{Calculate the values of }  \Delta L_{\text{short}}  \text{ and }  \Delta L_{\text{long}} \text{.}', 'LaTeX("Calculate the values of  $\\Delta L_{$short$}$  and  $\\Delta L_{$long$}$.").parsingMode(.onlyEquations)', 'LaTeX("Calculate the values of  $\\Delta L_{\text{short}}$  and  $\\Delta L_{\text{long}}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'iv'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 3, 'd', 'v',
+            '\text{Hence, determine the values of }  F_{\text{short}}  \text{ and }  F_{\text{long}} \text{.}', '\text{Hence, determine the values of }  F_{\text{short}}  \text{ and }  F_{\text{long}} \text{.}', 'LaTeX("Hence, determine the values of  $F_{$short$}$  and  $F_{$long$}$.").parsingMode(.onlyEquations)', 'LaTeX("Hence, determine the values of  $F_{\text{short}}$  and  $F_{\text{long}}$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U1' AND q.paper = 2 AND q.number = 3
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'd'
+          AND q.subpart = 'v'
         LIMIT 1;
 INSERT INTO fixed_questions (
             original_question_id, subject_name, paper, year, month, number, part, subpart,
@@ -5428,13 +5580,75 @@ INSERT INTO fixed_questions (
             original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
             fix_type, status
         ) SELECT
+            q.id, s.name, 2, 2025, 'May', 2, 'b', 'i',
+            '\text{Use your results from (a) to derive an expression for the waveform in Figure 2 in the form }  v = v_{\text{max}} \sin \omega t \text{.}', '\text{Use your results from (a) to derive an expression for the waveform in Figure 2 in the form }  v = v_{\text{max}} \sin \omega t \text{.}', 'LaTeX("Use your results from (a) to derive an expression for the waveform in Figure 2 in the form  $v = v_{$max$} \\sin \\omega t$.").parsingMode(.onlyEquations)', 'LaTeX("Use your results from (a) to derive an expression for the waveform in Figure 2 in the form  $v = v_{\text{max}} \\sin \\omega t$.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2025, 'May', 2, 'c', 'i',
+            '\text{Figure 3 is a diagram of a half-wave rectifier circuit in which the voltage, }  V_{\text{in}} \text{, is shown.}
+\text{On the graph shown in Figure 2 on page 10, sketch the output voltage for ONE cycle given that there is a volt drop of 0.7 volts across the diode, D, when it is conducting.}', '\text{Figure 3 is a diagram of a half-wave rectifier circuit in which the voltage, }  V_{\text{in}} \text{, is shown.}
+\text{On the graph shown in Figure 2 on page 10, sketch the output voltage for ONE cycle given that there is a volt drop of 0.7 volts across the diode, D, when it is conducting.}', 'LaTeX("Figure 3 is a diagram of a half-wave rectifier circuit in which the voltage,  $V_{$in$}$, is shown.\nOn the graph shown in Figure 2 on page 10, sketch the output voltage for ONE cycle given that there is a volt drop of 0.7 volts across the diode, D, when it is conducting.").parsingMode(.onlyEquations)', 'LaTeX("Figure 3 is a diagram of a half-wave rectifier circuit in which the voltage,  $V_{\text{in}}$, is shown.\nOn the graph shown in Figure 2 on page 10, sketch the output voltage for ONE cycle given that there is a volt drop of 0.7 volts across the diode, D, when it is conducting.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 2
+          AND (2025 IS NULL OR q.year = 2025)
+          AND q.part = 'c'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
             q.id, s.name, 2, 2026, 'May', 2, 'a', 'i',
-            '\text{Figure 2 shows a single cycle of an a.c. voltage, }  V_{\text{supply}} \text{, represented by the equations }  V_{\text{supply}} = V_p \sin \omega t = V_p \sin 2\pi ft \text{. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.}', '\text{Figure 2 shows a single cycle of an a.c. voltage, }  V_{\text{supply}} \text{, represented by the equations }  V_{\text{supply}} = V_p \sin \omega t = V_p \sin 2 \pi ft \text{. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.}', 'LaTeX("Figure 2 shows a single cycle of an a.c. voltage,  $V_{$supply$}$, represented by the equations  $V_{$supply$} = V_p \\sin \\omega t = V_p \\sin 2\\pi ft$. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.").parsingMode(.onlyEquations)', 'LaTeX("Figure 2 shows a single cycle of an a.c. voltage,  $V_{$supply$}$, represented by the equations  $V_{$supply$} = V_p \\sin \\omega t = V_p \\sin 2 \\pi ft$. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.").parsingMode(.onlyEquations)',
+            '\text{Figure 2 shows a single cycle of an a.c. voltage, }  V_{\text{supply}} \text{, represented by the equations }  V_{\text{supply}} = V_p \sin \omega t = V_p \sin 2\pi ft \text{. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.}', '\text{Figure 2 shows a single cycle of an a.c. voltage, }  V_{\text{supply}} \text{, represented by the equations }  V_{\text{supply}} = V_p \sin \omega t = V_p \sin 2 \pi ft \text{. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.}', 'LaTeX("Figure 2 shows a single cycle of an a.c. voltage,  $V_{$supply$}$, represented by the equations  $V_{$supply$} = V_p \\sin \\omega t = V_p \\sin 2\\pi ft$. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.").parsingMode(.onlyEquations)', 'LaTeX("Figure 2 shows a single cycle of an a.c. voltage,  $V_{\text{supply}}$, represented by the equations  $V_{\text{supply}} = V_p \\sin \\omega t = V_p \\sin 2 \\pi ft$. State the meaning of EACH symbol in the table below and use Figure 2 to determine each value.").parsingMode(.onlyEquations)',
             'latex_syntax_fix', 'pending'
         FROM questions q
         JOIN subjects s ON s.id = q.subject_id
         WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 2
           AND (2026 IS NULL OR q.year = 2026)
           AND q.part = 'a'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'b', 'i',
+            '\text{Figure 3 shows a circuit with the }  V_{\text{supply}}  \text{ from Figure 2 driving a load of }  7.5\,\text{ohms} \text{. Calculate the power dissipated in the circuit in Figure 3.}', '\text{Figure 3 shows a circuit with the }  V_{\text{supply}}  \text{ from Figure 2 driving a load of }  7.5\,\text{ohms} \text{. Calculate the power dissipated in the circuit in Figure 3.}', 'LaTeX("Figure 3 shows a circuit with the  $V_{$supply$}$  from Figure 2 driving a load of  $7.5\\,$ohms. Calculate the power dissipated in the circuit in Figure 3.").parsingMode(.onlyEquations)', 'LaTeX("Figure 3 shows a circuit with the  $V_{\text{supply}}$  from Figure 2 driving a load of  $7.5\\,$ohms. Calculate the power dissipated in the circuit in Figure 3.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'b'
+          AND q.subpart = 'i'
+        LIMIT 1;
+INSERT INTO fixed_questions (
+            original_question_id, subject_name, paper, year, month, number, part, subpart,
+            original_question_raw, fixed_question_raw, original_question_code, fixed_question_code,
+            fix_type, status
+        ) SELECT
+            q.id, s.name, 2, 2026, 'May', 2, 'c', 'i',
+            '\text{Figure 4 shows a circuit with the }  V_{\text{supply}}  \text{ from Figure 2 on page 11, feeding a load through a diode. The diode has ideal characteristics such that the voltage across the diode is }  V_D = 0  \text{ when there is no current passing through it and }  V_D = 0.7\,\text{volts}  \text{ when it is conducting. Use Figure 2 to determine the times in the given cycle at which the diode in Figure 4 starts and stops conducting.}', '\text{Figure 4 shows a circuit with the }  V_{\text{supply}}  \text{ from Figure 2 on page 11, feeding a load through a diode. The diode has ideal characteristics such that the voltage across the diode is }  V_D = 0  \text{ when there is no current passing through it and }  V_D = 0.7\,\text{volts}  \text{ when it is conducting. Use Figure 2 to determine the times in the given cycle at which the diode in Figure 4 starts and stops conducting.}', 'LaTeX("Figure 4 shows a circuit with the  $V_{$supply$}$  from Figure 2 on page 11, feeding a load through a diode. The diode has ideal characteristics such that the voltage across the diode is  $V_D = 0$  when there is no current passing through it and  $V_D = 0.7\\,$volts  when it is conducting. Use Figure 2 to determine the times in the given cycle at which the diode in Figure 4 starts and stops conducting.").parsingMode(.onlyEquations)', 'LaTeX("Figure 4 shows a circuit with the  $V_{\text{supply}}$  from Figure 2 on page 11, feeding a load through a diode. The diode has ideal characteristics such that the voltage across the diode is  $V_D = 0$  when there is no current passing through it and  $V_D = 0.7\\,$volts  when it is conducting. Use Figure 2 to determine the times in the given cycle at which the diode in Figure 4 starts and stops conducting.").parsingMode(.onlyEquations)',
+            'latex_syntax_fix', 'pending'
+        FROM questions q
+        JOIN subjects s ON s.id = q.subject_id
+        WHERE s.name = 'Physics U2' AND q.paper = 2 AND q.number = 2
+          AND (2026 IS NULL OR q.year = 2026)
+          AND q.part = 'c'
           AND q.subpart = 'i'
         LIMIT 1;

@@ -394,6 +394,9 @@ struct FixedQuestionsReviewView: View {
         s = s.replacingOccurrences(of: #"\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}"#, with: #"\\$1_{($2)}"#, options: .regularExpression)
         s = s.replacingOccurrences(of: #"\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}"#, with: #"\\$1^{(-$2)}"#, options: .regularExpression)
         s = s.replacingOccurrences(of: #"(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))"#, with: "$1 {^$2$3}", options: .regularExpression)
+        s = s.replacingOccurrences(of: #"_\{\$([a-zA-Z0-9_]+)\$\}"#, with: "_\\\\text{$1}", options: .regularExpression)
+        s = s.replacingOccurrences(of: #"(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$"#, with: "$1 \\\\$2", options: .regularExpression)
+        s = s.replacingOccurrences(of: #"\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$"#, with: " \\\\$1 ", options: .regularExpression)
         guard !s.isEmpty else { return s }
 
         let sNoEscDollar = s.replacingOccurrences(of: "\\$", with: "")

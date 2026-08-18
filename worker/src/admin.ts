@@ -1143,13 +1143,19 @@ export async function handleExportFixedQuestionsCSV(
   const pattern2 = /\\(sum|lim|prod|int|min|max|sup|inf)_\{(?!\()([^()}]*(?:=|\\to|\\rightarrow)[^()}]*)\}/g;
   const pattern3 = /\\(cos|sin|tan|sec|csc|cot|arcsin|arccos|arctan|sinh|cosh|tanh|ln|log)\^\{-(?!\()([^}]+)\}/g;
   const pattern4 = /(\d)\s*\^(?:\{([^}]+)\}|([a-zA-Z0-9]))/g;
+  const pattern5 = /_\{\$([a-zA-Z0-9_]+)\$\}/g;
+  const pattern6 = /(\w+)\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
+  const pattern7 = /\$\s*(?:\\)?(Cos|Sin|Tan|Cot|Sec|Csc|cos|sin|tan|cot|sec|csc)\s*\$/g;
 
   const fixStr = (s: string | null | undefined) => {
     if (!s) return '';
     return s.replace(pattern1, '$1 $2')
             .replace(pattern2, '\\$1_{($2)}')
             .replace(pattern3, '\\$1^{(-$2)}')
-            .replace(pattern4, '$1 {^$2$3}');
+            .replace(pattern4, '$1 {^$2$3}')
+            .replace(pattern5, '_\\text{$1}')
+            .replace(pattern6, (m, p1, p2) => `${p1} \\${p2.toLowerCase()}`)
+            .replace(pattern7, (m, p1) => ` \\${p1.toLowerCase()} `);
   };
 
   for (const fq of (fqList ?? [])) {
